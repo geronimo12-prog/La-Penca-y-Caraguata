@@ -6,10 +6,10 @@
   <meta name="description" content="Portal institucional de la Comuna de La Penca y Caraguatá.">
   <meta name="theme-color" content="#0b2a59">
   <title>Comuna de La Penca y Caraguatá</title>
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" href="/favicon.png">
+  <link rel="icon" href="favicon.ico?v=18-final-correcto" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=18-final-correcto">
+  <link rel="shortcut icon" href="favicon.ico?v=18-final-correcto">
+  <link rel="apple-touch-icon" href="favicon.png?v=18-final-correcto">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -40,6 +40,10 @@
   </div>
 
   <div class="scroll-progress"><span></span></div>
+
+  <a class="floating-news" href="#noticias" aria-label="Ir a noticias">
+    <span>Noticias</span><b>!</b>
+  </a>
 
   <a class="floating-whatsapp" href="https://wa.me/5493498502213" target="_blank" rel="noopener" aria-label="Abrir WhatsApp de la comuna">
     <span>WhatsApp</span>
@@ -74,6 +78,7 @@
         <button class="menu-close" aria-label="Cerrar menú">×</button>
       </div>
       <nav>
+        <a href="#noticias"><span>00</span><strong>Noticias</strong><small>Novedades oficiales</small></a>
         <a href="#historia"><span>01</span><strong>Historia</strong><small>Origen e identidad</small></a>
         <a href="#zona-rural"><span>02</span><strong>Zona rural</strong><small>Caminos y producción</small></a>
         <a href="#instituciones"><span>03</span><strong>Instituciones</strong><small>Club, iglesia, escuela, SAMCo y policía</small></a>
@@ -112,7 +117,25 @@
       <a href="#maquinaria"><span>04</span><strong>Maquinaria</strong><small>Equipamiento comunal</small></a>
     </section>
 
-    <section class="section history history-v12" id="historia">
+    <section class="section news-beta" id="noticias">
+      <div class="news-beta-head reveal">
+        <div>
+          <span class="eyebrow dark">Noticias comunales</span>
+          <h2>Noticias<br>destacadas.</h2>
+          <p>Información oficial, novedades y comunicados de La Penca y Caraguatá.</p>
+        </div>
+      </div>
+
+      <div class="news-featured reveal" id="news-featured"></div>
+      <div class="news-list reveal" id="news-list"></div>
+
+      <div class="news-empty" id="news-empty" hidden>
+        <strong>No hay noticias destacadas.</strong>
+        <span>Cuando se publique una noticia nueva, aparecerá automáticamente en este lugar.</span>
+      </div>
+    </section>
+
+<section class="section history history-v12" id="historia">
       <div class="section-head reveal">
         <span class="eyebrow dark">Historia e identidad</span>
         <h2>Una comunidad rural<br>con memoria propia.</h2>
@@ -250,7 +273,7 @@
       </div>
       <div class="rural-gallery reveal">
         <figure class="rural-main"><img src="assets/rural-camino-1.png" alt="Camino rural"></figure>
-        <figure class="rural-side"><img src="assets/rural-camino-2.jpg" alt="Camino rural arbolado"></figure>
+        <figure class="rural-side"><img src="assets/rural-camino-2.jpeg" alt="Camino rural arbolado"></figure>
         <figure class="rural-flower"><img src="assets/flor-caraguata.jpg" alt="Flor de caraguatá"></figure>
       </div>
     </section>
@@ -263,7 +286,7 @@
 
       <div class="institution-viewer reveal">
         <div class="institution-panels">
-          <article class="institution-panel active" data-panel="club"><img src="assets/club-hd.jpg" alt="Club Atlético La Penca"><div><span>Fundado en 1946</span><h3>Club Atlético La Penca</h3><p>Un espacio de encuentro, pertenencia y vida social.</p></div></article>
+          <article class="institution-panel active" data-panel="club"><img src="assets/club-hd.png" alt="Club Atlético La Penca"><div><span>Fundado en 1946</span><h3>Club Atlético La Penca</h3><p>Un espacio de encuentro, pertenencia y vida social.</p></div></article>
           <article class="institution-panel" data-panel="iglesia"><img src="assets/iglesia-san-francisco-hd.png" alt="Capilla San Francisco de Asís"><div><span>Fundada en 1935</span><h3>Capilla San Francisco de Asís</h3><p>Parte central de la historia y las celebraciones de la comunidad.</p></div></article>
           <article class="institution-panel" data-panel="escuela"><img src="assets/escuela-hd.png" alt="Escuela de La Penca y Caraguatá"><div><span>Educación</span><h3>Escuela local</h3><p>Un espacio fundamental para el aprendizaje y el crecimiento de nuevas generaciones.</p></div></article>
           <article class="institution-panel" data-panel="samco"><img src="assets/samco-hd.png" alt="SAMCo La Penca y Caraguatá"><div><span>Salud</span><h3>SAMCo</h3><p>Atención y acompañamiento sanitario para la comunidad.</p></div></article>
@@ -344,7 +367,7 @@
         <figure><img src="assets/obras-publicas-2.jpg" alt="Mejora de calle"></figure>
         <figure><img src="assets/obras-3.jpg" alt="Obra de vereda"></figure>
         <figure><img src="assets/calle-hd-1.png" alt="Calle de La Penca"></figure>
-        <figure><img src="assets/calle-hd-2.jpg" alt="Avenida de La Penca"></figure>
+        <figure><img src="assets/calle-hd-2.png" alt="Avenida de La Penca"></figure>
       </div>
       <div class="works-list reveal"><span>Mejora de calles</span><span>Caminos rurales</span><span>Veredas</span><span>Espacios públicos</span></div>
     </section>
@@ -354,7 +377,7 @@
       <div class="machinery-grid">
         <article class="machine-card hydro-card reveal">
           <div class="hydro-image">
-            <img src="assets/hidrogrua.jpg" alt="Hidrogrúa adquirida con fondos propios">
+            <img src="assets/hidrogrua.png" alt="Hidrogrúa adquirida con fondos propios">
           </div>
           <div>
             <span>Nueva adquisición</span>
@@ -432,10 +455,212 @@
       <a href="https://www.instagram.com/comunalapenca/" target="_blank">Instagram</a>
       <a href="https://www.facebook.com/ComunaLaPenca/photos" target="_blank">Facebook</a>
     </div>
+
+    <div class="footer-admin">
+      <span>Acceso interno</span>
+      <button class="news-admin-open" type="button">Administración</button>
+    </div>
     <div class="design-credit">Diseñada por <strong>Gerónimo Cancián</strong>. © 2026 Todos los derechos reservados.</div>
   </footer>
 
   <dialog id="service-dialog"><button aria-label="Cerrar">×</button><span>Próxima etapa</span><h3>Servicio en preparación</h3><p>Este módulo se habilitará cuando la Comuna confirme el procedimiento y el sistema correspondiente.</p></dialog>
+
+
+<dialog id="news-login-dialog" class="news-dialog">
+  <button class="news-dialog-close" type="button" aria-label="Cerrar">×</button>
+  <span class="news-dialog-kicker">Acceso interno</span>
+  <h3>Administración de noticias</h3>
+  <p>Ingresá el PIN de prueba para abrir el panel.</p>
+
+  <form id="news-login-form">
+    <label>
+      <span>PIN</span>
+      <input id="news-pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" required>
+    </label>
+    <button class="news-submit" type="submit">Entrar al panel</button>
+    <small id="news-login-error" role="alert"></small>
+  </form>
+</dialog>
+
+<dialog id="news-admin-dialog" class="news-admin-dialog">
+  <header class="news-admin-top">
+    <div>
+      <span>Panel interno · B18 final</span>
+      <h3>Noticias comunales</h3>
+    </div>
+
+    <div class="news-admin-top-actions">
+      <button id="news-new-button" class="news-admin-new" type="button">+ Nueva noticia</button>
+      <button class="news-admin-close" type="button" aria-label="Cerrar">×</button>
+    </div>
+  </header>
+
+  <div class="news-admin-layout">
+    <aside class="news-admin-sidebar">
+      <button class="news-admin-tab active" type="button" data-news-tab="editor">
+        <span>01</span>
+        <strong>Editor</strong>
+        <small>Crear o modificar</small>
+      </button>
+      <button class="news-admin-tab" type="button" data-news-tab="publications">
+        <span>02</span>
+        <strong>Publicaciones</strong>
+        <small>Ver, editar y borrar</small>
+      </button>
+
+      <div class="news-admin-summary">
+        <span>Estado actual</span>
+        <strong id="news-total-count">0 noticias</strong>
+        <small id="news-published-count">0 publicadas</small>
+      </div>
+    </aside>
+
+    <main class="news-admin-content">
+      <section class="news-admin-panel active" data-news-panel="editor">
+        <div class="news-editor-heading">
+          <div>
+            <span id="news-editor-mode">Nueva publicación</span>
+            <h4 id="news-editor-title">Crear una noticia</h4>
+          </div>
+          <div id="news-save-status" class="news-save-status">Sin cambios pendientes</div>
+        </div>
+
+        <form id="news-form" class="news-form">
+          <input id="news-id" type="hidden">
+
+          <label class="news-field-wide">
+            <span>Título de la noticia</span>
+            <input id="news-title" type="text" maxlength="110" required
+              placeholder="Ej.: Se aprobó la licitación para la Ruta Provincial 39">
+            <small>Debe explicar lo principal de manera clara.</small>
+          </label>
+
+          <div class="news-form-row">
+            <label>
+              <span>Categoría</span>
+              <select id="news-category">
+                <option value="Obras públicas">Obras públicas</option>
+                <option value="Comunicados">Comunicados</option>
+                <option value="Servicios">Servicios</option>
+                <option value="Institucional">Institucional</option>
+                <option value="Comunidad">Comunidad</option>
+                <option value="Ambiente">Ambiente</option>
+                <option value="Educación">Educación</option>
+                <option value="Salud">Salud</option>
+                <option value="Cultura y eventos">Cultura y eventos</option>
+                <option value="Deportes">Deportes</option>
+                <option value="Otros">Otros — escribir categoría</option>
+              </select>
+            </label>
+
+            <label id="news-custom-category-wrap" hidden>
+              <span>Nueva categoría</span>
+              <input id="news-custom-category" type="text" maxlength="40"
+                placeholder="Ej.: Producción rural">
+            </label>
+
+            <label>
+              <span>Fecha</span>
+              <input id="news-date" type="date" required>
+            </label>
+          </div>
+
+          <label class="news-field-wide">
+            <span>Descripción completa</span>
+            <textarea id="news-description" rows="7" maxlength="1600" required
+              placeholder="Contá qué pasó, por qué es importante y a quién beneficia."></textarea>
+            <small><b id="news-character-count">0</b>/1600 caracteres</small>
+          </label>
+
+          <div class="news-media-editor">
+            <label class="news-image-field">
+              <span>Fotografía principal</span>
+              <input id="news-image" type="file" accept="image/jpeg,image/png,image/webp">
+              <strong>Seleccionar fotografía</strong>
+              <small>Se usa dentro de la noticia y también como portada si no elegís otra.</small>
+            </label>
+
+            <div class="news-image-preview" id="news-image-preview">
+              <span>Vista previa de la fotografía principal</span>
+            </div>
+          </div>
+
+          <div class="news-media-editor news-cover-editor">
+            <label class="news-image-field">
+              <span>Foto de portada — opcional</span>
+              <input id="news-cover-image" type="file" accept="image/jpeg,image/png,image/webp">
+              <strong>Seleccionar portada</strong>
+              <small>Si no agregás una portada, se usará automáticamente la fotografía principal.</small>
+            </label>
+
+            <div class="news-image-preview" id="news-cover-preview">
+              <span>La portada usará la fotografía principal</span>
+            </div>
+          </div>
+
+          <div class="news-options-grid">
+            <label class="news-option-card">
+              <input id="news-featured-check" type="checkbox">
+              <span>
+                <strong>Noticia destacada</strong>
+                <small>Aparece grande y primera en la página.</small>
+              </span>
+            </label>
+
+            <label class="news-option-card">
+              <input id="news-published-check" type="checkbox" checked>
+              <span>
+                <strong>Publicar ahora</strong>
+                <small>Desactivado queda guardada como borrador.</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="news-form-actions news-form-actions-epic">
+            <button id="news-save-button" class="news-submit news-save-main" type="submit">
+              Guardar y publicar
+            </button>
+            <button id="news-form-cancel" class="news-secondary" type="button">
+              Limpiar formulario
+            </button>
+            <button id="news-delete-current" class="news-delete-current" type="button" hidden>
+              Borrar esta noticia
+            </button>
+          </div>
+
+          <div id="news-form-message" class="news-form-message" role="status"></div>
+        </form>
+      </section>
+
+      <section class="news-admin-panel" data-news-panel="publications">
+        <div class="news-publications-head">
+          <div>
+            <span>Control completo</span>
+            <h4>Noticias cargadas</h4>
+          </div>
+
+          <div class="news-publications-tools">
+            <input id="news-search" type="search" placeholder="Buscar noticia...">
+            <select id="news-status-filter">
+              <option value="all">Todas</option>
+              <option value="published">Publicadas</option>
+              <option value="draft">Borradores</option>
+              <option value="featured">Destacada</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="news-admin-list" class="news-admin-list"></div>
+      </section>
+    </main>
+  </div>
+</dialog>
+
+<dialog id="news-reader-dialog" class="news-reader-dialog">
+  <button class="news-reader-close" type="button" aria-label="Cerrar">×</button>
+  <div id="news-reader-content"></div>
+</dialog>
+
 <script src="script.js"></script>
 </body>
 </html>
