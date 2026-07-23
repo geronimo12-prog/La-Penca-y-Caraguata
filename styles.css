@@ -1755,26 +1755,50 @@ body.intro-active{overflow:hidden}
 }
 
 
-/* B19 — Acceso con correo + PIN y modal sin desborde */
-.news-dialog{
-  box-sizing:border-box;
+/* ==========================================================
+   B20 — Acceso real mediante Supabase Auth
+   ========================================================== */
+.news-auth-dialog{
+  width:min(520px,calc(100vw - 28px));
   overflow-x:hidden;
 }
 
-.news-dialog *,
-.news-dialog *::before,
-.news-dialog *::after{
+.news-auth-status{
+  margin:18px 0;
+  padding:14px 16px;
+  border:1px solid #a8d4b0;
+  border-radius:14px;
+  background:#eaf7ec;
+  color:#195c2c;
+  font-weight:800;
+  line-height:1.35;
+}
+
+.news-auth-dialog form{
+  display:grid;
+  gap:16px;
+}
+
+.news-auth-dialog label{
+  display:grid;
+  gap:8px;
+}
+
+.news-auth-dialog input{
+  width:100%;
+  min-width:0;
   box-sizing:border-box;
 }
 
-.news-dialog form,
-.news-dialog label,
-.news-dialog input,
-.news-dialog button{
-  min-width:0;
-  max-width:100%;
+.news-auth-help{
+  margin:16px 0 0;
+  font-size:12px;
+  opacity:.72;
 }
 
-#news-email{
-  text-transform:lowercase;
+#news-login-error{
+  display:block;
+  min-height:20px;
+  color:#b3261e;
+  font-weight:800;
 }

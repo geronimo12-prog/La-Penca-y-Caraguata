@@ -466,24 +466,36 @@
   <dialog id="service-dialog"><button aria-label="Cerrar">×</button><span>Próxima etapa</span><h3>Servicio en preparación</h3><p>Este módulo se habilitará cuando la Comuna confirme el procedimiento y el sistema correspondiente.</p></dialog>
 
 
-<dialog id="news-login-dialog" class="news-dialog">
+
+<dialog id="news-login-dialog" class="news-dialog news-auth-dialog">
   <button class="news-dialog-close" type="button" aria-label="Cerrar">×</button>
-  <span class="news-dialog-kicker">Acceso interno</span>
+  <span class="news-eyebrow">Acceso interno</span>
   <h3>Administración de noticias</h3>
-  <p>Ingresá tu correo y PIN para abrir el panel.</p>
+
+  <div class="news-auth-status">
+    Supabase conectado · acceso protegido por usuario y políticas RLS.
+  </div>
 
   <form id="news-login-form">
     <label>
-      <span>Correo electrónico</span>
-      <input id="news-email" type="email" autocomplete="username" placeholder="gerocancian2@gmail.com" required>
+      <span>Correo del administrador</span>
+      <input id="news-email" type="email" autocomplete="username"
+             placeholder="gerocancian2@gmail.com" required>
     </label>
+
     <label>
-      <span>PIN</span>
-      <input id="news-pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" placeholder="••••" required>
+      <span>Contraseña</span>
+      <input id="news-password" type="password" autocomplete="current-password"
+             placeholder="••••••••" required>
     </label>
-    <button class="news-submit" type="submit">Entrar al panel</button>
+
+    <button type="submit">Iniciar sesión</button>
     <small id="news-login-error" role="alert"></small>
   </form>
+
+  <p class="news-auth-help">
+    El acceso se verifica en Supabase. La contraseña no queda escrita en la página.
+  </p>
 </dialog>
 
 <dialog id="news-admin-dialog" class="news-admin-dialog">

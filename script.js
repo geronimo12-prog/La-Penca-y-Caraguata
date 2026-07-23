@@ -156,8 +156,6 @@ window.addEventListener('keydown', e => {
 // B19 — Noticias conectadas a Supabase
 // ==========================================================
 (() => {
-  const PIN = '2016';
-  const ADMIN_EMAIL = 'gerocancian2@gmail.com';
   const DEFAULT_IMAGE = 'assets/portada-hd.png';
   const SUPABASE_URL = 'https://sxohvjfoontsgzqsyouk.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_3fZv9U_m_RuGujOtSk6zYA_WatgOb_n';
@@ -173,7 +171,7 @@ window.addEventListener('keydown', e => {
     readerDialog: $('#news-reader-dialog'),
     loginForm: $('#news-login-form'),
     email: $('#news-email'),
-    pin: $('#news-pin'),
+    password: $('#news-password'),
     loginError: $('#news-login-error'),
     adminOpen: $('.footer-admin .news-admin-open'),
     adminClose: $('.news-admin-close'),
@@ -217,10 +215,11 @@ window.addEventListener('keydown', e => {
   let pendingMainFile = null;
   let pendingCoverFile = null;
   let formDirty = false;
+  let accessToken = sessionStorage.getItem('news_supabase_token') || '';
 
-  const headers = (extra = {}) => ({
+  const headers = (extra = {}, authenticated = false) => ({
     apikey: SUPABASE_KEY,
-    Authorization: `Bearer ${SUPABASE_KEY}`,
+    Authorization: `Bearer ${authenticated && accessToken ? accessToken : SUPABASE_KEY}`,
     ...extra
   });
 
@@ -240,10 +239,10 @@ window.addEventListener('keydown', e => {
     };
   }
 
-  async function apiRequest(url, options = {}) {
+  async function apiRequest(url, options = {}, authenticated = false) {
     const response = await fetch(url, {
       ...options,
-      headers: headers(options.headers || {})
+      headers: headers(options.headers || {}, authenticated)
     });
 
     if (!response.ok) {
@@ -554,7 +553,7 @@ window.addEventListener('keydown', e => {
         Prefer: 'return=minimal'
       },
       body: JSON.stringify(payload)
-    });
+    }, true);
   }
 
   async function togglePublished(id) {
@@ -584,7 +583,7 @@ window.addEventListener('keydown', e => {
             Prefer: 'return=minimal'
           },
           body: JSON.stringify({ destacada: false })
-        });
+        }, true);
         await patchNews(id, { destacada: true, publicada: true });
       } else {
         await patchNews(id, { destacada: false });
@@ -611,7 +610,7 @@ window.addEventListener('keydown', e => {
       await apiRequest(`${TABLE_URL}?id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE',
         headers: { Prefer: 'return=minimal' }
-      });
+      }, true);
       if (ui.id.value === id) resetForm();
       await loadNews();
       showMessage('La noticia fue borrada correctamente.');
@@ -687,7 +686,8 @@ window.addEventListener('keydown', e => {
           'x-upsert': 'true'
         },
         body: blob
-      }
+      },
+      true
     );
     return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${path}`;
   }
@@ -721,7 +721,7 @@ window.addEventListener('keydown', e => {
             Prefer: 'return=minimal'
           },
           body: JSON.stringify({ destacada: false })
-        });
+        }, true);
       }
 
       let finalMainImage = old?.image || DEFAULT_IMAGE;
@@ -763,7 +763,7 @@ window.addEventListener('keydown', e => {
             Prefer: 'return=minimal'
           },
           body: JSON.stringify(payload)
-        });
+        }, true);
       }
 
       await loadNews();
@@ -790,40 +790,70 @@ window.addEventListener('keydown', e => {
       }, 2200);
     } catch (error) {
       console.error(error);
-      showMessage(`No se pudo guardar: ${error.message}`, true);
+      showMessage(`No se pudo guardar: ${error.message}. Verificá que hayas iniciado sesión con el usuario autorizado.`, true);
     } finally {
       ui.saveButton.disabled = false;
       ui.saveButton.textContent = ui.published.checked ? 'Guardar cambios' : 'Guardar borrador';
     }
   }
 
+  async function signInWithSupabase(email, password) {
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.access_token) {
+      throw new Error(data.error_description || data.msg || 'Correo o contraseña incorrectos.');
+    }
+
+    accessToken = data.access_token;
+    sessionStorage.setItem('news_supabase_token', accessToken);
+    return data;
+  }
+
   ui.adminOpen?.addEventListener('click', () => {
-    ui.email.value = '';
-    ui.pin.value = '';
+    ui.email.value = 'gerocancian2@gmail.com';
+    ui.password.value = '';
     ui.loginError.textContent = '';
     ui.loginDialog.showModal();
   });
 
   ui.loginForm?.addEventListener('submit', async event => {
     event.preventDefault();
+    ui.loginError.textContent = '';
 
-    const enteredEmail = ui.email.value.trim().toLowerCase();
+    const email = ui.email.value.trim().toLowerCase();
+    const password = ui.password.value;
 
-    if (enteredEmail !== ADMIN_EMAIL || ui.pin.value !== PIN) {
-      ui.loginError.textContent = 'Correo o PIN incorrectos.';
-      return;
+    try {
+      const session = await signInWithSupabase(email, password);
+      const sessionEmail = String(session.user?.email || '').toLowerCase();
+
+      if (sessionEmail !== 'gerocancian2@gmail.com') {
+        accessToken = '';
+        sessionStorage.removeItem('news_supabase_token');
+        throw new Error('Este correo no está autorizado para administrar.');
+      }
+
+      ui.loginDialog.close();
+      await loadNews();
+      switchTab('editor');
+      ui.adminDialog.showModal();
+
+      requestAnimationFrame(() => {
+        ui.adminDialog.scrollTop = 0;
+        const content = ui.adminDialog.querySelector('.news-admin-content');
+        if (content) content.scrollTop = 0;
+      });
+    } catch (error) {
+      ui.loginError.textContent = error.message;
     }
-
-    ui.loginDialog.close();
-    await loadNews();
-    switchTab('editor');
-    ui.adminDialog.showModal();
-    requestAnimationFrame(() => {
-      ui.adminDialog.scrollTop = 0;
-      const content = ui.adminDialog.querySelector('.news-admin-content');
-      if (content) content.scrollTop = 0;
-      ui.title?.scrollIntoView({ block: 'center' });
-    });
   });
 
   $('.news-dialog-close')?.addEventListener('click', () => ui.loginDialog.close());
