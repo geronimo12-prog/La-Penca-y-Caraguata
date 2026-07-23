@@ -153,12 +153,15 @@ window.addEventListener('keydown', e => {
 
 
 // ==========================================================
-// B18.4 — Sistema beta de noticias, panel mil puntos
+// B19 — Noticias conectadas a Supabase
 // ==========================================================
 (() => {
-  const STORAGE_KEY = 'comunaNoticiasBetaV184';
   const PIN = '2026';
   const DEFAULT_IMAGE = 'assets/portada-hd.png';
+  const SUPABASE_URL = 'https://sxohvjfoontsgzqsyouk.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_3fZv9U_m_RuGujOtSk6zYA_WatgOb_n';
+  const TABLE_URL = `${SUPABASE_URL}/rest/v1/noticias`;
+  const STORAGE_BUCKET = 'noticias-imagenes';
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -209,40 +212,68 @@ window.addEventListener('keydown', e => {
   let news = [];
   let currentImage = '';
   let currentCoverImage = '';
+  let pendingMainFile = null;
+  let pendingCoverFile = null;
   let formDirty = false;
+
+  const headers = (extra = {}) => ({
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`,
+    ...extra
+  });
 
   function normalizeItem(item) {
     return {
-      id: String(item.id || (crypto.randomUUID ? crypto.randomUUID() : Date.now() + Math.random())),
-      title: String(item.title || 'Noticia sin título'),
-      category: String(item.category || 'Otros'),
-      date: item.date || new Date().toISOString().slice(0, 10),
-      description: String(item.description || ''),
-      image: item.image || DEFAULT_IMAGE,
-      coverImage: item.coverImage || item.image || DEFAULT_IMAGE,
-      featured: Boolean(item.featured),
-      published: item.published !== false,
-      createdAt: Number(item.createdAt || Date.now()),
-      updatedAt: Number(item.updatedAt || Date.now())
+      id: String(item.id),
+      title: String(item.titulo || 'Noticia sin título'),
+      category: String(item.categoria || 'Otros'),
+      date: item.fecha || new Date().toISOString().slice(0, 10),
+      description: String(item.descripcion || ''),
+      image: item.imagen_url || DEFAULT_IMAGE,
+      coverImage: item.portada_url || item.imagen_url || DEFAULT_IMAGE,
+      featured: Boolean(item.destacada),
+      published: item.publicada !== false,
+      createdAt: item.created_at || '',
+      updatedAt: item.updated_at || ''
     };
   }
 
-  function loadNews() {
-    try {
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (Array.isArray(stored)) return stored.map(normalizeItem);
-    } catch (error) {}
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
-    return [];
+  async function apiRequest(url, options = {}) {
+    const response = await fetch(url, {
+      ...options,
+      headers: headers(options.headers || {})
+    });
+
+    if (!response.ok) {
+      let detail = '';
+      try {
+        const body = await response.json();
+        detail = body.message || body.error_description || body.hint || body.details || '';
+      } catch (error) {
+        detail = await response.text();
+      }
+      throw new Error(detail || `Error ${response.status}`);
+    }
+
+    if (response.status === 204) return null;
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
   }
 
-  function saveNews() {
+  async function loadNews() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(news));
-      return true;
+      const rows = await apiRequest(
+        `${TABLE_URL}?select=*&order=destacada.desc,fecha.desc,created_at.desc`
+      );
+      news = Array.isArray(rows) ? rows.map(normalizeItem) : [];
+      renderPublic();
+      renderAdmin();
     } catch (error) {
-      showMessage('No se pudo guardar. Probá con una fotografía más liviana.', true);
-      return false;
+      console.error(error);
+      news = [];
+      renderPublic();
+      renderAdmin();
+      showMessage(`No se pudieron cargar las noticias: ${error.message}`, true);
     }
   }
 
@@ -329,8 +360,8 @@ window.addEventListener('keydown', e => {
   }
 
   function renderAdmin() {
-    const query = (ui.search.value || '').trim().toLowerCase();
-    const filter = ui.statusFilter.value || 'all';
+    const query = (ui.search?.value || '').trim().toLowerCase();
+    const filter = ui.statusFilter?.value || 'all';
 
     const items = sortedNews(news).filter(item => {
       const matchesQuery = !query ||
@@ -347,9 +378,9 @@ window.addEventListener('keydown', e => {
       return matchesQuery && matchesStatus;
     });
 
-    ui.totalCount.textContent = `${news.length} ${news.length === 1 ? 'noticia' : 'noticias'}`;
+    if (ui.totalCount) ui.totalCount.textContent = `${news.length} ${news.length === 1 ? 'noticia' : 'noticias'}`;
     const publishedCount = news.filter(item => item.published).length;
-    ui.publishedCount.textContent = `${publishedCount} publicadas`;
+    if (ui.publishedCount) ui.publishedCount.textContent = `${publishedCount} publicadas`;
 
     if (!items.length) {
       ui.adminList.innerHTML = `
@@ -363,10 +394,7 @@ window.addEventListener('keydown', e => {
 
     ui.adminList.innerHTML = items.map(item => `
       <article class="news-admin-item">
-        <div class="news-admin-thumb">
-          <img src="${item.coverImage || item.image}" alt="">
-        </div>
-
+        <div class="news-admin-thumb"><img src="${item.coverImage || item.image}" alt=""></div>
         <div class="news-admin-copy">
           <div class="news-admin-meta">
             <span class="news-status-badge ${item.published ? 'news-status-published' : 'news-status-draft'}">
@@ -378,7 +406,6 @@ window.addEventListener('keydown', e => {
           <strong>${escapeHTML(item.title)}</strong>
           <p>${escapeHTML(item.description.slice(0, 150))}${item.description.length > 150 ? '…' : ''}</p>
         </div>
-
         <div class="news-admin-actions">
           <button class="news-edit" type="button" data-action="edit" data-id="${item.id}">Editar</button>
           <button class="news-toggle" type="button" data-action="toggle" data-id="${item.id}">
@@ -387,20 +414,23 @@ window.addEventListener('keydown', e => {
           <button class="news-feature-button" type="button" data-action="feature" data-id="${item.id}">
             ${item.featured ? 'Quitar destacada' : 'Destacar'}
           </button>
-          <button class="news-delete" type="button" data-action="delete" data-id="${item.id}">
-            Borrar
-          </button>
+          <button class="news-delete" type="button" data-action="delete" data-id="${item.id}">Borrar</button>
         </div>
       </article>
     `).join('');
 
     $$('[data-action]', ui.adminList).forEach(button => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', async () => {
         const { action, id } = button.dataset;
-        if (action === 'edit') editNews(id);
-        if (action === 'toggle') togglePublished(id);
-        if (action === 'feature') toggleFeatured(id);
-        if (action === 'delete') deleteNews(id);
+        button.disabled = true;
+        try {
+          if (action === 'edit') editNews(id);
+          if (action === 'toggle') await togglePublished(id);
+          if (action === 'feature') await toggleFeatured(id);
+          if (action === 'delete') await deleteNews(id);
+        } finally {
+          button.disabled = false;
+        }
       });
     });
   }
@@ -412,6 +442,9 @@ window.addEventListener('keydown', e => {
     $$('.news-admin-panel').forEach(panel => {
       panel.classList.toggle('active', panel.dataset.newsPanel === name);
     });
+    $$('[data-open-news-panel]').forEach(button => {
+      button.classList.toggle('active', button.dataset.openNewsPanel === name);
+    });
   }
 
   function updateCategoryField() {
@@ -420,13 +453,15 @@ window.addEventListener('keydown', e => {
     ui.customCategory.required = isOther;
     if (!isOther) ui.customCategory.value = '';
   }
-function setDirty(isDirty) {
+
+  function setDirty(isDirty) {
     formDirty = isDirty;
     ui.saveStatus.textContent = isDirty ? 'Cambios sin guardar' : 'Sin cambios pendientes';
     ui.saveStatus.className = `news-save-status${isDirty ? ' changed' : ''}`;
   }
 
   function showMessage(text, error = false) {
+    if (!ui.formMessage) return;
     ui.formMessage.textContent = text;
     ui.formMessage.style.color = error ? '#a42520' : '#17632d';
   }
@@ -462,6 +497,8 @@ function setDirty(isDirty) {
     updateCategoryField();
     currentImage = '';
     currentCoverImage = '';
+    pendingMainFile = null;
+    pendingCoverFile = null;
     updateImagePreview('');
     updateCoverPreview('');
     ui.editorMode.textContent = 'Nueva publicación';
@@ -494,6 +531,8 @@ function setDirty(isDirty) {
     ui.description.value = item.description;
     ui.featured.checked = item.featured;
     ui.published.checked = item.published;
+    pendingMainFile = null;
+    pendingCoverFile = null;
     updateImagePreview(item.image);
     updateCoverPreview(item.coverImage || '');
 
@@ -505,37 +544,57 @@ function setDirty(isDirty) {
     setDirty(false);
   }
 
-  function togglePublished(id) {
+  async function patchNews(id, payload) {
+    await apiRequest(`${TABLE_URL}?id=eq.${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async function togglePublished(id) {
     const item = news.find(entry => entry.id === id);
     if (!item) return;
-    item.published = !item.published;
-    item.updatedAt = Date.now();
-    if (saveNews()) {
-      renderPublic();
-      renderAdmin();
+    showMessage('Actualizando noticia…');
+    try {
+      await patchNews(id, { publicada: !item.published });
+      await loadNews();
+      showMessage('Estado actualizado correctamente.');
+    } catch (error) {
+      showMessage(`No se pudo actualizar: ${error.message}`, true);
     }
   }
 
-  function toggleFeatured(id) {
+  async function toggleFeatured(id) {
     const item = news.find(entry => entry.id === id);
     if (!item) return;
+    showMessage('Actualizando noticia destacada…');
 
-    if (!item.featured) {
-      news.forEach(entry => entry.featured = false);
-      item.featured = true;
-      item.published = true;
-    } else {
-      item.featured = false;
-    }
-
-    item.updatedAt = Date.now();
-    if (saveNews()) {
-      renderPublic();
-      renderAdmin();
+    try {
+      if (!item.featured) {
+        await apiRequest(`${TABLE_URL}?destacada=eq.true`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal'
+          },
+          body: JSON.stringify({ destacada: false })
+        });
+        await patchNews(id, { destacada: true, publicada: true });
+      } else {
+        await patchNews(id, { destacada: false });
+      }
+      await loadNews();
+      showMessage('Noticia destacada actualizada.');
+    } catch (error) {
+      showMessage(`No se pudo actualizar: ${error.message}`, true);
     }
   }
 
-  function deleteNews(id) {
+  async function deleteNews(id) {
     const item = news.find(entry => entry.id === id);
     if (!item) return;
 
@@ -544,24 +603,27 @@ function setDirty(isDirty) {
     );
     if (!accepted) return;
 
-    news = news.filter(entry => entry.id !== id);
+    showMessage('Borrando noticia…');
 
-    if (saveNews()) {
+    try {
+      await apiRequest(`${TABLE_URL}?id=eq.${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { Prefer: 'return=minimal' }
+      });
       if (ui.id.value === id) resetForm();
-      renderPublic();
-      renderAdmin();
+      await loadNews();
       showMessage('La noticia fue borrada correctamente.');
+    } catch (error) {
+      showMessage(`No se pudo borrar: ${error.message}`, true);
     }
   }
 
   function compressImage(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-
       reader.onerror = () => reject(new Error('No se pudo leer la fotografía.'));
       reader.onload = () => {
         const image = new Image();
-
         image.onerror = () => reject(new Error('El archivo no es una imagen válida.'));
         image.onload = () => {
           const maxWidth = 1500;
@@ -569,20 +631,19 @@ function setDirty(isDirty) {
           const scale = Math.min(1, maxWidth / image.width, maxHeight / image.height);
           const width = Math.max(1, Math.round(image.width * scale));
           const height = Math.max(1, Math.round(image.height * scale));
-
           const canvas = document.createElement('canvas');
           canvas.width = width;
           canvas.height = height;
-
           const context = canvas.getContext('2d');
           context.drawImage(image, 0, 0, width, height);
-
-          resolve(canvas.toDataURL('image/jpeg', 0.78));
+          canvas.toBlob(
+            blob => blob ? resolve(blob) : reject(new Error('No se pudo preparar la fotografía.')),
+            'image/jpeg',
+            0.8
+          );
         };
-
         image.src = reader.result;
       };
-
       reader.readAsDataURL(file);
     });
   }
@@ -594,15 +655,18 @@ function setDirty(isDirty) {
     showMessage('Preparando fotografía…');
 
     try {
-      const compressed = await compressImage(file);
+      const compressedBlob = await compressImage(file);
+      const previewURL = URL.createObjectURL(compressedBlob);
 
       if (target === 'main') {
-        updateImagePreview(compressed);
+        pendingMainFile = compressedBlob;
+        updateImagePreview(previewURL);
       } else {
-        updateCoverPreview(compressed);
+        pendingCoverFile = compressedBlob;
+        updateCoverPreview(previewURL);
       }
 
-      showMessage('Fotografía lista para guardar.');
+      showMessage('Fotografía lista para subir.');
       setDirty(true);
     } catch (error) {
       showMessage(error.message, true);
@@ -610,7 +674,23 @@ function setDirty(isDirty) {
     }
   }
 
-  function submitForm(event) {
+  async function uploadImage(blob, type, newsId) {
+    const path = `${newsId}/${type}-${Date.now()}.jpg`;
+    await apiRequest(
+      `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${path}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'image/jpeg',
+          'x-upsert': 'true'
+        },
+        body: blob
+      }
+    );
+    return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${path}`;
+  }
+
+  async function submitForm(event) {
     event.preventDefault();
 
     const title = ui.title.value.trim();
@@ -625,60 +705,94 @@ function setDirty(isDirty) {
 
     ui.saveButton.disabled = true;
     ui.saveButton.textContent = 'Guardando…';
+    showMessage('Subiendo información a Supabase…');
 
-    const id = ui.id.value || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+    const id = ui.id.value || crypto.randomUUID();
     const old = news.find(item => item.id === id);
 
-    if (ui.featured.checked) {
-      news.forEach(item => item.featured = false);
-    }
+    try {
+      if (ui.featured.checked) {
+        await apiRequest(`${TABLE_URL}?destacada=eq.true`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal'
+          },
+          body: JSON.stringify({ destacada: false })
+        });
+      }
 
-    const finalMainImage = currentImage || old?.image || DEFAULT_IMAGE;
-    const finalCoverImage = currentCoverImage || old?.coverImage || finalMainImage;
+      let finalMainImage = old?.image || DEFAULT_IMAGE;
+      let finalCoverImage = old?.coverImage || '';
 
-    const payload = normalizeItem({
-      id,
-      title,
-      category,
-      date: ui.date.value,
-      description,
-      image: finalMainImage,
-      coverImage: finalCoverImage,
-      featured: ui.featured.checked,
-      published: ui.published.checked,
-      createdAt: old?.createdAt || Date.now(),
-      updatedAt: Date.now()
-    });
+      if (pendingMainFile) {
+        finalMainImage = await uploadImage(pendingMainFile, 'principal', id);
+      } else if (currentImage && !currentImage.startsWith('blob:')) {
+        finalMainImage = currentImage;
+      }
 
-    if (old) {
-      news = news.map(item => item.id === id ? payload : item);
-    } else {
-      news.unshift(payload);
-    }
+      if (pendingCoverFile) {
+        finalCoverImage = await uploadImage(pendingCoverFile, 'portada', id);
+      } else if (currentCoverImage && !currentCoverImage.startsWith('blob:')) {
+        finalCoverImage = currentCoverImage;
+      }
 
-    if (saveNews()) {
-      renderPublic();
-      renderAdmin();
+      if (!finalCoverImage) finalCoverImage = finalMainImage;
 
-      ui.id.value = payload.id;
+      const payload = {
+        id,
+        titulo: title,
+        categoria: category,
+        descripcion: description,
+        fecha: ui.date.value,
+        imagen_url: finalMainImage,
+        portada_url: finalCoverImage,
+        destacada: ui.featured.checked,
+        publicada: ui.published.checked
+      };
+
+      if (old) {
+        await patchNews(id, payload);
+      } else {
+        await apiRequest(TABLE_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal'
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      await loadNews();
+      const saved = news.find(item => item.id === id);
+
+      ui.id.value = id;
+      pendingMainFile = null;
+      pendingCoverFile = null;
+      currentImage = saved?.image || finalMainImage;
+      currentCoverImage = saved?.coverImage || finalCoverImage;
       ui.editorMode.textContent = 'Publicación guardada';
-      ui.editorTitle.textContent = payload.title;
+      ui.editorTitle.textContent = title;
       ui.deleteCurrent.hidden = false;
-      ui.saveStatus.textContent = 'Guardado correctamente';
+      ui.saveStatus.textContent = 'Guardado en Supabase';
       ui.saveStatus.className = 'news-save-status saved';
-      showMessage(payload.published
-        ? 'Noticia guardada y publicada correctamente.'
-        : 'Noticia guardada como borrador.');
+      showMessage(ui.published.checked
+        ? 'Noticia guardada y visible desde todos los dispositivos.'
+        : 'Noticia guardada como borrador en Supabase.');
 
       formDirty = false;
       setTimeout(() => {
         ui.saveStatus.textContent = 'Sin cambios pendientes';
         ui.saveStatus.className = 'news-save-status';
       }, 2200);
+    } catch (error) {
+      console.error(error);
+      showMessage(`No se pudo guardar: ${error.message}`, true);
+    } finally {
+      ui.saveButton.disabled = false;
+      ui.saveButton.textContent = ui.published.checked ? 'Guardar cambios' : 'Guardar borrador';
     }
-
-    ui.saveButton.disabled = false;
-    ui.saveButton.textContent = payload.published ? 'Guardar cambios' : 'Guardar borrador';
   }
 
   ui.adminOpen?.addEventListener('click', () => {
@@ -687,7 +801,7 @@ function setDirty(isDirty) {
     ui.loginDialog.showModal();
   });
 
-  ui.loginForm?.addEventListener('submit', event => {
+  ui.loginForm?.addEventListener('submit', async event => {
     event.preventDefault();
 
     if (ui.pin.value !== PIN) {
@@ -696,7 +810,7 @@ function setDirty(isDirty) {
     }
 
     ui.loginDialog.close();
-    renderAdmin();
+    await loadNews();
     switchTab('editor');
     ui.adminDialog.showModal();
     requestAnimationFrame(() => {
@@ -734,9 +848,7 @@ function setDirty(isDirty) {
     setDirty(true);
   });
 
-  ui.description?.addEventListener('input', () => {
-    setDirty(true);
-  });
+  ui.description?.addEventListener('input', () => setDirty(true));
 
   [ui.title, ui.customCategory, ui.date, ui.featured, ui.published].forEach(control => {
     control?.addEventListener('input', () => setDirty(true));
@@ -754,11 +866,10 @@ function setDirty(isDirty) {
   ui.search?.addEventListener('input', renderAdmin);
   ui.statusFilter?.addEventListener('change', renderAdmin);
 
-  news = loadNews();
   resetForm();
-  renderPublic();
-  renderAdmin();
+  loadNews();
 })();
+
 
 
 
@@ -861,4 +972,69 @@ function setDirty(isDirty) {
 
   makeDraggable(document.querySelector('.floating-news'), 'floatingNewsPositionB18Final');
   makeDraggable(document.querySelector('.floating-whatsapp'), 'floatingWhatsAppPositionB18Final');
+})();
+
+
+// ==========================================================
+// B18 FINAL — acceso directo a editar y borrar
+// ==========================================================
+(() => {
+  const managerButtons = [...document.querySelectorAll('[data-open-news-panel]')];
+  const managerCount = document.querySelector('#news-manager-count');
+
+  function openManagerPanel(name) {
+    document.querySelectorAll('.news-admin-tab').forEach(button => {
+      button.classList.toggle('active', button.dataset.newsTab === name);
+    });
+
+    document.querySelectorAll('.news-admin-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.dataset.newsPanel === name);
+    });
+
+    managerButtons.forEach(button => {
+      button.classList.toggle('active', button.dataset.openNewsPanel === name);
+    });
+
+    const content = document.querySelector('.news-admin-content');
+    if (content) content.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  managerButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      openManagerPanel(button.dataset.openNewsPanel);
+    });
+  });
+
+  document.querySelectorAll('.news-admin-tab').forEach(button => {
+    button.addEventListener('click', () => {
+      const name = button.dataset.newsTab;
+      managerButtons.forEach(managerButton => {
+        managerButton.classList.toggle('active', managerButton.dataset.openNewsPanel === name);
+      });
+    });
+  });
+
+  function updateManagerCount() {
+    const totalText = document.querySelector('#news-total-count')?.textContent || '0';
+    const match = totalText.match(/\d+/);
+    if (managerCount) managerCount.textContent = match ? match[0] : '0';
+  }
+
+  const observerTarget = document.querySelector('#news-total-count');
+  if (observerTarget) {
+    const observer = new MutationObserver(updateManagerCount);
+    observer.observe(observerTarget, { childList: true, characterData: true, subtree: true });
+  }
+
+  updateManagerCount();
+
+  // Al terminar de editar o crear, la lista queda disponible desde el botón superior.
+  document.addEventListener('click', event => {
+    const editButton = event.target.closest('[data-action="edit"]');
+    if (editButton) {
+      managerButtons.forEach(button => {
+        button.classList.toggle('active', button.dataset.openNewsPanel === 'editor');
+      });
+    }
+  });
 })();

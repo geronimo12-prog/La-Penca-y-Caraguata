@@ -1,0 +1,17 @@
+VERSIÓN B19 — NOTICIAS CON SUPABASE
+
+Subir a GitHub:
+- script.js
+
+La página usa:
+- Project URL: https://sxohvjfoontsgzqsyouk.supabase.co
+- Publishable key configurada
+- Tabla: noticias
+- Bucket: noticias-imagenes
+- PIN del panel: 2026
+
+No se modificaron las imágenes institucionales ni las rutas de assets.
+
+IMPORTANTE:
+La base necesita permisos SQL para el rol anon:
+grant insert, update, delete on table public.noticias to anon;
