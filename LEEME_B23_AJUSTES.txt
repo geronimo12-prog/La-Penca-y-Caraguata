@@ -1,0 +1,8 @@
+B23 AJUSTES FINALES
+
+Cambios realizados sobre B22:
+- Club: se restauró la foto anterior sin personas.
+- Capilla San Francisco: se restauró la foto anterior en Instituciones y en la sección de la capilla.
+- Bicisenda: se volvió a poner la foto original y se agregó la segunda foto como tarjeta adicional.
+- Identidad local: la tarjeta izquierda ahora usa la imagen del centenario; la del medio queda igual; la derecha usa una imagen más nítida de la identidad visual.
+- No se tocó el funcionamiento del panel de noticias ni de administración.

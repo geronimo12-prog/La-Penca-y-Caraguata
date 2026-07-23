@@ -1,0 +1,22 @@
+B18.4 — PANEL MIL PUNTOS
+
+PIN:
+2026
+
+CAMBIOS PRINCIPALES:
+- Se eliminó la noticia de ejemplo.
+- Al iniciar aparece “No hay noticias destacadas”.
+- La primera noticia real que publiques aparece automáticamente.
+- Botón BORRAR visible en Publicaciones.
+- Botón BORRAR ESTA NOTICIA dentro del editor.
+- Confirmación antes de eliminar.
+- Al borrar la última noticia vuelve el mensaje vacío.
+- Foto principal obligatoria en la práctica.
+- Foto de portada opcional.
+- Si no se elige portada, se usa automáticamente la foto principal.
+- Categoría Otros con texto libre.
+- Publicar, despublicar, destacar, quitar destacada, editar y borrar.
+
+IMPORTANTE:
+Esta beta usa una nueva memoria local para arrancar vacía.
+Sigue siendo una prueba local, no una base de datos real.

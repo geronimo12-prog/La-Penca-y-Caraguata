@@ -1,0 +1,23 @@
+B22 BETA FINAL
+
+Cambios:
+- Nuevo apartado Viviendas con las 3 fotografías entregadas.
+- Nuevo apartado La Penca desde el cielo.
+- Nueva fotografía de iglesia.
+- Nueva fotografía de San Francisco.
+- Nuevo tractor en Maquinaria.
+- Nueva fotografía de bicisenda.
+- Nueva fotografía de plaza.
+- Se eliminó la palabra Capacitaciones.
+- Se repararon definitivamente los archivos de Club, Hidrogrúa,
+  Avenida y Camino rural arbolado.
+- Panel de acceso y administración reacomodado.
+- Recuperar contraseña queda debajo del botón Iniciar sesión.
+- Botones del administrador visibles, sin posiciones flotantes.
+- Todas las rutas de imágenes fueron comprobadas localmente.
+
+Para actualizar:
+1. Primero probar la carpeta completa localmente.
+2. En GitHub reemplazar index.html, styles.css y script.js.
+3. Subir también los archivos nuevos de la carpeta assets.
+4. No hace falta volver a ejecutar SQL si ya se ejecutó B21.

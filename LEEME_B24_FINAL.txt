@@ -1,0 +1,12 @@
+B24 FINAL
+
+Cambios:
+- Se eliminó la segunda tarjeta de la bicisenda.
+- Queda únicamente la fotografía original de la bicisenda.
+- Se reparó el botón ¿Olvidaste tu contraseña?
+- Ahora muestra el estado del envío y usa la recuperación de Supabase
+  con redirección hacia la página publicada.
+
+Para GitHub reemplazar solamente:
+- index.html
+- script.js

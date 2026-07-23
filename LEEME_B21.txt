@@ -1,0 +1,31 @@
+VERSIÓN B21 — PORTAL COMPLETO
+
+NO reemplaza ni elimina imágenes institucionales.
+Se construyó sobre una copia de la versión que ya estaba funcionando.
+
+Incluye:
+- Noticias con login Supabase.
+- Cerrar sesión.
+- Recuperar contraseña.
+- Vista previa.
+- Borrador automático local.
+- Estado online/offline.
+- Programación de noticias.
+- Filtros y orden.
+- Compartir por WhatsApp/Facebook/copiar enlace.
+- Avisos oficiales.
+- Agenda comunal.
+- Documentos públicos y transparencia.
+- Empleo y capacitaciones.
+- Registro de proveedores.
+- Encuestas vecinales.
+- Suscripción por correo.
+- Panel general y estadísticas.
+
+PASOS:
+1. Ejecutar CONFIGURAR_PORTAL_B21.sql en Supabase SQL Editor.
+2. Reemplazar index.html, styles.css y script.js en GitHub.
+3. Esperar el deploy de Vercel.
+4. Hacer Ctrl+F5.
+
+Esta es una versión nueva en carpeta separada. La versión anterior no fue modificada.

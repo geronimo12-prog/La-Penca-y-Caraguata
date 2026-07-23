@@ -1,0 +1,23 @@
+B18.3 — PANEL ÉPICO DE NOTICIAS
+
+PIN beta:
+2026
+
+MEJORAS:
+- Botón de guardar claramente visible y fijo abajo del editor.
+- Guardar y publicar o guardar como borrador.
+- Lista completa de noticias cargadas.
+- Editar, publicar, despublicar, destacar y borrar.
+- Nueva noticia y limpiar formulario.
+- Categoría “Otros” con campo para escribir una categoría nueva.
+- Buscador y filtros.
+- Contador de publicaciones.
+- Compresión automática de fotografías.
+- Vista previa de la foto.
+- Lectura completa de cada noticia en una ventana.
+- Migración de noticias guardadas en la beta anterior.
+- Confirmaciones y mensajes de guardado.
+
+IMPORTANTE:
+Esta sigue siendo una beta local. Se guarda en el navegador del dispositivo.
+La versión final necesitará base de datos y acceso real con Google.

@@ -1,0 +1,18 @@
+B18 — BETA DE NOTICIAS
+
+PIN de prueba:
+2026
+
+Esta beta incluye:
+- Sección de noticias cerca del inicio.
+- Botón flotante “Noticias”.
+- Panel interno protegido por PIN.
+- Crear, editar y borrar noticias.
+- Seleccionar foto.
+- Marcar noticia destacada.
+- Guardado local en el navegador mediante localStorage.
+
+IMPORTANTE:
+Esta versión es una DEMO. El PIN 2026 está dentro del código y no es seguridad real.
+Las noticias se guardan solamente en el navegador donde se cargaron.
+La versión final deberá conectarse a una base de datos real y acceso con Google.

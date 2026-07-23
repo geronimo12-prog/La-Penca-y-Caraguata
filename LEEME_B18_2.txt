@@ -1,0 +1,10 @@
+B18.2 — ARREGLO DEL BOTÓN ADMINISTRACIÓN
+
+Problema:
+Los cuadros de acceso y administración no habían quedado incluidos en el index.html.
+
+Corrección:
+- Botón Administración funcional.
+- Abre el ingreso por PIN.
+- PIN beta: 2026.
+- Luego abre el panel para crear, editar y borrar noticias.

@@ -1,0 +1,12 @@
+B18.1 — CORRECCIÓN DE LA BETA DE NOTICIAS
+
+Cambios:
+- Se corrigieron imágenes que no se veían.
+- Administración se movió al final del footer.
+- Noticias permanece cerca del inicio.
+- El botón de Noticias y el de WhatsApp ahora pueden arrastrarse con mouse o dedo.
+- La posición elegida se guarda en el navegador.
+- Se migran automáticamente noticias beta que tuvieran rutas viejas de imágenes.
+
+PIN de prueba:
+2026

@@ -1,0 +1,28 @@
+B18 FINAL — SISTEMA DE NOTICIAS
+
+PIN de prueba:
+2026
+
+Incluye:
+- Crear noticias.
+- Guardar y publicar.
+- Guardar como borrador.
+- Editar.
+- Publicar y despublicar.
+- Destacar y quitar destacada.
+- Borrar desde Publicaciones.
+- Borrar desde el Editor.
+- Categorías predefinidas y categoría Otros.
+- Fotografía principal.
+- Foto de portada opcional.
+- Si no se elige portada, se usa la fotografía principal.
+- Buscador y filtros.
+- Lectura completa de noticias.
+- Botones flotantes movibles.
+- Botones del panel separados y adaptados a PC, tablet y celular.
+
+IMPORTANTE:
+Este sistema guarda las noticias únicamente en el navegador del dispositivo
+que las carga. El PIN está dentro del código y no constituye seguridad real.
+Para que varias computadoras compartan las mismas noticias y para tener
+acceso seguro con Google se necesitará una base de datos en una versión futura.

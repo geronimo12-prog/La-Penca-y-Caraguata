@@ -1832,3 +1832,596 @@ body.intro-active{overflow:hidden}
   opacity:.65;
   cursor:wait;
 }
+
+
+/* ==========================================================
+   B21 — Portal ciudadano y administración ampliada
+   ========================================================== */
+.official-alerts{
+  position:sticky;
+  top:0;
+  z-index:80;
+  padding:10px 18px;
+  background:#ffcf55;
+  color:#13213a;
+  text-align:center;
+  font-weight:900;
+  box-shadow:0 7px 20px rgba(0,0,0,.12);
+}
+.official-alerts.is-danger{background:#d83a32;color:#fff}
+.official-alerts.is-info{background:#dfeeff}
+.official-alerts.is-success{background:#dff4e6}
+
+.citizen-portal{background:#f4efe6}
+.citizen-portal-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+.citizen-portal-grid button{
+  min-height:190px;
+  padding:26px;
+  border:1px solid rgba(8,31,67,.12);
+  border-radius:28px;
+  background:#fff;
+  color:var(--navy);
+  text-align:left;
+  cursor:pointer;
+  transition:.25s;
+}
+.citizen-portal-grid button:hover{transform:translateY(-5px);box-shadow:0 22px 45px rgba(8,31,67,.12)}
+.citizen-portal-grid button span{display:block;color:#d4382d;font-size:12px;font-weight:900;letter-spacing:.18em}
+.citizen-portal-grid button strong{display:block;margin:34px 0 10px;font-size:23px}
+.citizen-portal-grid button small{font-size:14px;line-height:1.5;color:#677084}
+
+.citizen-subscribe{
+  display:grid;
+  grid-template-columns:1fr 1.3fr;
+  gap:20px;
+  align-items:center;
+  margin-top:22px;
+  padding:26px;
+  border-radius:26px;
+  background:var(--navy);
+  color:#fff;
+}
+.citizen-subscribe span,.citizen-subscribe small{display:block;opacity:.72}
+.citizen-subscribe strong{display:block;font-size:24px;margin:5px 0}
+.citizen-subscribe form{display:flex;gap:10px}
+.citizen-subscribe input{flex:1;min-width:0;padding:15px;border:0;border-radius:14px}
+.citizen-subscribe button{padding:15px 20px;border:0;border-radius:14px;background:#ffcf55;font-weight:900;cursor:pointer}
+#subscribe-message{grid-column:1/-1;margin:0;font-size:13px}
+
+.portal-dialog,.portal-admin-dialog{
+  width:min(1080px,calc(100vw - 24px));
+  max-height:92vh;
+  border:0;
+  border-radius:28px;
+  padding:0;
+  overflow:auto;
+}
+.portal-dialog::backdrop,.portal-admin-dialog::backdrop{background:rgba(3,18,41,.78);backdrop-filter:blur(10px)}
+.portal-dialog-close,.portal-admin-close,.news-preview-close{
+  position:sticky;
+  float:right;
+  top:14px;
+  right:14px;
+  z-index:10;
+  width:44px;height:44px;border:0;border-radius:50%;cursor:pointer
+}
+.portal-public-wrap{padding:34px}
+.portal-public-wrap h3{font-size:38px;margin:0 0 8px}
+.portal-public-wrap>p{color:#677084}
+.portal-public-list{display:grid;gap:12px;margin-top:24px}
+.portal-public-card{padding:20px;border:1px solid #e4ded2;border-radius:18px;background:#fff}
+.portal-public-card span{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#d4382d;font-weight:900}
+.portal-public-card h4{font-size:21px;margin:8px 0}
+.portal-public-card p{white-space:pre-line;color:#586174}
+.portal-public-card a{font-weight:900;color:var(--navy)}
+
+.portal-form{display:grid;gap:14px;margin-top:20px}
+.portal-form input,.portal-form textarea,.portal-form select{
+  width:100%;box-sizing:border-box;padding:14px;border:1px solid #dcd5c9;border-radius:14px;font:inherit
+}
+.portal-form button{padding:15px;border:0;border-radius:14px;background:var(--navy);color:#fff;font-weight:900}
+
+.portal-admin-dialog>header{
+  display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #e5ded2
+}
+.portal-admin-dialog>header span{font-size:11px;text-transform:uppercase;letter-spacing:.17em;color:#d4382d}
+.portal-admin-dialog>header h3{margin:4px 0 0;font-size:30px}
+.portal-admin-layout{display:grid;grid-template-columns:190px 1fr;min-height:650px}
+.portal-admin-layout aside{padding:18px;background:var(--navy);display:flex;flex-direction:column;gap:8px}
+.portal-admin-layout aside button{padding:14px;border:0;border-radius:12px;background:transparent;color:#fff;text-align:left;font-weight:800;cursor:pointer}
+.portal-admin-layout aside button.active{background:#ffcf55;color:var(--navy)}
+.portal-admin-layout main{padding:24px;background:#f7f3eb}
+.portal-admin-layout main>section{display:none}
+.portal-admin-layout main>section.active{display:block}
+.portal-admin-module-head{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}
+.portal-admin-module-head h4{font-size:27px;margin:0}
+.portal-admin-grid{display:grid;grid-template-columns:minmax(280px,.8fr) 1.2fr;gap:18px}
+.portal-admin-form,.portal-admin-list{padding:18px;border-radius:20px;background:#fff}
+.portal-admin-form{display:grid;gap:12px}
+.portal-admin-form input,.portal-admin-form textarea,.portal-admin-form select{
+  width:100%;box-sizing:border-box;padding:12px;border:1px solid #ded7ca;border-radius:12px;font:inherit
+}
+.portal-admin-form button{padding:13px;border:0;border-radius:12px;background:var(--navy);color:#fff;font-weight:900;cursor:pointer}
+.portal-admin-list{display:grid;gap:10px;align-content:start}
+.portal-admin-item{padding:14px;border:1px solid #e5ded2;border-radius:14px}
+.portal-admin-item strong{display:block}
+.portal-admin-item small{display:block;margin-top:4px;color:#6a7282}
+.portal-admin-item-actions{display:flex;gap:8px;margin-top:10px}
+.portal-admin-item-actions button{padding:8px 10px;border:0;border-radius:9px;cursor:pointer;font-weight:800}
+.portal-admin-item-actions .danger{background:#b62722;color:#fff}
+.portal-admin-item-actions .edit{background:#ffcf55;color:#13213a}
+
+.news-schedule-row{margin:16px 0}
+.news-schedule-row label{display:grid;gap:8px}
+.news-schedule-row input{padding:14px;border:1px solid #ddd5c8;border-radius:14px}
+.news-reset-password{background:transparent!important;color:var(--navy)!important;text-decoration:underline}
+.news-logout-button{background:#7f1d1d!important}
+.news-save-main.autosaved{background:#17632d!important}
+.portal-admin-launch{background:#ffcf55!important;color:var(--navy)!important}
+.news-reader-share{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.news-reader-share button,.news-reader-share a{padding:11px 14px;border:0;border-radius:12px;background:#edf2f8;color:var(--navy);font-weight:900;cursor:pointer;text-decoration:none}
+.connection-pill{display:inline-flex;gap:7px;align-items:center}
+.connection-pill::before{content:"";width:8px;height:8px;border-radius:50%;background:#1f9d55}
+.connection-pill.offline::before{background:#d12f25}
+.news-trash-note{font-size:12px;color:#7a2d28;font-weight:800}
+
+@media(max-width:800px){
+  .citizen-portal-grid{grid-template-columns:1fr}
+  .citizen-subscribe{grid-template-columns:1fr}
+  .citizen-subscribe form{flex-direction:column}
+  .portal-admin-layout{grid-template-columns:1fr}
+  .portal-admin-layout aside{flex-direction:row;overflow:auto}
+  .portal-admin-grid{grid-template-columns:1fr}
+}
+
+
+/* ==========================================================
+   B22 BETA FINAL — fotografías, viviendas y panel estable
+   ========================================================== */
+
+/* Todas las imágenes tienen caja real y no pueden desbordar. */
+img{
+  max-width:100%;
+}
+.institution-panel img,
+.rural-gallery img,
+.saint-gallery img,
+.recreation-card img,
+.works-collage img,
+.machine-card img,
+.housing-gallery img,
+.aerial-gallery img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center;
+}
+
+/* Viviendas */
+.housing{
+  background:#f5f1e9;
+}
+.housing-gallery{
+  display:grid;
+  grid-template-columns:1.45fr 1fr;
+  grid-template-rows:310px 310px;
+  gap:18px;
+}
+.housing-gallery figure{
+  margin:0;
+  min-width:0;
+  overflow:hidden;
+  border-radius:28px;
+  background:#dfe4e8;
+}
+.housing-gallery .housing-main{
+  grid-row:1 / 3;
+}
+.housing-note{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:24px;
+  margin-top:20px;
+  padding:22px 26px;
+  border-radius:20px;
+  background:var(--navy);
+  color:#fff;
+}
+.housing-note span{
+  color:#ffcf55;
+  text-transform:uppercase;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.15em;
+}
+.housing-note strong{
+  max-width:720px;
+  font-size:19px;
+  line-height:1.4;
+}
+
+/* La Penca desde el cielo */
+.aerial-town{
+  display:grid;
+  grid-template-columns:.75fr 1.25fr;
+  gap:42px;
+  align-items:center;
+  background:var(--navy);
+  color:#fff;
+}
+.aerial-copy h2{
+  margin:12px 0 18px;
+  font-size:clamp(42px,6vw,78px);
+  line-height:.95;
+}
+.aerial-copy p{
+  max-width:560px;
+  color:rgba(255,255,255,.72);
+  font-size:17px;
+  line-height:1.65;
+}
+.aerial-gallery{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.aerial-gallery figure{
+  height:620px;
+  margin:0;
+  overflow:hidden;
+  border-radius:28px;
+  background:#10294e;
+}
+.aerial-gallery figure:nth-child(2){
+  transform:translateY(40px);
+}
+
+/* Nuevas tarjetas públicas */
+.recreation-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+.machine-card{
+  min-width:0;
+}
+.machine-card > img,
+.hydro-image{
+  min-height:290px;
+  max-height:430px;
+}
+.machine-card > img,
+.hydro-image img{
+  object-fit:cover!important;
+}
+
+/* Login completamente ordenado */
+.news-auth-dialog{
+  position:relative!important;
+  width:min(540px,calc(100vw - 24px))!important;
+  max-height:calc(100vh - 24px)!important;
+  padding:34px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+.news-auth-dialog .news-dialog-close{
+  position:absolute!important;
+  top:16px!important;
+  right:16px!important;
+  left:auto!important;
+  bottom:auto!important;
+  float:none!important;
+  width:42px!important;
+  height:42px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid #e3ddd1!important;
+  border-radius:50%!important;
+  background:#f5f1e9!important;
+  color:var(--navy)!important;
+  font-size:24px!important;
+  line-height:1!important;
+}
+.news-auth-dialog form{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:15px!important;
+  width:100%!important;
+}
+.news-auth-dialog form label,
+.news-auth-dialog form input{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.news-auth-dialog .news-login-submit{
+  position:static!important;
+  inset:auto!important;
+  display:block!important;
+  width:100%!important;
+  min-height:54px!important;
+  margin:4px 0 0!important;
+  padding:15px 18px!important;
+  border:0!important;
+  border-radius:15px!important;
+  background:#15366c!important;
+  color:#fff!important;
+  font-weight:900!important;
+  text-align:center!important;
+}
+.news-auth-dialog .news-reset-password{
+  position:static!important;
+  inset:auto!important;
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  margin:0 auto!important;
+  padding:7px 10px!important;
+  border:0!important;
+  background:transparent!important;
+  color:#15366c!important;
+  text-decoration:underline!important;
+  font-size:13px!important;
+  font-weight:800!important;
+}
+.news-auth-help{
+  margin-top:18px!important;
+}
+#news-login-error{
+  min-height:20px!important;
+  margin:0!important;
+}
+
+/* Panel principal: botones visibles y sin superposición */
+.news-admin-dialog{
+  width:min(1420px,calc(100vw - 20px))!important;
+  max-width:none!important;
+  height:min(930px,calc(100vh - 20px))!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  border-radius:26px!important;
+}
+.news-admin-top{
+  position:relative!important;
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  gap:18px!important;
+  min-height:92px!important;
+  padding:18px 24px!important;
+  overflow:visible!important;
+}
+.news-admin-top-actions{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  flex-wrap:wrap!important;
+  gap:10px!important;
+  min-width:0!important;
+}
+.news-admin-top-actions > button{
+  position:static!important;
+  inset:auto!important;
+  float:none!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:42px!important;
+  margin:0!important;
+  padding:11px 15px!important;
+  border-radius:12px!important;
+  white-space:nowrap!important;
+}
+.news-admin-top-actions .news-admin-close{
+  width:44px!important;
+  min-width:44px!important;
+  padding:0!important;
+  border-radius:50%!important;
+}
+.news-admin-layout{
+  height:calc(100% - 92px)!important;
+  min-height:0!important;
+}
+.news-admin-content{
+  height:100%!important;
+  min-width:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+.news-manager-toolbar{
+  position:sticky!important;
+  top:0!important;
+  z-index:20!important;
+  display:flex!important;
+  gap:12px!important;
+  padding:14px 20px!important;
+}
+.news-manager-button{
+  position:static!important;
+  inset:auto!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:48px!important;
+}
+.news-form-actions-epic{
+  position:static!important;
+  display:grid!important;
+  grid-template-columns:1.3fr .8fr .8fr!important;
+  gap:12px!important;
+  padding:18px 0 4px!important;
+  background:transparent!important;
+}
+.news-form-actions-epic > button{
+  position:static!important;
+  inset:auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:54px!important;
+  margin:0!important;
+  padding:14px 16px!important;
+  border-radius:14px!important;
+}
+.news-delete-current{
+  grid-column:1 / -1!important;
+}
+.news-admin-actions{
+  position:static!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(120px,1fr))!important;
+  gap:8px!important;
+  width:min(360px,100%)!important;
+  align-content:center!important;
+}
+.news-admin-actions button{
+  position:static!important;
+  inset:auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:42px!important;
+  margin:0!important;
+  padding:10px 12px!important;
+  border-radius:11px!important;
+  white-space:normal!important;
+}
+.news-publications-tools{
+  display:grid!important;
+  grid-template-columns:minmax(220px,1fr) minmax(150px,.55fr) minmax(150px,.55fr)!important;
+  gap:10px!important;
+}
+.news-publications-tools > *{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+
+/* Administración general */
+.portal-admin-dialog{
+  overflow:hidden!important;
+}
+.portal-admin-dialog > header{
+  position:relative!important;
+}
+.portal-admin-close{
+  position:static!important;
+  inset:auto!important;
+  float:none!important;
+}
+.portal-admin-layout{
+  max-height:calc(92vh - 88px)!important;
+}
+.portal-admin-layout main{
+  overflow-y:auto!important;
+}
+
+/* Evitar barras horizontales en cualquier modal. */
+dialog,
+dialog *{
+  box-sizing:border-box;
+}
+dialog{
+  max-width:calc(100vw - 20px);
+}
+.news-reader-dialog,
+.portal-dialog,
+.portal-admin-dialog{
+  overflow-x:hidden!important;
+}
+
+/* Responsive */
+@media(max-width:900px){
+  .housing-gallery{
+    grid-template-columns:1fr;
+    grid-template-rows:auto;
+  }
+  .housing-gallery .housing-main{
+    grid-row:auto;
+  }
+  .housing-gallery figure{
+    height:300px;
+  }
+  .aerial-town{
+    grid-template-columns:1fr;
+  }
+  .aerial-gallery figure{
+    height:450px;
+  }
+  .aerial-gallery figure:nth-child(2){
+    transform:none;
+  }
+  .recreation-grid{
+    grid-template-columns:1fr!important;
+  }
+  .news-admin-top{
+    align-items:flex-start!important;
+  }
+  .news-admin-top-actions{
+    justify-content:flex-start!important;
+  }
+  .news-admin-layout{
+    grid-template-columns:1fr!important;
+  }
+  .news-admin-sidebar{
+    display:flex!important;
+    flex-direction:row!important;
+    overflow-x:auto!important;
+    min-height:auto!important;
+  }
+  .news-admin-summary{
+    min-width:180px!important;
+  }
+  .news-form-actions-epic{
+    grid-template-columns:1fr!important;
+  }
+  .news-delete-current{
+    grid-column:auto!important;
+  }
+  .news-publications-tools{
+    grid-template-columns:1fr!important;
+  }
+  .news-admin-actions{
+    width:100%!important;
+  }
+}
+@media(max-width:600px){
+  .aerial-gallery{
+    grid-template-columns:1fr;
+  }
+  .aerial-gallery figure{
+    height:420px;
+  }
+  .housing-note{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .news-auth-dialog{
+    padding:28px 20px!important;
+  }
+  .news-admin-dialog{
+    width:100vw!important;
+    height:100vh!important;
+    max-width:100vw!important;
+    border-radius:0!important;
+  }
+  .news-admin-top{
+    min-height:132px!important;
+    flex-direction:column!important;
+    padding:14px!important;
+  }
+  .news-admin-top-actions > button{
+    font-size:12px!important;
+    padding:9px 10px!important;
+  }
+  .news-admin-layout{
+    height:calc(100% - 132px)!important;
+  }
+  .news-manager-toolbar{
+    flex-direction:column!important;
+  }
+  .news-admin-actions{
+    grid-template-columns:1fr!important;
+  }
+}

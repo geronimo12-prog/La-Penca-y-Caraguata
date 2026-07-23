@@ -40,6 +40,7 @@
   </div>
 
   <div class="scroll-progress"><span></span></div>
+  <div id="official-alerts" class="official-alerts" hidden></div>
 
   <a class="floating-news" href="#noticias" aria-label="Ir a noticias">
     <span>Noticias</span><b>!</b>
@@ -85,8 +86,9 @@
         <a href="#ambiente"><span>04</span><strong>Ambiente</strong><small>Pequeños pasos, grandes huellas</small></a>
         <a href="#obras"><span>05</span><strong>Obras públicas</strong><small>Calles, veredas y mantenimiento</small></a>
         <a href="#maquinaria"><span>06</span><strong>Maquinaria</strong><small>Equipamiento comunal</small></a>
+        <a href="#viviendas"><span>07</span><strong>Viviendas</strong><small>Nuevos hogares para la comunidad</small></a>
         <a href="#agenda"><span>07</span><strong>Agenda</strong><small>Servicios y avisos</small></a>
-        <a href="#tramites"><span>08</span><strong>Trámites</strong><small>Servicios para vecinos</small></a>
+        <a href="#portal-ciudadano"><span>08</span><strong>Portal ciudadano</strong><small>Agenda, documentos y participación</small></a>
         <a href="#nosotros"><span>09</span><strong>Nosotros</strong><small>Equipo y contacto</small></a>
       </nav>
     </div>
@@ -112,9 +114,10 @@
 
     <section class="quick-links reveal">
       <a href="#agenda"><span>01</span><strong>Avisos y agenda</strong><small>Recolección lunes y jueves</small></a>
-      <a href="#tramites"><span>02</span><strong>Trámites y servicios</strong><small>Boletas, reclamos y turnos</small></a>
+      <a href="#portal-ciudadano"><span>02</span><strong>Portal ciudadano</strong><small>Agenda, documentos, empleo y más</small></a>
       <a href="#obras"><span>03</span><strong>Obras públicas</strong><small>Calles, veredas y mantenimiento</small></a>
       <a href="#maquinaria"><span>04</span><strong>Maquinaria</strong><small>Equipamiento comunal</small></a>
+      <a href="#viviendas"><span>05</span><strong>Viviendas</strong><small>Construcción habitacional</small></a>
     </section>
 
     <section class="section news-beta" id="noticias">
@@ -286,7 +289,7 @@
 
       <div class="institution-viewer reveal">
         <div class="institution-panels">
-          <article class="institution-panel active" data-panel="club"><img src="assets/club-hd.jpg" alt="Club Atlético La Penca"><div><span>Fundado en 1946</span><h3>Club Atlético La Penca</h3><p>Un espacio de encuentro, pertenencia y vida social.</p></div></article>
+          <article class="institution-panel active" data-panel="club"><img src="assets/club-hd.png" alt="Club Atlético La Penca"><div><span>Fundado en 1946</span><h3>Club Atlético La Penca</h3><p>Un espacio de encuentro, pertenencia y vida social.</p></div></article>
           <article class="institution-panel" data-panel="iglesia"><img src="assets/iglesia-san-francisco-hd.png" alt="Capilla San Francisco de Asís"><div><span>Fundada en 1935</span><h3>Capilla San Francisco de Asís</h3><p>Parte central de la historia y las celebraciones de la comunidad.</p></div></article>
           <article class="institution-panel" data-panel="escuela"><img src="assets/escuela-hd.png" alt="Escuela de La Penca y Caraguatá"><div><span>Educación</span><h3>Escuela local</h3><p>Un espacio fundamental para el aprendizaje y el crecimiento de nuevas generaciones.</p></div></article>
           <article class="institution-panel" data-panel="samco"><img src="assets/samco-hd.png" alt="SAMCo La Penca y Caraguatá"><div><span>Salud</span><h3>SAMCo</h3><p>Atención y acompañamiento sanitario para la comunidad.</p></div></article>
@@ -315,7 +318,7 @@
 
       <div class="saint-gallery reveal">
         <figure class="saint-main"><img src="assets/iglesia-san-francisco-hd.png" alt="Capilla San Francisco de Asís"></figure>
-        <figure class="saint-statue"><img src="assets/san-francisco-plaza.png" alt="Imagen de San Francisco de Asís en el espacio exterior"></figure>
+        <figure class="saint-statue"><img src="assets/san-francisco-nuevo.jpg" alt="Imagen de San Francisco de Asís en la plaza"></figure>
         <figure class="saint-interior"><img src="assets/san-francisco-interior.png" alt="Imagen de San Francisco de Asís dentro de la capilla"></figure>
       </div>
     </section>
@@ -324,7 +327,8 @@
       <div class="section-head reveal"><span class="eyebrow dark">Espacios públicos</span><h2>Recreación,<br>salud y encuentro.</h2></div>
       <div class="recreation-grid">
         <article class="recreation-card reveal"><img src="assets/recreacion-hd.png" alt="Zona de recreación"><div><span>Actividad física</span><h3>Zona de recreación</h3><p>Equipamiento para el ejercicio y el bienestar de los vecinos.</p></div></article>
-        <article class="recreation-card reveal"><img src="assets/bicisenda-hd.png" alt="Bicisenda"><div><span>Movilidad y paseo</span><h3>Bicisenda</h3><p>Un recorrido para caminar, andar en bicicleta y disfrutar del entorno.</p></div></article>
+        <article class="recreation-card reveal"><img src="assets/bicisenda-hd.png" alt="Bicisenda de La Penca y Caraguatá"><div><span>Movilidad y paseo</span><h3>Bicisenda</h3><p>Un recorrido para caminar, andar en bicicleta y disfrutar del entorno.</p></div></article>
+        <article class="recreation-card reveal"><img src="assets/plaza-nueva.jpg" alt="Plaza de La Penca y Caraguatá"><div><span>Espacio público</span><h3>Plaza de la comunidad</h3><p>Un lugar de encuentro que reúne memoria, naturaleza y vida comunitaria.</p></div></article>
       </div>
     </section>
 
@@ -346,7 +350,7 @@
       </div>
       <div class="identity-grid">
         <article class="identity-card reveal">
-          <img src="assets/identidad-oficial.png" alt="Identidad oficial de La Penca y Caraguatá">
+          <img src="assets/monumento-centenario-hd.png" alt="Monumento del centenario de La Penca y Caraguatá">
           <div><span>Marca del pueblo</span><h3>Una imagen que nos representa</h3><p>La identidad visual acompaña el crecimiento de la comuna y refuerza su presencia institucional.</p></div>
         </article>
         <article class="identity-card reveal">
@@ -354,9 +358,22 @@
           <div><span>Territorio</span><h3>Un pueblo con arraigo</h3><p>La escala humana, la cercanía y la vida comunitaria siguen siendo rasgos centrales de La Penca y Caraguatá.</p></div>
         </article>
         <article class="identity-card reveal">
-          <img src="assets/marca-central.jpg" alt="Marca central de La Penca y Caraguatá">
+          <img src="assets/identidad-oficial.png" alt="Identidad visual de La Penca y Caraguatá">
           <div><span>Centenario</span><h3>Memoria y proyección</h3><p>Los símbolos del pueblo recuerdan el camino recorrido y celebran la historia compartida.</p></div>
         </article>
+      </div>
+    </section>
+
+
+    <section class="aerial-town section" id="desde-el-cielo">
+      <div class="aerial-copy reveal">
+        <span class="eyebrow light">La Penca desde el cielo</span>
+        <h2>Una mirada distinta<br>de nuestro pueblo.</h2>
+        <p>Las avenidas, el arbolado, los espacios públicos y la escala cercana de la localidad vistos desde las alturas.</p>
+      </div>
+      <div class="aerial-gallery reveal">
+        <figure><img src="assets/la-penca-aerea-1.jpg" alt="Vista aérea de una avenida de La Penca"></figure>
+        <figure><img src="assets/la-penca-aerea-2.jpg" alt="Vista aérea de La Penca y sus palmeras"></figure>
       </div>
     </section>
 
@@ -370,6 +387,32 @@
         <figure><img src="assets/calle-hd-2.jpg" alt="Avenida de La Penca"></figure>
       </div>
       <div class="works-list reveal"><span>Mejora de calles</span><span>Caminos rurales</span><span>Veredas</span><span>Espacios públicos</span></div>
+    </section>
+
+
+    <section class="housing section" id="viviendas">
+      <div class="section-head reveal">
+        <span class="eyebrow dark">Viviendas</span>
+        <h2>Nuevos hogares<br>para nuestra comunidad.</h2>
+        <p>Viviendas construidas en La Penca para ser sorteadas entre ciudadanos de la localidad.</p>
+      </div>
+
+      <div class="housing-gallery reveal">
+        <figure class="housing-main">
+          <img src="assets/viviendas-1.jpg" alt="Viviendas construidas en La Penca">
+        </figure>
+        <figure>
+          <img src="assets/viviendas-2.jpg" alt="Frente de las nuevas viviendas">
+        </figure>
+        <figure>
+          <img src="assets/viviendas-3.jpg" alt="Conjunto de viviendas y espacios verdes">
+        </figure>
+      </div>
+
+      <div class="housing-note reveal">
+        <span>Desarrollo habitacional</span>
+        <strong>Obras pensadas para acompañar el crecimiento de las familias.</strong>
+      </div>
     </section>
 
     <section class="machinery section" id="maquinaria">
@@ -386,6 +429,7 @@
           </div>
         </article>
         <article class="machine-card featured reveal"><img src="assets/maquinaria-nueva.jpg" alt="Retroexcavadora comunal"><div><span>Equipamiento comunal</span><h3>Retroexcavadora</h3><p>Preparada para acompañar tareas de mantenimiento y obras.</p></div></article>
+        <article class="machine-card reveal"><img src="assets/tractor-pauny.jpg" alt="Tractor Pauny de la Comuna"><div><span>Maquinaria comunal</span><h3>Tractor Pauny</h3><p>Equipamiento destinado a tareas de mantenimiento, traslado y trabajos generales.</p></div></article>
         <article class="machine-card reveal"><img src="assets/maquinaria-nueva-2.jpg" alt="Trabajadores junto a maquinaria"><div><span>Equipo de trabajo</span><h3>Maquinaria al servicio de la comunidad</h3></div></article>
         <article class="machine-card reveal"><img src="assets/maquinas.jpg" alt="Cortadora y desmalezadora"><div><span>Mantenimiento</span><h3>Cortadora y herramientas</h3></div></article>
       </div>
@@ -419,6 +463,49 @@
         <button data-name="formularios requisitos documentación"><span>07</span><strong>Formularios y requisitos</strong><small>En preparación</small></button>
         <button data-name="turno atención comuna"><span>08</span><strong>Pedir turno</strong><small>En preparación</small></button>
         <button data-name="carnet licencia conducir renovación"><span>09</span><strong>Carné de conducir</strong><small>En preparación</small></button>
+      </div>
+    </section>
+
+
+    <section class="citizen-portal section" id="portal-ciudadano">
+      <div class="section-head reveal">
+        <span class="eyebrow dark">Portal ciudadano</span>
+        <h2>Todo lo nuevo,<br>bien organizado.</h2>
+        <p>Agenda, documentos, empleo, proveedores, encuestas y suscripciones dentro de un único apartado para no recargar la página principal.</p>
+      </div>
+
+      <div class="citizen-portal-grid reveal">
+        <button type="button" data-portal-open="agenda">
+          <span>01</span><strong>Agenda comunal</strong><small>Eventos, operativos y fechas importantes</small>
+        </button>
+        <button type="button" data-portal-open="documents">
+          <span>02</span><strong>Documentos públicos</strong><small>Ordenanzas, resoluciones y comunicados</small>
+        </button>
+        <button type="button" data-portal-open="jobs">
+          <span>03</span><strong>Empleo y oportunidades</strong><small>Oportunidades y búsquedas locales</small>
+        </button>
+        <button type="button" data-portal-open="providers">
+          <span>04</span><strong>Registro de proveedores</strong><small>Presentación de datos y servicios</small>
+        </button>
+        <button type="button" data-portal-open="surveys">
+          <span>05</span><strong>Encuestas vecinales</strong><small>Participación en consultas públicas</small>
+        </button>
+        <button type="button" data-portal-open="transparency">
+          <span>06</span><strong>Transparencia</strong><small>Información institucional y acceso público</small>
+        </button>
+      </div>
+
+      <div class="citizen-subscribe reveal">
+        <div>
+          <span>Novedades oficiales</span>
+          <strong>Recibí avisos por correo</strong>
+          <small>Podés darte de baja cuando quieras.</small>
+        </div>
+        <form id="subscribe-form">
+          <input id="subscribe-email" type="email" placeholder="tu-correo@ejemplo.com" required>
+          <button type="submit">Suscribirme</button>
+        </form>
+        <p id="subscribe-message"></p>
       </div>
     </section>
 
@@ -470,10 +557,10 @@
 <dialog id="news-login-dialog" class="news-dialog news-auth-dialog">
   <button class="news-dialog-close" type="button" aria-label="Cerrar">×</button>
   <span class="news-eyebrow">Acceso interno</span>
-  <h3>Administración de noticias</h3>
+  <h3>Administración comunal</h3>
 
   <div class="news-auth-status">
-    Supabase conectado · acceso protegido por usuario y políticas RLS.
+    Acceso seguro a noticias y gestión general.
   </div>
 
   <form id="news-login-form">
@@ -489,7 +576,8 @@
              placeholder="••••••••" required>
     </label>
 
-    <button type="submit">Iniciar sesión</button>
+    <button class="news-login-submit" type="submit">Iniciar sesión</button>
+    <button id="news-reset-password" class="news-reset-password" type="button">¿Olvidaste tu contraseña?</button>
     <small id="news-login-error" role="alert"></small>
   </form>
 
@@ -506,6 +594,8 @@
     </div>
 
     <div class="news-admin-top-actions">
+      <button id="portal-admin-open" class="news-admin-new portal-admin-launch" type="button">Gestión general</button>
+      <button id="news-logout-button" class="news-admin-new news-logout-button" type="button">Cerrar sesión</button>
       <button id="news-new-button" class="news-admin-new" type="button">+ Nueva noticia</button>
       <button class="news-admin-close" type="button" aria-label="Cerrar">×</button>
     </div>
@@ -591,6 +681,7 @@
             <label>
               <span>Fecha</span>
               <input id="news-date" type="date" required>
+              <small>Fecha visible de la noticia.</small>
             </label>
           </div>
 
@@ -626,6 +717,14 @@
             </div>
           </div>
 
+          <div class="news-schedule-row">
+            <label>
+              <span>Programar publicación — opcional</span>
+              <input id="news-publish-at" type="datetime-local">
+              <small>Si elegís una fecha futura, quedará programada.</small>
+            </label>
+          </div>
+
           <div class="news-options-grid">
             <label class="news-option-card">
               <input id="news-featured-check" type="checkbox">
@@ -647,6 +746,9 @@
           <div class="news-form-actions news-form-actions-epic">
             <button id="news-save-button" class="news-submit news-save-main" type="submit">
               GUARDAR Y PUBLICAR
+            </button>
+            <button id="news-preview-button" class="news-secondary" type="button">
+              VISTA PREVIA
             </button>
             <button id="news-form-cancel" class="news-secondary" type="button">
               LIMPIAR FORMULARIO
@@ -674,6 +776,13 @@
               <option value="published">Publicadas</option>
               <option value="draft">Borradores</option>
               <option value="featured">Destacada</option>
+              <option value="scheduled">Programadas</option>
+              <option value="trash">Papelera</option>
+            </select>
+            <select id="news-sort">
+              <option value="newest">Más recientes</option>
+              <option value="oldest">Más antiguas</option>
+              <option value="title">Por título</option>
             </select>
           </div>
         </div>
@@ -687,6 +796,42 @@
 <dialog id="news-reader-dialog" class="news-reader-dialog">
   <button class="news-reader-close" type="button" aria-label="Cerrar">×</button>
   <div id="news-reader-content"></div>
+</dialog>
+
+
+<dialog id="portal-dialog" class="portal-dialog">
+  <button class="portal-dialog-close" type="button" aria-label="Cerrar">×</button>
+  <div id="portal-dialog-content"></div>
+</dialog>
+
+<dialog id="portal-admin-dialog" class="portal-admin-dialog">
+  <header>
+    <div><span>Centro de gestión</span><h3>Administración general</h3></div>
+    <button class="portal-admin-close" type="button">×</button>
+  </header>
+  <div class="portal-admin-layout">
+    <aside>
+      <button class="active" data-portal-admin-tab="alerts">Avisos</button>
+      <button data-portal-admin-tab="events">Agenda</button>
+      <button data-portal-admin-tab="documents">Documentos</button>
+      <button data-portal-admin-tab="jobs">Empleo</button>
+      <button data-portal-admin-tab="surveys">Encuestas</button>
+      <button data-portal-admin-tab="stats">Estadísticas</button>
+    </aside>
+    <main>
+      <section class="active" data-portal-admin-panel="alerts"></section>
+      <section data-portal-admin-panel="events"></section>
+      <section data-portal-admin-panel="documents"></section>
+      <section data-portal-admin-panel="jobs"></section>
+      <section data-portal-admin-panel="surveys"></section>
+      <section data-portal-admin-panel="stats"></section>
+    </main>
+  </div>
+</dialog>
+
+<dialog id="news-preview-dialog" class="news-reader-dialog">
+  <button class="news-preview-close" type="button" aria-label="Cerrar">×</button>
+  <div id="news-preview-content"></div>
 </dialog>
 
 <script src="script.js"></script>

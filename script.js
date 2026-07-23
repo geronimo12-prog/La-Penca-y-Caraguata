@@ -1073,3 +1073,500 @@ window.addEventListener('keydown', e => {
     }
   });
 })();
+
+
+// ==========================================================
+// B21 — Portal ciudadano, mejoras de noticias y gestión general
+// ==========================================================
+(() => {
+  const SUPABASE_URL = 'https://sxohvjfoontsgzqsyouk.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_3fZv9U_m_RuGujOtSk6zYA_WatgOb_n';
+  const ADMIN_EMAIL = 'gerocancian2@gmail.com';
+  const token = () => sessionStorage.getItem('news_supabase_token') || '';
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+  const publicHeaders = {'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
+  const authHeaders = () => ({'apikey':SUPABASE_KEY,'Authorization':`Bearer ${token()}`});
+
+  async function request(path, options={}, auth=false){
+    const response = await fetch(`${SUPABASE_URL}${path}`, {
+      ...options,
+      headers:{...(auth?authHeaders():publicHeaders),...(options.headers||{})}
+    });
+    if(!response.ok){
+      let data={};
+      try{data=await response.json()}catch(e){}
+      throw new Error(data.message||data.error_description||data.hint||`Error ${response.status}`);
+    }
+    if(response.status===204)return null;
+    const text=await response.text();
+    return text?JSON.parse(text):null;
+  }
+
+  const escapeHTML = value => {
+    const div=document.createElement('div');
+    div.textContent=value||'';
+    return div.innerHTML;
+  };
+
+  const formatDate = value => value ? new Intl.DateTimeFormat('es-AR',{dateStyle:'long',timeStyle:value.includes('T')?'short':undefined}).format(new Date(value)) : '';
+
+  // Estado de conexión
+  const saveStatus=$('#news-save-status');
+  function paintConnection(){
+    if(!saveStatus)return;
+    saveStatus.classList.add('connection-pill');
+    saveStatus.classList.toggle('offline',!navigator.onLine);
+    if(!navigator.onLine) saveStatus.textContent='Sin conexión';
+  }
+  addEventListener('online',()=>{paintConnection();location.reload()});
+  addEventListener('offline',paintConnection);
+  paintConnection();
+
+  // Cerrar sesión
+  $('#news-logout-button')?.addEventListener('click', async()=>{
+    try{
+      if(token()) await request('/auth/v1/logout',{method:'POST'},true);
+    }catch(e){}
+    sessionStorage.removeItem('news_supabase_token');
+    $('#news-admin-dialog')?.close();
+    alert('Sesión cerrada correctamente.');
+  });
+
+  // Recuperar contraseña
+  $('#news-reset-password')?.addEventListener('click', async event => {
+    event.preventDefault();
+
+    const button = event.currentTarget;
+    const message = $('#news-login-error');
+    const email = ($('#news-email')?.value || ADMIN_EMAIL).trim().toLowerCase();
+
+    if (!email || !email.includes('@')) {
+      message.textContent = 'Escribí un correo válido.';
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Enviando correo…';
+    message.textContent = '';
+
+    try {
+      const redirectTo = `${location.origin}${location.pathname}`;
+      const response = await fetch(
+        `${SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`,
+        {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          data.error_description ||
+          data.msg ||
+          data.message ||
+          'Supabase rechazó la solicitud.'
+        );
+      }
+
+      message.textContent =
+        'Correo enviado. Revisá Recibidos, Spam y Correo no deseado.';
+    } catch (error) {
+      message.textContent = `No se pudo enviar el correo: ${error.message}`;
+    } finally {
+      button.disabled = false;
+      button.textContent = '¿Olvidaste tu contraseña?';
+    }
+  });
+
+  // Vista previa
+  const previewDialog=$('#news-preview-dialog');
+  $('#news-preview-button')?.addEventListener('click',()=>{
+    const title=$('#news-title')?.value.trim()||'Título de la noticia';
+    const category=$('#news-category')?.value||'Comunicado';
+    const description=$('#news-description')?.value.trim()||'La descripción completa aparecerá en este lugar.';
+    const date=$('#news-date')?.value;
+    const image=$('#news-image-preview img')?.src||$('#news-cover-preview img')?.src||'assets/portada-hd.png';
+    $('#news-preview-content').innerHTML=`
+      <img class="news-reader-image" src="${image}" alt="">
+      <article class="news-reader-copy">
+        <span>${escapeHTML(category)}</span>
+        <h3>${escapeHTML(title)}</h3>
+        <time>${date?formatDate(date+'T12:00:00'):''}</time>
+        <p>${escapeHTML(description)}</p>
+        <div class="news-reader-share"><button type="button">Vista previa — todavía no publicada</button></div>
+      </article>`;
+    previewDialog?.showModal();
+  });
+  $('.news-preview-close')?.addEventListener('click',()=>previewDialog?.close());
+
+  // Borrador automático local
+  const draftFields=['news-title','news-category','news-custom-category','news-date','news-description','news-featured-check','news-published-check','news-publish-at'];
+  let autosaveTimer;
+  function collectDraft(){
+    const data={};
+    draftFields.forEach(id=>{
+      const el=$('#'+id);
+      if(!el)return;
+      data[id]=el.type==='checkbox'?el.checked:el.value;
+    });
+    return data;
+  }
+  function saveDraftLocal(){
+    const id=$('#news-id')?.value||'new';
+    localStorage.setItem(`news-autodraft-${id}`,JSON.stringify({...collectDraft(),savedAt:new Date().toISOString()}));
+    if(saveStatus){
+      saveStatus.textContent=`Borrador automático ${new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}`;
+      saveStatus.classList.add('saved');
+    }
+  }
+  draftFields.forEach(id=>{
+    $('#'+id)?.addEventListener('input',()=>{
+      clearTimeout(autosaveTimer);
+      autosaveTimer=setTimeout(saveDraftLocal,1200);
+    });
+  });
+  $('#news-new-button')?.addEventListener('click',()=>{
+    const saved=localStorage.getItem('news-autodraft-new');
+    if(!saved)return;
+    const data=JSON.parse(saved);
+    if(confirm('Hay un borrador automático sin publicar. ¿Querés recuperarlo?')){
+      draftFields.forEach(id=>{
+        const el=$('#'+id);
+        if(!el||data[id]===undefined)return;
+        if(el.type==='checkbox')el.checked=data[id]; else el.value=data[id];
+      });
+    }
+  });
+
+  // Programación: si hay fecha futura, forzar borrador y guardar metadata.
+  const newsForm=$('#news-form');
+  newsForm?.addEventListener('submit', async()=>{
+    const publishAt=$('#news-publish-at')?.value;
+    if(publishAt && new Date(publishAt)>new Date()){
+      $('#news-published-check').checked=false;
+      setTimeout(async()=>{
+        const id=$('#news-id')?.value;
+        if(!id||!token())return;
+        try{
+          await request(`/rest/v1/noticias?id=eq.${encodeURIComponent(id)}`,{
+            method:'PATCH',
+            headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+            body:JSON.stringify({publicar_en:new Date(publishAt).toISOString()})
+          },true);
+        }catch(e){console.warn(e)}
+      },1800);
+    }
+  },true);
+
+  // Compartir en lector
+  const readerContent=$('#news-reader-content');
+  const shareObserver=new MutationObserver(()=>{
+    if(!readerContent||!readerContent.querySelector('.news-reader-copy')||readerContent.querySelector('.news-reader-share'))return;
+    const title=readerContent.querySelector('h3')?.textContent||'Noticia comunal';
+    const share=document.createElement('div');
+    share.className='news-reader-share';
+    const url=location.href.split('#')[0]+'#noticias';
+    share.innerHTML=`
+      <a target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(title+' '+url)}">WhatsApp</a>
+      <a target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}">Facebook</a>
+      <button type="button" data-copy-news>Copiar enlace</button>`;
+    readerContent.querySelector('.news-reader-copy').appendChild(share);
+    share.querySelector('[data-copy-news]').addEventListener('click',async()=>{
+      await navigator.clipboard.writeText(url);
+      share.querySelector('[data-copy-news]').textContent='Enlace copiado';
+    });
+  });
+  if(readerContent)shareObserver.observe(readerContent,{childList:true,subtree:true});
+
+  // Barra de avisos
+  async function loadAlerts(){
+    try{
+      const rows=await request('/rest/v1/avisos?select=*&activo=eq.true&order=prioridad.desc,created_at.desc&limit=1');
+      const box=$('#official-alerts');
+      if(!box)return;
+      if(!rows?.length){box.hidden=true;return}
+      const a=rows[0];
+      box.hidden=false;
+      box.className=`official-alerts is-${a.tipo||'info'}`;
+      box.textContent=a.mensaje;
+    }catch(e){console.warn(e)}
+  }
+
+  // Portal público
+  const portalDialog=$('#portal-dialog');
+  const portalContent=$('#portal-dialog-content');
+  $('.portal-dialog-close')?.addEventListener('click',()=>portalDialog?.close());
+
+  async function openPublicModule(name){
+    const definitions={
+      agenda:{title:'Agenda comunal',table:'eventos',order:'fecha_inicio.asc',render:r=>`
+        <article class="portal-public-card"><span>${formatDate(r.fecha_inicio)}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.lugar?`<small>${escapeHTML(r.lugar)}</small>`:''}</article>`},
+      documents:{title:'Documentos públicos',table:'documentos',order:'fecha.desc',render:r=>`
+        <article class="portal-public-card"><span>${escapeHTML(r.tipo||'Documento')} · ${formatDate(r.fecha+'T12:00:00')}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.url?`<a target="_blank" rel="noopener" href="${r.url}">Abrir documento →</a>`:''}</article>`},
+      jobs:{title:'Empleo y oportunidades',table:'oportunidades',order:'created_at.desc',render:r=>`
+        <article class="portal-public-card"><span>${escapeHTML(r.tipo||'Oportunidad')}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.contacto?`<small>Contacto: ${escapeHTML(r.contacto)}</small>`:''}</article>`},
+      transparency:{title:'Portal de transparencia',table:'documentos',order:'fecha.desc',extra:'&es_transparencia=eq.true',render:r=>`
+        <article class="portal-public-card"><span>${escapeHTML(r.tipo||'Información pública')}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.url?`<a target="_blank" rel="noopener" href="${r.url}">Consultar →</a>`:''}</article>`}
+    };
+
+    if(name==='providers'){
+      portalContent.innerHTML=`
+        <div class="portal-public-wrap"><h3>Registro de proveedores</h3><p>Completá los datos para incorporarte al registro comunal.</p>
+        <form id="provider-form" class="portal-form">
+          <input name="nombre" placeholder="Nombre o razón social" required>
+          <input name="cuit" placeholder="CUIT" required>
+          <input name="rubro" placeholder="Rubro o servicio" required>
+          <input name="telefono" placeholder="Teléfono" required>
+          <input name="email" type="email" placeholder="Correo electrónico" required>
+          <input name="localidad" placeholder="Localidad">
+          <textarea name="detalle" placeholder="Detalle adicional"></textarea>
+          <button>Enviar registro</button><p data-form-message></p>
+        </form></div>`;
+      portalDialog.showModal();
+      $('#provider-form').addEventListener('submit',async e=>{
+        e.preventDefault(); const f=new FormData(e.target); const data=Object.fromEntries(f);
+        try{
+          await request('/rest/v1/proveedores',{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(data)});
+          $('[data-form-message]',e.target).textContent='Registro enviado correctamente.';
+          e.target.reset();
+        }catch(err){$('[data-form-message]',e.target).textContent=err.message}
+      });
+      return;
+    }
+
+    if(name==='surveys'){
+      portalContent.innerHTML='<div class="portal-public-wrap"><h3>Encuestas vecinales</h3><p>Consultas abiertas para participar.</p><div id="survey-public-list" class="portal-public-list"></div></div>';
+      portalDialog.showModal();
+      try{
+        const rows=await request('/rest/v1/encuestas?select=*&activa=eq.true&order=created_at.desc');
+        $('#survey-public-list').innerHTML=rows?.length?rows.map(r=>`
+          <article class="portal-public-card" data-survey="${r.id}">
+            <span>Encuesta abierta</span><h4>${escapeHTML(r.pregunta)}</h4>
+            <div class="portal-form">${(r.opciones||[]).map((o,i)=>`<button type="button" data-vote="${i}">${escapeHTML(o)}</button>`).join('')}</div>
+            <small data-vote-message></small>
+          </article>`).join(''):'<p>No hay encuestas abiertas.</p>';
+        $$('[data-vote]').forEach(btn=>btn.addEventListener('click',async()=>{
+          const card=btn.closest('[data-survey]');
+          try{
+            await request('/rest/v1/votos_encuesta',{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({encuesta_id:card.dataset.survey,opcion:Number(btn.dataset.vote)})});
+            $('[data-vote-message]',card).textContent='Tu voto fue registrado.';
+            $$('button',card).forEach(b=>b.disabled=true);
+          }catch(err){$('[data-vote-message]',card).textContent=err.message}
+        }));
+      }catch(e){$('#survey-public-list').innerHTML=`<p>${escapeHTML(e.message)}</p>`}
+      return;
+    }
+
+    const def=definitions[name];
+    portalContent.innerHTML=`<div class="portal-public-wrap"><h3>${def.title}</h3><p>Información cargada y actualizada desde la administración comunal.</p><div class="portal-public-list"><p>Cargando…</p></div></div>`;
+    portalDialog.showModal();
+    try{
+      const rows=await request(`/rest/v1/${def.table}?select=*&publicado=eq.true${def.extra||''}&order=${def.order}`);
+      $('.portal-public-list',portalContent).innerHTML=rows?.length?rows.map(def.render).join(''):'<p>No hay contenido publicado por el momento.</p>';
+    }catch(e){$('.portal-public-list',portalContent).innerHTML=`<p>${escapeHTML(e.message)}</p>`}
+  }
+  $$('[data-portal-open]').forEach(b=>b.addEventListener('click',()=>openPublicModule(b.dataset.portalOpen)));
+
+  // Suscripción
+  $('#subscribe-form')?.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const email=$('#subscribe-email').value.trim().toLowerCase();
+    try{
+      await request('/rest/v1/suscriptores',{method:'POST',headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({email})});
+      $('#subscribe-message').textContent='Suscripción registrada correctamente.';
+      e.target.reset();
+    }catch(err){$('#subscribe-message').textContent=err.message}
+  });
+
+  // Admin general genérico
+  const adminDialog=$('#portal-admin-dialog');
+  $('#portal-admin-open')?.addEventListener('click',()=>{
+    if(!token()){alert('Primero iniciá sesión.');return}
+    adminDialog.showModal(); loadAdminPanel('alerts');
+  });
+  $('.portal-admin-close')?.addEventListener('click',()=>adminDialog.close());
+  $$('[data-portal-admin-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+    $$('[data-portal-admin-tab]').forEach(b=>b.classList.toggle('active',b===btn));
+    $$('[data-portal-admin-panel]').forEach(p=>p.classList.toggle('active',p.dataset.portalAdminPanel===btn.dataset.portalAdminTab));
+    loadAdminPanel(btn.dataset.portalAdminTab);
+  }));
+
+  const configs={
+    alerts:{table:'avisos',title:'Avisos importantes',fields:[
+      ['mensaje','Mensaje','textarea'],['tipo','Tipo','select',['info','danger','success']],['prioridad','Prioridad','number'],['activo','Activo','checkbox']
+    ],summary:r=>r.mensaje},
+    events:{table:'eventos',title:'Agenda comunal',fields:[
+      ['titulo','Título','text'],['descripcion','Descripción','textarea'],['fecha_inicio','Fecha y hora','datetime-local'],['lugar','Lugar','text'],['publicado','Publicado','checkbox']
+    ],summary:r=>r.titulo},
+    documents:{table:'documentos',title:'Documentos públicos',fields:[
+      ['titulo','Título','text'],['tipo','Tipo','text'],['descripcion','Descripción','textarea'],['fecha','Fecha','date'],['url','Enlace al documento','url'],['es_transparencia','Mostrar en transparencia','checkbox'],['publicado','Publicado','checkbox']
+    ],summary:r=>r.titulo},
+    jobs:{table:'oportunidades',title:'Empleo y oportunidades',fields:[
+      ['titulo','Título','text'],['tipo','Tipo','select',['Empleo','Oportunidad','Servicio']],['descripcion','Descripción','textarea'],['contacto','Contacto','text'],['publicado','Publicado','checkbox']
+    ],summary:r=>r.titulo},
+    surveys:{table:'encuestas',title:'Encuestas vecinales',fields:[
+      ['pregunta','Pregunta','text'],['opciones_texto','Opciones, una por línea','textarea'],['activa','Activa','checkbox']
+    ],summary:r=>r.pregunta}
+  };
+
+  function fieldHTML([name,label,type,options]){
+    if(type==='textarea')return `<label>${label}<textarea name="${name}"></textarea></label>`;
+    if(type==='select')return `<label>${label}<select name="${name}">${options.map(o=>`<option>${o}</option>`).join('')}</select></label>`;
+    if(type==='checkbox')return `<label><input name="${name}" type="checkbox"> ${label}</label>`;
+    return `<label>${label}<input name="${name}" type="${type}"></label>`;
+  }
+
+  async function loadAdminPanel(name){
+    const panel=$(`[data-portal-admin-panel="${name}"]`);
+    if(!panel)return;
+    if(name==='stats'){
+      panel.innerHTML='<div class="portal-admin-module-head"><h4>Estadísticas generales</h4></div><div class="portal-admin-list" id="portal-stats">Cargando…</div>';
+      try{
+        const [news,subs,providers,votes]=await Promise.all([
+          request('/rest/v1/noticias?select=id,publicada,eliminada'),
+          request('/rest/v1/suscriptores?select=id'),
+          request('/rest/v1/proveedores?select=id'),
+          request('/rest/v1/votos_encuesta?select=id')
+        ]);
+        $('#portal-stats').innerHTML=`
+          <article class="portal-admin-item"><strong>${news?.length||0}</strong><small>Noticias totales</small></article>
+          <article class="portal-admin-item"><strong>${news?.filter(n=>n.publicada&&!n.eliminada).length||0}</strong><small>Noticias publicadas</small></article>
+          <article class="portal-admin-item"><strong>${subs?.length||0}</strong><small>Suscriptores</small></article>
+          <article class="portal-admin-item"><strong>${providers?.length||0}</strong><small>Proveedores registrados</small></article>
+          <article class="portal-admin-item"><strong>${votes?.length||0}</strong><small>Votos en encuestas</small></article>`;
+      }catch(e){$('#portal-stats').textContent=e.message}
+      return;
+    }
+
+    const cfg=configs[name];
+    panel.innerHTML=`
+      <div class="portal-admin-module-head"><h4>${cfg.title}</h4><small>Guardado online en Supabase</small></div>
+      <div class="portal-admin-grid">
+        <form class="portal-admin-form" data-module-form>
+          <input type="hidden" name="id">
+          ${cfg.fields.map(fieldHTML).join('')}
+          <button>Guardar</button>
+          <small data-module-message></small>
+        </form>
+        <div class="portal-admin-list" data-module-list>Cargando…</div>
+      </div>`;
+
+    const form=$('[data-module-form]',panel);
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      const fd=new FormData(form); const payload={};
+      cfg.fields.forEach(([key,,type])=>{
+        const el=form.elements[key];
+        if(type==='checkbox')payload[key]=el.checked;
+        else if(type==='number')payload[key]=Number(el.value||0);
+        else payload[key]=el.value.trim();
+      });
+      if(name==='surveys'){
+        payload.opciones=(payload.opciones_texto||'').split('\n').map(x=>x.trim()).filter(Boolean);
+        delete payload.opciones_texto;
+      }
+      const id=form.elements.id.value;
+      try{
+        await request(`/rest/v1/${cfg.table}${id?`?id=eq.${id}`:''}`,{
+          method:id?'PATCH':'POST',
+          headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+          body:JSON.stringify(payload)
+        },true);
+        $('[data-module-message]',form).textContent='Guardado correctamente.';
+        form.reset(); form.elements.id.value='';
+        loadAdminPanel(name); loadAlerts();
+      }catch(err){$('[data-module-message]',form).textContent=err.message}
+    });
+
+    try{
+      const rows=await request(`/rest/v1/${cfg.table}?select=*&order=created_at.desc`,{},true);
+      const list=$('[data-module-list]',panel);
+      list.innerHTML=rows?.length?rows.map(r=>`
+        <article class="portal-admin-item" data-row="${r.id}">
+          <strong>${escapeHTML(cfg.summary(r))}</strong>
+          <small>${r.created_at?formatDate(r.created_at):''}</small>
+          <div class="portal-admin-item-actions">
+            <button class="edit" data-edit>Editar</button>
+            <button class="danger" data-delete>Borrar</button>
+          </div>
+        </article>`).join(''):'<p>No hay registros.</p>';
+
+      $$('[data-edit]',list).forEach(btn=>btn.addEventListener('click',()=>{
+        const id=btn.closest('[data-row]').dataset.row; const row=rows.find(r=>String(r.id)===id);
+        form.elements.id.value=row.id;
+        cfg.fields.forEach(([key,,type])=>{
+          const el=form.elements[key]; if(!el)return;
+          let value=row[key];
+          if(name==='surveys'&&key==='opciones_texto')value=(row.opciones||[]).join('\n');
+          if(type==='checkbox')el.checked=Boolean(value);
+          else if(type==='datetime-local'&&value)el.value=new Date(value).toISOString().slice(0,16);
+          else el.value=value??'';
+        });
+        form.scrollIntoView({behavior:'smooth'});
+      }));
+      $$('[data-delete]',list).forEach(btn=>btn.addEventListener('click',async()=>{
+        const id=btn.closest('[data-row]').dataset.row;
+        if(!confirm('¿Borrar definitivamente este registro?'))return;
+        await request(`/rest/v1/${cfg.table}?id=eq.${id}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}},true);
+        loadAdminPanel(name); loadAlerts();
+      }));
+    }catch(e){$('[data-module-list]',panel).textContent=e.message}
+  }
+
+  loadAlerts();
+})();
+
+
+// ==========================================================
+// B22 — Protección visual de fotografías y orden del panel
+// ==========================================================
+(() => {
+  document.addEventListener('error', event => {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement)) return;
+    if (image.dataset.fallbackApplied === 'true') return;
+    image.dataset.fallbackApplied = 'true';
+    image.src = 'assets/portada-hd.png';
+  }, true);
+
+  const sortSelect = document.querySelector('#news-sort');
+  const adminList = document.querySelector('#news-admin-list');
+
+  function reorderVisibleNews() {
+    if (!sortSelect || !adminList) return;
+    const cards = [...adminList.querySelectorAll('.news-admin-item')];
+    if (cards.length < 2) return;
+
+    cards.sort((a, b) => {
+      const titleA = (a.querySelector('.news-admin-copy > strong')?.textContent || '').trim();
+      const titleB = (b.querySelector('.news-admin-copy > strong')?.textContent || '').trim();
+
+      if (sortSelect.value === 'title') {
+        return titleA.localeCompare(titleB, 'es');
+      }
+      if (sortSelect.value === 'oldest') {
+        return -1;
+      }
+      return 0;
+    });
+
+    cards.forEach(card => adminList.appendChild(card));
+  }
+
+  sortSelect?.addEventListener('change', reorderVisibleNews);
+
+  if (adminList) {
+    new MutationObserver(() => {
+      if (sortSelect?.value === 'title') reorderVisibleNews();
+    }).observe(adminList, { childList: true });
+  }
+})();
