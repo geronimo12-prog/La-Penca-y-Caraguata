@@ -1,0 +1,48 @@
+COMUNA DE LA PENCA Y CARAGUATÁ — V8
+
+Cambios:
+- Portada fija con la foto HD del ingreso.
+- Se eliminaron las imágenes rotativas de portada.
+- Menú superior reemplazado por un menú lateral animado.
+- Club, iglesia, escuela, SAMCo, policía y parque con fotos HD reales.
+- Obras públicas separadas de maquinaria.
+- Zona de recreación y bicisenda agregadas.
+- Recolección de residuos: lunes y jueves.
+- Teléfonos y WhatsApp agregados.
+- Se conservaron las fotos sin modificarlas.
+
+
+VERSIÓN 9
+- Se eliminó el recuadro “La imagen de nuestra entrada”.
+- Se agregó el correo comunalapenca@gmail.com.
+- Se incorporaron nuevas fotos de San Francisco de Asís.
+- La iglesia usa la nueva imagen exterior en alta calidad.
+- Se agregó una sección visual dedicada a San Francisco de Asís.
+- Se agregó la nueva foto del edificio comunal.
+- Se añadió “Diseñada por Gerónimo Cancián” en el pie.
+
+
+VERSIÓN 11
+- Se mantuvo intacto el diseño general de la V9.
+- El logo se agregó solamente como favicon en la pestaña del navegador.
+- No se colocó el logo dentro de la página.
+- Se agregó el apartado “Pequeños pasos, grandes huellas”.
+- Se incorporó nuevamente la hidrogrúa.
+- La foto de la hidrogrúa usa object-fit: contain para mostrarse completa y sin recortes.
+
+
+VERSIÓN 12
+- Nuevo favicon/logo de pestaña más limpio y distintivo.
+- Rediseño visual del bloque superior de fecha/hora + menú, manteniendo la estructura de la página.
+- Se conserva el resto del sitio tal como estaba en V11.
+
+
+ACTUALIZACIÓN HISTORIA
+- Se amplió la historia sin cargar demasiado la página.
+- Se agregó una línea temporal resumida.
+- Se incorporó el origen del nombre como una sola identidad.
+- Se agregó la creación formal de la Comuna.
+- Se incorporó La Rinconada y el origen histórico de Tregar.
+- Se agregó el dato de Caminos de la Ruralidad.
+- La información adicional quedó dentro de un desplegable.
+- Se restauró “© 2026 Todos los derechos reservados”.
