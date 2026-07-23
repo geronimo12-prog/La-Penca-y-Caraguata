@@ -1,15 +1,12 @@
-ESTRUCTURA CORRECTA PARA GITHUB / NETLIFY
+VERSIÓN LIVIANA PARA GITHUB
 
-Subí estos archivos manteniendo exactamente esta estructura:
-
+Esta versión mantiene:
 index.html
 styles.css
 script.js
 assets/
-  (todas las fotos y logos)
 
-IMPORTANTE:
-- No saques las fotos de la carpeta assets.
-- No subas el ZIP directamente.
-- Descomprimí el ZIP y arrastrá index.html, styles.css, script.js y la carpeta assets juntos.
-- index.html debe quedar en la raíz del repositorio.
+Las imágenes fueron optimizadas para que ningún archivo individual supere
+el límite de carga del navegador de GitHub.
+
+Subí los cuatro elementos juntos y conservá la carpeta assets.
