@@ -156,7 +156,8 @@ window.addEventListener('keydown', e => {
 // B19 — Noticias conectadas a Supabase
 // ==========================================================
 (() => {
-  const PIN = '2026';
+  const PIN = '2016';
+  const ADMIN_EMAIL = 'gerocancian2@gmail.com';
   const DEFAULT_IMAGE = 'assets/portada-hd.png';
   const SUPABASE_URL = 'https://sxohvjfoontsgzqsyouk.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_3fZv9U_m_RuGujOtSk6zYA_WatgOb_n';
@@ -171,6 +172,7 @@ window.addEventListener('keydown', e => {
     adminDialog: $('#news-admin-dialog'),
     readerDialog: $('#news-reader-dialog'),
     loginForm: $('#news-login-form'),
+    email: $('#news-email'),
     pin: $('#news-pin'),
     loginError: $('#news-login-error'),
     adminOpen: $('.footer-admin .news-admin-open'),
@@ -796,6 +798,7 @@ window.addEventListener('keydown', e => {
   }
 
   ui.adminOpen?.addEventListener('click', () => {
+    ui.email.value = '';
     ui.pin.value = '';
     ui.loginError.textContent = '';
     ui.loginDialog.showModal();
@@ -804,8 +807,10 @@ window.addEventListener('keydown', e => {
   ui.loginForm?.addEventListener('submit', async event => {
     event.preventDefault();
 
-    if (ui.pin.value !== PIN) {
-      ui.loginError.textContent = 'PIN incorrecto.';
+    const enteredEmail = ui.email.value.trim().toLowerCase();
+
+    if (enteredEmail !== ADMIN_EMAIL || ui.pin.value !== PIN) {
+      ui.loginError.textContent = 'Correo o PIN incorrectos.';
       return;
     }
 

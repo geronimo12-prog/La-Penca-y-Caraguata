@@ -1635,3 +1635,146 @@ body.intro-active{overflow:hidden}
     font-size:16px;
   }
 }
+
+
+/* ==========================================================
+   B18 FINAL — acceso visible a editar y borrar noticias
+   ========================================================== */
+.news-manager-toolbar{
+  position:sticky;
+  top:0;
+  z-index:12;
+  display:grid;
+  grid-template-columns:1fr 1.35fr;
+  gap:12px;
+  padding:16px 24px;
+  background:rgba(247,243,235,.96);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(14px);
+}
+
+.news-manager-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:52px;
+  padding:12px 16px;
+  border:1px solid #d4ccbd;
+  border-radius:16px;
+  background:#fff;
+  color:var(--navy);
+  font-weight:900;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.news-manager-button:hover{
+  transform:translateY(-2px);
+}
+
+.news-manager-button.active{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+  box-shadow:0 12px 28px rgba(8,31,67,.18);
+}
+
+.news-manager-button>span{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  background:rgba(8,31,67,.08);
+  font-size:17px;
+}
+
+.news-manager-button.active>span{
+  background:rgba(255,255,255,.13);
+}
+
+.news-manager-button small{
+  display:grid;
+  place-items:center;
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  background:#ef4338;
+  color:#fff;
+  font-size:11px;
+}
+
+.news-admin-content{
+  position:relative;
+}
+
+.news-admin-panel{
+  scroll-margin-top:92px;
+}
+
+/* Hacer mucho más visibles los botones de cada noticia */
+.news-admin-actions .news-edit,
+.news-admin-actions .news-delete,
+.news-admin-actions .news-toggle,
+.news-admin-actions .news-feature-button{
+  border:0!important;
+  font-weight:900!important;
+}
+
+.news-admin-actions .news-edit{
+  background:#f4c64f!important;
+  color:#102444!important;
+}
+
+.news-admin-actions .news-delete{
+  background:#b62722!important;
+  color:#fff!important;
+}
+
+.news-admin-actions .news-toggle{
+  background:#dfe9f7!important;
+  color:#0b2a59!important;
+}
+
+.news-admin-actions .news-feature-button{
+  background:#fff0c9!important;
+  color:#775200!important;
+}
+
+@media(max-width:650px){
+  .news-manager-toolbar{
+    grid-template-columns:1fr;
+    padding:12px;
+  }
+
+  .news-manager-button{
+    width:100%;
+  }
+}
+
+
+/* B19 — Acceso con correo + PIN y modal sin desborde */
+.news-dialog{
+  box-sizing:border-box;
+  overflow-x:hidden;
+}
+
+.news-dialog *,
+.news-dialog *::before,
+.news-dialog *::after{
+  box-sizing:border-box;
+}
+
+.news-dialog form,
+.news-dialog label,
+.news-dialog input,
+.news-dialog button{
+  min-width:0;
+  max-width:100%;
+}
+
+#news-email{
+  text-transform:lowercase;
+}

@@ -470,12 +470,16 @@
   <button class="news-dialog-close" type="button" aria-label="Cerrar">×</button>
   <span class="news-dialog-kicker">Acceso interno</span>
   <h3>Administración de noticias</h3>
-  <p>Ingresá el PIN de prueba para abrir el panel.</p>
+  <p>Ingresá tu correo y PIN para abrir el panel.</p>
 
   <form id="news-login-form">
     <label>
+      <span>Correo electrónico</span>
+      <input id="news-email" type="email" autocomplete="username" placeholder="gerocancian2@gmail.com" required>
+    </label>
+    <label>
       <span>PIN</span>
-      <input id="news-pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" required>
+      <input id="news-pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" placeholder="••••" required>
     </label>
     <button class="news-submit" type="submit">Entrar al panel</button>
     <small id="news-login-error" role="alert"></small>
@@ -504,8 +508,8 @@
       </button>
       <button class="news-admin-tab" type="button" data-news-tab="publications">
         <span>02</span>
-        <strong>Publicaciones</strong>
-        <small>Ver, editar y borrar</small>
+        <strong>Editar o borrar</strong>
+        <small>Gestionar noticias cargadas</small>
       </button>
 
       <div class="news-admin-summary">
@@ -516,6 +520,19 @@
     </aside>
 
     <main class="news-admin-content">
+
+      <div class="news-manager-toolbar">
+        <button class="news-manager-button active" type="button" data-open-news-panel="editor">
+          <span>＋</span>
+          <strong>Nueva noticia</strong>
+        </button>
+        <button class="news-manager-button" type="button" data-open-news-panel="publications">
+          <span>✎</span>
+          <strong>Editar o borrar noticias</strong>
+          <small id="news-manager-count">0</small>
+        </button>
+      </div>
+
       <section class="news-admin-panel active" data-news-panel="editor">
         <div class="news-editor-heading">
           <div>
