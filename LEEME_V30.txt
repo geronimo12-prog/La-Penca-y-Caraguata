@@ -1,0 +1,14 @@
+V30 — CORRECCIÓN DEL VENCIMIENTO DE AVISOS
+
+El error era visible cuando el aviso ya había terminado pero el cuadro seguía abierto
+o el navegador del celular había suspendido los temporizadores.
+
+Ahora:
+- compara fecha y hora final usando la hora local del dispositivo;
+- programa un temporizador exactamente para la hora de finalización;
+- actualiza el aviso cada 30 segundos como respaldo;
+- vuelve a comprobar al regresar a la pestaña o desbloquear el celular;
+- actualiza también la ventana de Avisos si estaba abierta.
+
+Para GitHub reemplazar solamente script.js.
+No requiere cambios en Supabase.

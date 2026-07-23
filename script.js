@@ -1112,16 +1112,30 @@ window.addEventListener('keydown', e => {
 
   const formatDate = value => value ? new Intl.DateTimeFormat('es-AR',{dateStyle:'long',timeStyle:value.includes('T')?'short':undefined}).format(new Date(value)) : '';
 
+  function getAlertEndDate(alert) {
+    if (!alert?.fecha || !alert?.hora_hasta) return null;
+
+    const [year, month, day] = String(alert.fecha).split('-').map(Number);
+    const [hour, minute, second = 0] = String(alert.hora_hasta)
+      .slice(0, 8)
+      .split(':')
+      .map(Number);
+
+    if (![year, month, day, hour, minute].every(Number.isFinite)) return null;
+
+    // Se crea expresamente en la hora local del dispositivo.
+    const end = new Date(year, month - 1, day, hour, minute, second, 0);
+    return Number.isNaN(end.getTime()) ? null : end;
+  }
+
   function alertIsStillActive(alert, now = new Date()) {
     if (!alert || alert.activo === false) return false;
 
-    // Sin fecha o sin hora final: permanece activo hasta que administración lo desactive.
-    if (!alert.fecha || !alert.hora_hasta) return true;
+    // Sin fecha u hora final, queda activo hasta desactivarlo manualmente.
+    const end = getAlertEndDate(alert);
+    if (!end) return true;
 
-    const end = new Date(`${alert.fecha}T${String(alert.hora_hasta).slice(0, 8)}`);
-    if (Number.isNaN(end.getTime())) return true;
-
-    return now < end;
+    return now.getTime() < end.getTime();
   }
 
   // Estado de conexión
@@ -1301,6 +1315,32 @@ window.addEventListener('keydown', e => {
 
   // Barra y ventana pública de avisos
   let currentPublicAlerts = [];
+  let alertExpirationTimer = null;
+
+  function scheduleNextAlertExpiration(alerts = currentPublicAlerts) {
+    clearTimeout(alertExpirationTimer);
+
+    const now = Date.now();
+    const expirations = alerts
+      .map(getAlertEndDate)
+      .filter(Boolean)
+      .map(date => date.getTime())
+      .filter(timestamp => timestamp > now)
+      .sort((a, b) => a - b);
+
+    if (!expirations.length) return;
+
+    // Se ejecuta apenas pasa la hora final. Máximo permitido por setTimeout.
+    const delay = Math.min(expirations[0] - now + 500, 2147483647);
+
+    alertExpirationTimer = setTimeout(async () => {
+      await loadAlerts();
+      await loadImportantSection();
+
+      const dialog = $('#public-alerts-dialog');
+      if (dialog?.open) renderPublicAlerts();
+    }, delay);
+  }
 
   async function loadAlerts(){
     const box = $('#official-alerts');
@@ -1315,9 +1355,14 @@ window.addEventListener('keydown', e => {
         ? rows.filter(alert => alertIsStillActive(alert))
         : [];
 
+      scheduleNextAlertExpiration(currentPublicAlerts);
+
       if (!currentPublicAlerts.length) {
         if (box) box.hidden = true;
         if (floatingButton) floatingButton.hidden = true;
+
+        const dialog = $('#public-alerts-dialog');
+        if (dialog?.open) renderPublicAlerts();
         return;
       }
 
@@ -1831,11 +1876,23 @@ window.addEventListener('keydown', e => {
   loadAlerts();
   loadImportantSection();
 
-  // Revisa vencimientos automáticamente aunque la página permanezca abierta.
-  setInterval(() => {
-    loadAlerts();
-    loadImportantSection();
-  }, 60000);
+  // Respaldo periódico y refresco al volver a abrir la pestaña o la app.
+  const refreshExpiredAlerts = async () => {
+    await loadAlerts();
+    await loadImportantSection();
+
+    const dialog = $('#public-alerts-dialog');
+    if (dialog?.open) renderPublicAlerts();
+  };
+
+  setInterval(refreshExpiredAlerts, 30000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshExpiredAlerts();
+  });
+
+  window.addEventListener('focus', refreshExpiredAlerts);
+  window.addEventListener('pageshow', refreshExpiredAlerts);
 })();
 
 
