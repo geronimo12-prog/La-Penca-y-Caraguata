@@ -1112,6 +1112,18 @@ window.addEventListener('keydown', e => {
 
   const formatDate = value => value ? new Intl.DateTimeFormat('es-AR',{dateStyle:'long',timeStyle:value.includes('T')?'short':undefined}).format(new Date(value)) : '';
 
+  function alertIsStillActive(alert, now = new Date()) {
+    if (!alert || alert.activo === false) return false;
+
+    // Sin fecha o sin hora final: permanece activo hasta que administración lo desactive.
+    if (!alert.fecha || !alert.hora_hasta) return true;
+
+    const end = new Date(`${alert.fecha}T${String(alert.hora_hasta).slice(0, 8)}`);
+    if (Number.isNaN(end.getTime())) return true;
+
+    return now < end;
+  }
+
   // Estado de conexión
   const saveStatus=$('#news-save-status');
   function paintConnection(){
@@ -1299,7 +1311,9 @@ window.addEventListener('keydown', e => {
         '/rest/v1/avisos?select=*&activo=eq.true&order=prioridad.desc,created_at.desc'
       );
 
-      currentPublicAlerts = Array.isArray(rows) ? rows : [];
+      currentPublicAlerts = Array.isArray(rows)
+        ? rows.filter(alert => alertIsStillActive(alert))
+        : [];
 
       if (!currentPublicAlerts.length) {
         if (box) box.hidden = true;
@@ -1408,9 +1422,10 @@ window.addEventListener('keydown', e => {
         request('/rest/v1/eventos?select=*&publicado=eq.true&order=fecha_inicio.asc')
       ]);
 
+      const visibleAlerts = (alerts || []).filter(alert => alertIsStillActive(alert));
       const rows = defaults.map(item => ({ ...item, active:false, meta:'Sin novedades' }));
 
-      (alerts || []).forEach(alert => {
+      visibleAlerts.forEach(alert => {
         const key = alertKey(alert);
         const row = rows.find(item => item.key === key);
         if (!row || row.active) return;
@@ -1815,6 +1830,12 @@ window.addEventListener('keydown', e => {
 
   loadAlerts();
   loadImportantSection();
+
+  // Revisa vencimientos automáticamente aunque la página permanezca abierta.
+  setInterval(() => {
+    loadAlerts();
+    loadImportantSection();
+  }, 60000);
 })();
 
 

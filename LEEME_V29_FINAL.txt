@@ -1,0 +1,12 @@
+V29 FINAL
+
+Cambio:
+- Los avisos con fecha y hora final dejan de mostrarse automáticamente al llegar esa hora.
+- Desaparecen de la barra superior, del botón Avisos y de “Lo importante”.
+- La página revisa los vencimientos cada 60 segundos.
+- El registro sigue guardado en Supabase y puede verse desde administración.
+- No se modificó el pie de página ni se agregó ningún nombre personal.
+- No requiere cambios nuevos en Supabase si V28 ya funciona.
+
+Para GitHub reemplazar solamente:
+- script.js
