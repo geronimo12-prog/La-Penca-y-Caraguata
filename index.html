@@ -46,6 +46,11 @@
     <span>Noticias</span><b>!</b>
   </a>
 
+
+  <button id="floating-alerts-button" class="floating-alerts" type="button" aria-label="Ver avisos comunales">
+    <span>Avisos</span><b>i</b>
+  </button>
+
   <a class="floating-whatsapp" href="https://wa.me/5493498502213" target="_blank" rel="noopener" aria-label="Abrir WhatsApp de la comuna">
     <span>WhatsApp</span>
     <b>✦</b>
@@ -114,7 +119,7 @@
 
     <section class="quick-links reveal">
       <a href="#agenda"><span>01</span><strong>Avisos y agenda</strong><small>Recolección lunes y jueves</small></a>
-      <a href="#portal-ciudadano"><span>02</span><strong>Portal ciudadano</strong><small>Agenda, documentos, empleo y más</small></a>
+      <a href="#portal-ciudadano"><span>02</span><strong>Portal ciudadano</strong><small>Agenda, documentos y participación</small></a>
       <a href="#obras"><span>03</span><strong>Obras públicas</strong><small>Calles, veredas y mantenimiento</small></a>
       <a href="#maquinaria"><span>04</span><strong>Maquinaria</strong><small>Equipamiento comunal</small></a>
       <a href="#viviendas"><span>05</span><strong>Viviendas</strong><small>Construcción habitacional</small></a>
@@ -439,39 +444,21 @@
       <div class="section-head reveal"><span class="eyebrow dark">Agenda y avisos</span><h2>Lo importante,<br>en un solo lugar.</h2></div>
       <div class="agenda-grid">
         <article class="agenda-main reveal"><span>Servicio confirmado</span><h3>Recolección de residuos</h3><p>La recolección se realiza los días lunes y jueves.</p><div class="week"><b class="active">Lun</b><b>Mar</b><b>Mié</b><b class="active">Jue</b><b>Vie</b><b>Sáb</b><b>Dom</b></div></article>
-        <div class="agenda-items">
-          <article class="reveal"><span>Servicios</span><strong>Cortes programados</strong><small>Próximamente</small></article>
-          <article class="reveal"><span>Vencimientos</span><strong>Tasas y boletas</strong><small>Próximamente</small></article>
-          <article class="reveal"><span>Salud</span><strong>Vacunación y operativos</strong><small>Próximamente</small></article>
-          <article class="reveal"><span>Comunidad</span><strong>Actos y fiestas patronales</strong><small>Próximamente</small></article>
-          <article class="reveal"><span>Educación</span><strong>Actividades escolares</strong><small>Próximamente</small></article>
-          <article class="reveal"><span>Residuos</span><strong>Recolección especial</strong><small>Próximamente</small></article>
+        <div class="agenda-items" id="agenda-dynamic-list">
+          <article><span>Servicios</span><strong>Sin cortes de luz programados</strong><small>Sin novedades</small></article>
+          <article><span>Agua</span><strong>Sin cortes de agua programados</strong><small>Sin novedades</small></article>
+          <article><span>Comunidad</span><strong>Sin actos programados</strong><small>Sin novedades</small></article>
+          <article><span>Salud</span><strong>Sin operativos programados</strong><small>Sin novedades</small></article>
+          <article><span>Educación</span><strong>Sin actividades programadas</strong><small>Sin novedades</small></article>
+          <article><span>Residuos</span><strong>Sin recolecciones especiales programadas</strong><small>Sin novedades</small></article>
         </div>
       </div>
     </section>
-
-    <section class="services section" id="tramites">
-      <div class="section-head inverse reveal"><span class="eyebrow light">Portal de servicios</span><h2>Trámites sin vueltas.</h2><p>Los módulos se conectarán cuando la Comuna confirme los procedimientos y sistemas correspondientes.</p></div>
-      <div class="service-search reveal"><input id="service-search" type="search" placeholder="Buscar un trámite o servicio..."></div>
-      <div class="service-grid" id="service-grid">
-        <button data-name="luz deuda boleta energía"><span>01</span><strong>Consultar deuda de luz</strong><small>En preparación</small></button>
-        <button data-name="tasas comunales boleta vencimiento"><span>02</span><strong>Tasas comunales</strong><small>En preparación</small></button>
-        <button data-name="descargar boleta pago"><span>03</span><strong>Descargar boleta</strong><small>En preparación</small></button>
-        <button data-name="reclamo alumbrado calles residuos"><span>04</span><strong>Presentar un reclamo</strong><small>En preparación</small></button>
-        <button data-name="mantenimiento poda iluminación"><span>05</span><strong>Solicitar mantenimiento</strong><small>En preparación</small></button>
-        <button data-name="certificado constancia"><span>06</span><strong>Pedir certificado</strong><small>En preparación</small></button>
-        <button data-name="formularios requisitos documentación"><span>07</span><strong>Formularios y requisitos</strong><small>En preparación</small></button>
-        <button data-name="turno atención comuna"><span>08</span><strong>Pedir turno</strong><small>En preparación</small></button>
-        <button data-name="carnet licencia conducir renovación"><span>09</span><strong>Carné de conducir</strong><small>En preparación</small></button>
-      </div>
-    </section>
-
-
-    <section class="citizen-portal section" id="portal-ciudadano">
+<section class="citizen-portal section" id="portal-ciudadano">
       <div class="section-head reveal">
         <span class="eyebrow dark">Portal ciudadano</span>
         <h2>Todo lo nuevo,<br>bien organizado.</h2>
-        <p>Agenda, documentos, empleo, proveedores, encuestas y suscripciones dentro de un único apartado para no recargar la página principal.</p>
+        <p>Agenda, documentos, proveedores, encuestas y suscripciones dentro de un único apartado para no recargar la página principal.</p>
       </div>
 
       <div class="citizen-portal-grid reveal">
@@ -481,17 +468,14 @@
         <button type="button" data-portal-open="documents">
           <span>02</span><strong>Documentos públicos</strong><small>Ordenanzas, resoluciones y comunicados</small>
         </button>
-        <button type="button" data-portal-open="jobs">
-          <span>03</span><strong>Empleo y oportunidades</strong><small>Oportunidades y búsquedas locales</small>
-        </button>
         <button type="button" data-portal-open="providers">
-          <span>04</span><strong>Registro de proveedores</strong><small>Presentación de datos y servicios</small>
+          <span>03</span><strong>Registro de proveedores</strong><small>Presentación de datos y servicios</small>
         </button>
         <button type="button" data-portal-open="surveys">
-          <span>05</span><strong>Encuestas vecinales</strong><small>Participación en consultas públicas</small>
+          <span>04</span><strong>Encuestas vecinales</strong><small>Participación en consultas públicas</small>
         </button>
         <button type="button" data-portal-open="transparency">
-          <span>06</span><strong>Transparencia</strong><small>Información institucional y acceso público</small>
+          <span>05</span><strong>Transparencia</strong><small>Información institucional y acceso público</small>
         </button>
       </div>
 
@@ -799,6 +783,19 @@
 </dialog>
 
 
+
+<dialog id="public-alerts-dialog" class="portal-dialog public-alerts-dialog">
+  <button class="public-alerts-close" type="button" aria-label="Cerrar">×</button>
+  <div class="portal-public-wrap">
+    <span class="eyebrow dark">Información útil</span>
+    <h3>Avisos comunales</h3>
+    <p>Servicios, cortes y cambios importantes informados por la Comuna.</p>
+    <div id="public-alerts-list" class="portal-public-list">
+      <p>Cargando avisos…</p>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="portal-dialog" class="portal-dialog">
   <button class="portal-dialog-close" type="button" aria-label="Cerrar">×</button>
   <div id="portal-dialog-content"></div>
@@ -814,16 +811,18 @@
       <button class="active" data-portal-admin-tab="alerts">Avisos</button>
       <button data-portal-admin-tab="events">Agenda</button>
       <button data-portal-admin-tab="documents">Documentos</button>
-      <button data-portal-admin-tab="jobs">Empleo</button>
       <button data-portal-admin-tab="surveys">Encuestas</button>
+      <button data-portal-admin-tab="providers">Proveedores</button>
+      <button data-portal-admin-tab="subscribers">Suscripciones</button>
       <button data-portal-admin-tab="stats">Estadísticas</button>
     </aside>
     <main>
       <section class="active" data-portal-admin-panel="alerts"></section>
       <section data-portal-admin-panel="events"></section>
       <section data-portal-admin-panel="documents"></section>
-      <section data-portal-admin-panel="jobs"></section>
       <section data-portal-admin-panel="surveys"></section>
+      <section data-portal-admin-panel="providers"></section>
+      <section data-portal-admin-panel="subscribers"></section>
       <section data-portal-admin-panel="stats"></section>
     </main>
   </div>

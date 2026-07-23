@@ -2425,3 +2425,335 @@ dialog{
     grid-template-columns:1fr!important;
   }
 }
+
+
+/* ==========================================================
+   B25 — Avisos claros y públicos
+   ========================================================== */
+.floating-alerts{
+  position:fixed;
+  right:18px;
+  bottom:126px;
+  z-index:98;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px 10px 16px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;
+  background:linear-gradient(135deg,#f0b929,#cc7a00);
+  color:#fff;
+  box-shadow:0 20px 50px rgba(102,61,0,.35);
+  cursor:pointer;
+  transition:.25s;
+}
+.floating-alerts:hover{
+  transform:translateY(-5px);
+}
+.floating-alerts span{
+  font-size:12px;
+  font-weight:900;
+}
+.floating-alerts b{
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:rgba(255,255,255,.18);
+}
+.floating-alerts[hidden]{
+  display:none!important;
+}
+
+.public-alerts-dialog{
+  width:min(820px,calc(100vw - 24px));
+}
+.public-alerts-close{
+  position:sticky;
+  top:14px;
+  float:right;
+  width:44px;
+  height:44px;
+  border:0;
+  border-radius:50%;
+  background:#f2eee6;
+  cursor:pointer;
+}
+.public-alert-card.urgent{
+  border-left:6px solid #c8322a;
+}
+.public-alert-card small{
+  display:block;
+  margin-top:12px;
+  color:#6c7380;
+}
+
+.alerts-admin-help{
+  display:grid;
+  gap:6px;
+  margin-bottom:18px;
+  padding:16px 18px;
+  border:1px solid #d5e3f5;
+  border-radius:16px;
+  background:#eef5ff;
+  color:#16345f;
+}
+.alerts-admin-help strong{
+  font-size:17px;
+}
+.alerts-admin-help span{
+  line-height:1.5;
+}
+
+[data-portal-admin-panel="alerts"] .portal-admin-form{
+  grid-template-columns:1fr 1fr;
+  align-items:end;
+}
+[data-portal-admin-panel="alerts"] .portal-admin-form label:first-of-type,
+[data-portal-admin-panel="alerts"] .portal-admin-form label:nth-of-type(5),
+[data-portal-admin-panel="alerts"] .portal-admin-form button,
+[data-portal-admin-panel="alerts"] .portal-admin-form [data-module-message],
+[data-portal-admin-panel="alerts"] .portal-admin-form input[name="id"]{
+  grid-column:1 / -1;
+}
+[data-portal-admin-panel="alerts"] .portal-admin-form label{
+  display:grid;
+  gap:7px;
+  font-weight:800;
+}
+[data-portal-admin-panel="alerts"] .portal-admin-form input[type="checkbox"]{
+  width:22px;
+  height:22px;
+}
+[data-portal-admin-panel="alerts"] .portal-admin-item{
+  border-left:5px solid #f0b929;
+}
+
+@media(max-width:650px){
+  .floating-alerts{
+    right:12px;
+    bottom:122px;
+    padding:8px 10px;
+  }
+  .floating-alerts span{
+    display:none;
+  }
+  [data-portal-admin-panel="alerts"] .portal-admin-form{
+    grid-template-columns:1fr;
+  }
+  [data-portal-admin-panel="alerts"] .portal-admin-form > *{
+    grid-column:auto!important;
+  }
+}
+
+
+/* ==========================================================
+   V27 — Portal y avisos coordinados
+   ========================================================== */
+.agenda-items .agenda-empty{
+  min-height:120px;
+  display:grid;
+  align-content:center;
+}
+.agenda-items article.agenda-urgent{
+  background:#fff3f1;
+  border-left:5px solid #d1372f;
+  padding-left:20px;
+}
+.agenda-items article.agenda-urgent span{
+  color:#b3261e;
+}
+
+.portal-admin-dialog .portal-admin-layout main{
+  padding-bottom:40px!important;
+}
+.portal-admin-form{
+  align-content:start;
+  overflow:visible!important;
+}
+.portal-save-button{
+  position:sticky!important;
+  bottom:0!important;
+  z-index:6!important;
+  display:block!important;
+  width:100%!important;
+  min-height:52px!important;
+  margin-top:10px!important;
+  padding:14px 18px!important;
+  border:0!important;
+  border-radius:14px!important;
+  background:#15366c!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  text-align:center!important;
+  cursor:pointer!important;
+  box-shadow:0 -8px 24px rgba(15,42,82,.12)!important;
+}
+.portal-save-button:hover{
+  transform:translateY(-1px);
+}
+.portal-admin-form [data-module-message]{
+  display:block;
+  min-height:20px;
+  text-align:center;
+  font-weight:800;
+  color:#17632d;
+}
+.portal-admin-wide-list{
+  width:100%;
+}
+.provider-admin-item p,
+.subscriber-admin-item p{
+  margin:7px 0;
+  color:#596273;
+}
+.provider-admin-item .portal-admin-item-actions{
+  align-items:center;
+  flex-wrap:wrap;
+}
+.provider-admin-item select{
+  min-height:40px;
+  padding:8px 10px;
+  border:1px solid #dcd5c9;
+  border-radius:10px;
+}
+.citizen-portal-grid{
+  align-items:stretch;
+}
+.citizen-portal-grid button{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.portal-admin-layout aside button{
+  text-align:center!important;
+}
+.portal-admin-module-head{
+  align-items:flex-start!important;
+}
+[data-portal-admin-panel="alerts"] .portal-admin-grid{
+  align-items:start;
+}
+[data-portal-admin-panel="alerts"] .portal-admin-form{
+  padding-bottom:20px!important;
+}
+[data-portal-admin-panel="alerts"] .portal-save-button{
+  grid-column:1 / -1!important;
+}
+
+@media(max-width:800px){
+  .portal-admin-layout aside button{
+    min-width:max-content;
+  }
+  .portal-save-button{
+    position:static!important;
+  }
+}
+
+
+/* ==========================================================
+   V28 — Agenda estable y botones corregidos
+   ========================================================== */
+.agenda-items{
+  min-height:0!important;
+}
+.agenda-items article{
+  min-height:92px;
+  box-sizing:border-box;
+}
+.agenda-items article.agenda-default{
+  background:transparent;
+}
+.agenda-items article.agenda-default strong{
+  color:var(--ink);
+}
+.agenda-items article.agenda-default small{
+  color:#8790a0;
+}
+.agenda-items article.agenda-active{
+  background:#f4f8ff;
+  border-left:5px solid #15366c;
+  padding-left:20px;
+}
+.agenda-items article.agenda-urgent{
+  background:#fff2f0!important;
+  border-left-color:#d1372f!important;
+}
+
+.floating-alerts,
+.floating-news,
+.floating-whatsapp{
+  left:auto!important;
+  top:auto!important;
+  right:18px!important;
+  transform:none!important;
+}
+.floating-alerts{
+  bottom:150px!important;
+}
+.floating-news{
+  bottom:84px!important;
+}
+.floating-whatsapp{
+  bottom:18px!important;
+}
+.floating-alerts:hover,
+.floating-news:hover,
+.floating-whatsapp:hover{
+  transform:translateY(-3px)!important;
+}
+
+.portal-admin-item-actions{
+  position:static!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  align-items:stretch!important;
+  gap:9px!important;
+  width:100%!important;
+  margin-top:12px!important;
+}
+.portal-admin-item-actions button{
+  position:static!important;
+  inset:auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:42px!important;
+  margin:0!important;
+  padding:10px 12px!important;
+  border-radius:11px!important;
+  line-height:1.15!important;
+  text-align:center!important;
+  white-space:normal!important;
+}
+.portal-admin-item-actions .danger,
+.portal-admin-item-actions [data-delete]{
+  background:#b62722!important;
+  color:#fff!important;
+  border:1px solid #8f1916!important;
+}
+.portal-admin-item-actions .edit,
+.portal-admin-item-actions [data-edit]{
+  background:#ffcf55!important;
+  color:#13213a!important;
+  border:1px solid #ddb13c!important;
+}
+
+@media(max-width:650px){
+  .floating-alerts,
+  .floating-news,
+  .floating-whatsapp{
+    right:12px!important;
+  }
+  .floating-alerts{bottom:126px!important}
+  .floating-news{bottom:69px!important}
+  .floating-whatsapp{bottom:12px!important}
+
+  .portal-admin-item-actions{
+    grid-template-columns:1fr!important;
+  }
+}

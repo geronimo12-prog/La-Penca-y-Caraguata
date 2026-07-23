@@ -1287,18 +1287,173 @@ window.addEventListener('keydown', e => {
   });
   if(readerContent)shareObserver.observe(readerContent,{childList:true,subtree:true});
 
-  // Barra de avisos
+  // Barra y ventana pública de avisos
+  let currentPublicAlerts = [];
+
   async function loadAlerts(){
+    const box = $('#official-alerts');
+    const floatingButton = $('#floating-alerts-button');
+
     try{
-      const rows=await request('/rest/v1/avisos?select=*&activo=eq.true&order=prioridad.desc,created_at.desc&limit=1');
-      const box=$('#official-alerts');
-      if(!box)return;
-      if(!rows?.length){box.hidden=true;return}
-      const a=rows[0];
-      box.hidden=false;
-      box.className=`official-alerts is-${a.tipo||'info'}`;
-      box.textContent=a.mensaje;
-    }catch(e){console.warn(e)}
+      const rows = await request(
+        '/rest/v1/avisos?select=*&activo=eq.true&order=prioridad.desc,created_at.desc'
+      );
+
+      currentPublicAlerts = Array.isArray(rows) ? rows : [];
+
+      if (!currentPublicAlerts.length) {
+        if (box) box.hidden = true;
+        if (floatingButton) floatingButton.hidden = true;
+        return;
+      }
+
+      const first = currentPublicAlerts[0];
+
+      if (box) {
+        box.hidden = false;
+        box.className = `official-alerts is-${first.tipo || 'info'}`;
+        box.textContent = first.mensaje;
+      }
+
+      if (floatingButton) {
+        floatingButton.hidden = false;
+        const badge = floatingButton.querySelector('b');
+        if (badge) badge.textContent = String(currentPublicAlerts.length);
+      }
+    }catch(error){
+      console.warn(error);
+      if (box) box.hidden = true;
+      if (floatingButton) floatingButton.hidden = true;
+    }
+  }
+
+  function renderPublicAlerts(){
+    const list = $('#public-alerts-list');
+    if (!list) return;
+
+    if (!currentPublicAlerts.length) {
+      list.innerHTML = '<p>No hay avisos activos por el momento.</p>';
+      return;
+    }
+
+    list.innerHTML = currentPublicAlerts.map(alert => `
+      <article class="portal-public-card public-alert-card ${alert.tipo === 'danger' ? 'urgent' : ''}">
+        <span>${escapeHTML(alert.titulo || alert.categoria || 'Aviso comunal')}</span>
+        <h4>${escapeHTML(alert.mensaje || '')}</h4>
+        ${alert.detalle ? `<p>${escapeHTML(alert.detalle)}</p>` : ''}
+        <small>${alert.fecha ? `Fecha: ${escapeHTML(alert.fecha)}` : ''}
+        ${alert.hora_desde ? ` · Horario: ${escapeHTML(alert.hora_desde)}${alert.hora_hasta ? ` a ${escapeHTML(alert.hora_hasta)}` : ''}` : ''}</small>
+      </article>
+    `).join('');
+  }
+
+  const publicAlertsDialog = $('#public-alerts-dialog');
+
+  $('#floating-alerts-button')?.addEventListener('click', async () => {
+    await loadAlerts();
+    renderPublicAlerts();
+    publicAlertsDialog?.showModal();
+  });
+
+  $('.public-alerts-close')?.addEventListener('click', () => {
+    publicAlertsDialog?.close();
+  });
+
+  async function loadImportantSection(){
+    const container = $('#agenda-dynamic-list');
+    if (!container) return;
+
+    const defaults = [
+      { key:'luz', label:'Servicios', title:'Sin cortes de luz programados' },
+      { key:'agua', label:'Agua', title:'Sin cortes de agua programados' },
+      { key:'actos', label:'Comunidad', title:'Sin actos programados' },
+      { key:'salud', label:'Salud', title:'Sin operativos programados' },
+      { key:'educacion', label:'Educación', title:'Sin actividades programadas' },
+      { key:'residuos', label:'Residuos', title:'Sin recolecciones especiales programadas' }
+    ];
+
+    const normalize = value => String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    const alertKey = alert => {
+      const value = normalize(`${alert.categoria || ''} ${alert.titulo || ''} ${alert.mensaje || ''}`);
+      if (value.includes('luz')) return 'luz';
+      if (value.includes('agua')) return 'agua';
+      if (value.includes('residuo')) return 'residuos';
+      if (value.includes('salud') || value.includes('vacun') || value.includes('operativo')) return 'salud';
+      if (value.includes('escuel') || value.includes('educa')) return 'educacion';
+      if (value.includes('acto') || value.includes('fiesta') || value.includes('comunidad')) return 'actos';
+      return 'actos';
+    };
+
+    const formatAlertMeta = alert => {
+      const parts = [];
+      if (alert.fecha) {
+        const date = new Date(alert.fecha + 'T12:00:00');
+        parts.push(new Intl.DateTimeFormat('es-AR', {
+          day:'2-digit', month:'2-digit', year:'numeric'
+        }).format(date));
+      }
+      if (alert.hora_desde) {
+        parts.push(`${alert.hora_desde.slice(0,5)}${alert.hora_hasta ? ` a ${alert.hora_hasta.slice(0,5)}` : ''}`);
+      }
+      return parts.join(' · ') || 'Aviso activo';
+    };
+
+    try {
+      const [alerts, events] = await Promise.all([
+        request('/rest/v1/avisos?select=*&activo=eq.true&order=prioridad.desc,fecha.asc,created_at.desc'),
+        request('/rest/v1/eventos?select=*&publicado=eq.true&order=fecha_inicio.asc')
+      ]);
+
+      const rows = defaults.map(item => ({ ...item, active:false, meta:'Sin novedades' }));
+
+      (alerts || []).forEach(alert => {
+        const key = alertKey(alert);
+        const row = rows.find(item => item.key === key);
+        if (!row || row.active) return;
+        row.active = true;
+        row.title = alert.mensaje || alert.titulo || alert.categoria || 'Aviso comunal';
+        row.meta = formatAlertMeta(alert);
+        row.urgent = alert.tipo === 'danger';
+      });
+
+      const today = new Date();
+      const nextEvent = (events || []).find(event => {
+        if (!event.fecha_inicio) return true;
+        return new Date(event.fecha_inicio) >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      });
+
+      if (nextEvent) {
+        const row = rows.find(item => item.key === 'actos');
+        row.active = true;
+        row.title = nextEvent.titulo || 'Actividad programada';
+        const date = nextEvent.fecha_inicio ? new Date(nextEvent.fecha_inicio) : null;
+        const dateText = date ? new Intl.DateTimeFormat('es-AR', {
+          day:'2-digit', month:'2-digit', year:'numeric',
+          hour:'2-digit', minute:'2-digit'
+        }).format(date) : '';
+        row.meta = [dateText, nextEvent.lugar].filter(Boolean).join(' · ') || 'Evento programado';
+      }
+
+      container.innerHTML = rows.map(row => `
+        <article class="${row.active ? 'agenda-active' : 'agenda-default'} ${row.urgent ? 'agenda-urgent' : ''}">
+          <span>${escapeHTML(row.label)}</span>
+          <strong>${escapeHTML(row.title)}</strong>
+          <small>${escapeHTML(row.meta)}</small>
+        </article>
+      `).join('');
+    } catch (error) {
+      container.innerHTML = defaults.map(row => `
+        <article class="agenda-default">
+          <span>${escapeHTML(row.label)}</span>
+          <strong>${escapeHTML(row.title)}</strong>
+          <small>Sin novedades</small>
+        </article>
+      `).join('');
+    }
   }
 
   // Portal público
@@ -1312,8 +1467,6 @@ window.addEventListener('keydown', e => {
         <article class="portal-public-card"><span>${formatDate(r.fecha_inicio)}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.lugar?`<small>${escapeHTML(r.lugar)}</small>`:''}</article>`},
       documents:{title:'Documentos públicos',table:'documentos',order:'fecha.desc',render:r=>`
         <article class="portal-public-card"><span>${escapeHTML(r.tipo||'Documento')} · ${formatDate(r.fecha+'T12:00:00')}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.url?`<a target="_blank" rel="noopener" href="${r.url}">Abrir documento →</a>`:''}</article>`},
-      jobs:{title:'Empleo y oportunidades',table:'oportunidades',order:'created_at.desc',render:r=>`
-        <article class="portal-public-card"><span>${escapeHTML(r.tipo||'Oportunidad')}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.contacto?`<small>Contacto: ${escapeHTML(r.contacto)}</small>`:''}</article>`},
       transparency:{title:'Portal de transparencia',table:'documentos',order:'fecha.desc',extra:'&es_transparencia=eq.true',render:r=>`
         <article class="portal-public-card"><span>${escapeHTML(r.tipo||'Información pública')}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.url?`<a target="_blank" rel="noopener" href="${r.url}">Consultar →</a>`:''}</article>`}
     };
@@ -1402,16 +1555,26 @@ window.addEventListener('keydown', e => {
 
   const configs={
     alerts:{table:'avisos',title:'Avisos importantes',fields:[
-      ['mensaje','Mensaje','textarea'],['tipo','Tipo','select',['info','danger','success']],['prioridad','Prioridad','number'],['activo','Activo','checkbox']
-    ],summary:r=>r.mensaje},
+      ['categoria','Tipo de aviso','select',[
+        'Corte de luz',
+        'Corte de agua',
+        'Recolección de residuos',
+        'Cambio de horario',
+        'Calle cortada',
+        'Alerta meteorológica',
+        'Otro aviso'
+      ]],
+      ['fecha','Fecha','date'],
+      ['hora_desde','Desde','time'],
+      ['hora_hasta','Hasta','time'],
+      ['detalle','Información adicional','textarea'],
+      ['activo','Mostrar aviso','checkbox']
+    ],summary:r=>r.titulo||r.mensaje},
     events:{table:'eventos',title:'Agenda comunal',fields:[
       ['titulo','Título','text'],['descripcion','Descripción','textarea'],['fecha_inicio','Fecha y hora','datetime-local'],['lugar','Lugar','text'],['publicado','Publicado','checkbox']
     ],summary:r=>r.titulo},
     documents:{table:'documentos',title:'Documentos públicos',fields:[
       ['titulo','Título','text'],['tipo','Tipo','text'],['descripcion','Descripción','textarea'],['fecha','Fecha','date'],['url','Enlace al documento','url'],['es_transparencia','Mostrar en transparencia','checkbox'],['publicado','Publicado','checkbox']
-    ],summary:r=>r.titulo},
-    jobs:{table:'oportunidades',title:'Empleo y oportunidades',fields:[
-      ['titulo','Título','text'],['tipo','Tipo','select',['Empleo','Oportunidad','Servicio']],['descripcion','Descripción','textarea'],['contacto','Contacto','text'],['publicado','Publicado','checkbox']
     ],summary:r=>r.titulo},
     surveys:{table:'encuestas',title:'Encuestas vecinales',fields:[
       ['pregunta','Pregunta','text'],['opciones_texto','Opciones, una por línea','textarea'],['activa','Activa','checkbox']
@@ -1428,6 +1591,106 @@ window.addEventListener('keydown', e => {
   async function loadAdminPanel(name){
     const panel=$(`[data-portal-admin-panel="${name}"]`);
     if(!panel)return;
+    if(name==='providers'){
+      panel.innerHTML=`
+        <div class="portal-admin-module-head">
+          <h4>Proveedores registrados</h4>
+          <small>Solicitudes recibidas desde la página</small>
+        </div>
+        <div class="portal-admin-list portal-admin-wide-list" id="providers-admin-list">Cargando…</div>`;
+      try{
+        const rows = await request('/rest/v1/proveedores?select=*&order=created_at.desc', {}, true);
+        const list = $('#providers-admin-list');
+        list.innerHTML = rows?.length ? rows.map(row => `
+          <article class="portal-admin-item provider-admin-item" data-provider="${row.id}">
+            <strong>${escapeHTML(row.nombre)}</strong>
+            <small>${escapeHTML(row.rubro)} · CUIT ${escapeHTML(row.cuit)}</small>
+            <p>${escapeHTML(row.telefono)} · ${escapeHTML(row.email)}${row.localidad ? ` · ${escapeHTML(row.localidad)}` : ''}</p>
+            ${row.detalle ? `<p>${escapeHTML(row.detalle)}</p>` : ''}
+            <div class="portal-admin-item-actions">
+              <select data-provider-status>
+                ${['Recibido','En revisión','Aprobado','Descartado'].map(status =>
+                  `<option ${row.estado === status ? 'selected' : ''}>${status}</option>`
+                ).join('')}
+              </select>
+              <button class="edit" data-provider-save>Guardar estado</button>
+              <button class="danger" data-provider-delete>Borrar</button>
+            </div>
+          </article>`).join('') : '<p>No hay proveedores registrados.</p>';
+
+        $$('[data-provider-save]', list).forEach(button => button.addEventListener('click', async () => {
+          const card = button.closest('[data-provider]');
+          const estado = $('[data-provider-status]', card).value;
+          await request(`/rest/v1/proveedores?id=eq.${card.dataset.provider}`, {
+            method:'PATCH',
+            headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+            body:JSON.stringify({estado})
+          }, true);
+          button.textContent='Guardado';
+          setTimeout(() => button.textContent='Guardar estado', 1200);
+        }));
+
+        $$('[data-provider-delete]', list).forEach(button => button.addEventListener('click', async () => {
+          const card = button.closest('[data-provider]');
+          if (!confirm('¿Borrar este proveedor?')) return;
+          await request(`/rest/v1/proveedores?id=eq.${card.dataset.provider}`, {
+            method:'DELETE',
+            headers:{'Prefer':'return=minimal'}
+          }, true);
+          loadAdminPanel('providers');
+        }));
+      }catch(error){
+        $('#providers-admin-list').textContent = error.message;
+      }
+      return;
+    }
+
+    if(name==='subscribers'){
+      panel.innerHTML=`
+        <div class="portal-admin-module-head">
+          <h4>Suscripciones</h4>
+          <small>Correos que solicitaron recibir novedades</small>
+        </div>
+        <div class="portal-admin-list portal-admin-wide-list" id="subscribers-admin-list">Cargando…</div>`;
+      try{
+        const rows = await request('/rest/v1/suscriptores?select=*&order=created_at.desc', {}, true);
+        const list = $('#subscribers-admin-list');
+        list.innerHTML = rows?.length ? rows.map(row => `
+          <article class="portal-admin-item subscriber-admin-item" data-subscriber="${row.id}">
+            <strong>${escapeHTML(row.email)}</strong>
+            <small>${row.activo ? 'Suscripción activa' : 'Suscripción inactiva'}</small>
+            <div class="portal-admin-item-actions">
+              <button class="edit" data-subscriber-toggle>${row.activo ? 'Desactivar' : 'Activar'}</button>
+              <button class="danger" data-subscriber-delete>Borrar</button>
+            </div>
+          </article>`).join('') : '<p>No hay suscriptores.</p>';
+
+        $$('[data-subscriber-toggle]', list).forEach(button => button.addEventListener('click', async () => {
+          const card = button.closest('[data-subscriber]');
+          const row = rows.find(item => String(item.id) === card.dataset.subscriber);
+          await request(`/rest/v1/suscriptores?id=eq.${card.dataset.subscriber}`, {
+            method:'PATCH',
+            headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+            body:JSON.stringify({activo: !row.activo})
+          }, true);
+          loadAdminPanel('subscribers');
+        }));
+
+        $$('[data-subscriber-delete]', list).forEach(button => button.addEventListener('click', async () => {
+          const card = button.closest('[data-subscriber]');
+          if (!confirm('¿Borrar esta suscripción?')) return;
+          await request(`/rest/v1/suscriptores?id=eq.${card.dataset.subscriber}`, {
+            method:'DELETE',
+            headers:{'Prefer':'return=minimal'}
+          }, true);
+          loadAdminPanel('subscribers');
+        }));
+      }catch(error){
+        $('#subscribers-admin-list').textContent = error.message;
+      }
+      return;
+    }
+
     if(name==='stats'){
       panel.innerHTML='<div class="portal-admin-module-head"><h4>Estadísticas generales</h4></div><div class="portal-admin-list" id="portal-stats">Cargando…</div>';
       try{
@@ -1448,13 +1711,21 @@ window.addEventListener('keydown', e => {
     }
 
     const cfg=configs[name];
+    const alertHelp = name === 'alerts'
+      ? `<div class="alerts-admin-help">
+          <strong>Crear un aviso es simple</strong>
+          <span>Elegí el tipo, indicá fecha y horario, agregá un detalle solamente si hace falta y marcá “Mostrar aviso”.</span>
+        </div>`
+      : '';
+
     panel.innerHTML=`
       <div class="portal-admin-module-head"><h4>${cfg.title}</h4><small>Guardado online en Supabase</small></div>
+      ${alertHelp}
       <div class="portal-admin-grid">
         <form class="portal-admin-form" data-module-form>
           <input type="hidden" name="id">
           ${cfg.fields.map(fieldHTML).join('')}
-          <button>Guardar</button>
+          <button class="portal-save-button" type="submit">Guardar cambios</button>
           <small data-module-message></small>
         </form>
         <div class="portal-admin-list" data-module-list>Cargando…</div>
@@ -1474,6 +1745,26 @@ window.addEventListener('keydown', e => {
         payload.opciones=(payload.opciones_texto||'').split('\n').map(x=>x.trim()).filter(Boolean);
         delete payload.opciones_texto;
       }
+
+      if(name==='alerts'){
+        const category = payload.categoria || 'Otro aviso';
+        const dateText = payload.fecha
+          ? new Intl.DateTimeFormat('es-AR', {day:'2-digit', month:'2-digit', year:'numeric'})
+              .format(new Date(payload.fecha + 'T12:00:00'))
+          : '';
+        const timeRange = payload.hora_desde
+          ? ` de ${payload.hora_desde}${payload.hora_hasta ? ` a ${payload.hora_hasta}` : ''}`
+          : '';
+        const datePart = dateText ? ` el ${dateText}` : '';
+        const detailPart = payload.detalle ? `. ${payload.detalle}` : '';
+
+        payload.titulo = category;
+        payload.mensaje = `${category}${datePart}${timeRange}${detailPart}`;
+        payload.tipo = ['Corte de luz','Corte de agua','Alerta meteorológica','Calle cortada']
+          .includes(category) ? 'danger' : 'info';
+        payload.prioridad = payload.activo ? 10 : 0;
+      }
+
       const id=form.elements.id.value;
       try{
         await request(`/rest/v1/${cfg.table}${id?`?id=eq.${id}`:''}`,{
@@ -1483,7 +1774,7 @@ window.addEventListener('keydown', e => {
         },true);
         $('[data-module-message]',form).textContent='Guardado correctamente.';
         form.reset(); form.elements.id.value='';
-        loadAdminPanel(name); loadAlerts();
+        loadAdminPanel(name); loadAlerts(); loadImportantSection();
       }catch(err){$('[data-module-message]',form).textContent=err.message}
     });
 
@@ -1517,12 +1808,13 @@ window.addEventListener('keydown', e => {
         const id=btn.closest('[data-row]').dataset.row;
         if(!confirm('¿Borrar definitivamente este registro?'))return;
         await request(`/rest/v1/${cfg.table}?id=eq.${id}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}},true);
-        loadAdminPanel(name); loadAlerts();
+        loadAdminPanel(name); loadAlerts(); loadImportantSection();
       }));
     }catch(e){$('[data-module-list]',panel).textContent=e.message}
   }
 
   loadAlerts();
+  loadImportantSection();
 })();
 
 
@@ -1569,4 +1861,36 @@ window.addEventListener('keydown', e => {
       if (sortSelect?.value === 'title') reorderVisibleNews();
     }).observe(adminList, { childList: true });
   }
+})();
+
+
+// ==========================================================
+// V28 — Posición fija y ordenada de Avisos, Noticias y WhatsApp
+// ==========================================================
+(() => {
+  const resetFloatingButtons = () => {
+    const settings = [
+      ['.floating-alerts', '150px'],
+      ['.floating-news', '84px'],
+      ['.floating-whatsapp', '18px']
+    ];
+
+    [
+      'floatingNewsPositionB18Final',
+      'floatingWhatsAppPositionB18Final'
+    ].forEach(key => localStorage.removeItem(key));
+
+    settings.forEach(([selector, bottom]) => {
+      const element = document.querySelector(selector);
+      if (!element) return;
+      element.classList.remove('dragging', 'was-dragged');
+      element.style.removeProperty('left');
+      element.style.removeProperty('top');
+      element.style.setProperty('right', '18px', 'important');
+      element.style.setProperty('bottom', bottom, 'important');
+    });
+  };
+
+  resetFloatingButtons();
+  addEventListener('resize', resetFloatingButtons);
 })();
