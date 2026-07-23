@@ -6,22 +6,52 @@
   <meta name="description" content="Portal institucional de la Comuna de La Penca y Caraguatá.">
   <meta name="theme-color" content="#0b2a59">
   <title>Comuna de La Penca y Caraguatá</title>
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png">
-  <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" href="/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-v2.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-v2.png">
+  <link rel="apple-touch-icon" href="assets/favicon-v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div class="intro-screen" id="intro-screen" aria-hidden="true">
+    <div class="intro-screen__glow"></div>
+    <div class="intro-scene">
+      <div class="intro-water">
+        <span class="drop drop-1"></span>
+        <span class="drop drop-2"></span>
+        <span class="drop drop-3"></span>
+        <span class="drop drop-4"></span>
+      </div>
+      <div class="intro-penca" aria-hidden="true">
+        <i class="penca-trunk"></i>
+        <i class="penca-leaf penca-leaf-left"></i>
+        <i class="penca-leaf penca-leaf-right"></i>
+        <i class="penca-leaf penca-leaf-top"></i>
+      </div>
+    </div>
+    <div class="intro-copy">
+      <span>Portal institucional</span>
+      <h1>La Penca y Caraguatá</h1>
+      <p>Una comunidad con historia, identidad y futuro.</p>
+    </div>
+  </div>
+
   <div class="scroll-progress"><span></span></div>
 
+  <a class="floating-whatsapp" href="https://wa.me/5493498502213" target="_blank" rel="noopener" aria-label="Abrir WhatsApp de la comuna">
+    <span>WhatsApp</span>
+    <b>✦</b>
+  </a>
+
   <header class="header" id="inicio">
-    <a class="brand" href="#inicio">
-      <strong>Comuna de La Penca y Caraguatá</strong>
-      <small>Provincia de Santa Fe</small>
+    <a class="brand" href="#inicio" aria-label="Ir al inicio">
+      <img class="brand-icon" src="assets/favicon-v2.png" alt="Logo de La Penca y Caraguatá">
+      <div>
+        <strong>Comuna de La Penca y Caraguatá</strong>
+        <small>Provincia de Santa Fe</small>
+      </div>
     </a>
 
     <div class="header-tools">
@@ -47,11 +77,13 @@
         <a href="#historia"><span>01</span><strong>Historia</strong><small>Origen e identidad</small></a>
         <a href="#zona-rural"><span>02</span><strong>Zona rural</strong><small>Caminos y producción</small></a>
         <a href="#instituciones"><span>03</span><strong>Instituciones</strong><small>Club, iglesia, escuela, SAMCo y policía</small></a>
-        <a href="#obras"><span>04</span><strong>Obras públicas</strong><small>Calles, veredas y mantenimiento</small></a>
-        <a href="#maquinaria"><span>05</span><strong>Maquinaria</strong><small>Equipamiento comunal</small></a>
-        <a href="#agenda"><span>06</span><strong>Agenda</strong><small>Avisos y recolección</small></a>
-        <a href="#tramites"><span>07</span><strong>Trámites</strong><small>Servicios para vecinos</small></a>
-        <a href="#nosotros"><span>08</span><strong>Nosotros</strong><small>Equipo y contacto</small></a>
+        <a href="#ambiente"><span>04</span><strong>Ambiente</strong><small>Pequeños pasos, grandes huellas</small></a>
+        <a href="#galeria"><span>05</span><strong>Galería</strong><small>Fotos destacadas</small></a>
+        <a href="#obras"><span>06</span><strong>Obras públicas</strong><small>Calles, veredas y mantenimiento</small></a>
+        <a href="#maquinaria"><span>07</span><strong>Maquinaria</strong><small>Equipamiento comunal</small></a>
+        <a href="#agenda"><span>08</span><strong>Agenda</strong><small>Servicios y avisos</small></a>
+        <a href="#tramites"><span>09</span><strong>Trámites</strong><small>Servicios para vecinos</small></a>
+        <a href="#nosotros"><span>10</span><strong>Nosotros</strong><small>Equipo y contacto</small></a>
       </nav>
     </div>
   </aside>
@@ -71,12 +103,12 @@
           <a class="action secondary" href="#tramites"><span>Ver trámites</span><b>↓</b></a>
         </div>
       </div>
-<div class="hero-scroll">Deslizá para recorrer <i></i></div>
+      <div class="hero-scroll">Deslizá para recorrer <i></i></div>
     </section>
 
     <section class="quick-links reveal">
       <a href="#agenda"><span>01</span><strong>Avisos y agenda</strong><small>Recolección lunes y jueves</small></a>
-      <a href="#tramites"><span>02</span><strong>Trámites y servicios</strong><small>Boletas, reclamos y turnos</small></a>
+      <a href="#galeria"><span>02</span><strong>Galería institucional</strong><small>Fotos de la comunidad</small></a>
       <a href="#obras"><span>03</span><strong>Obras públicas</strong><small>Calles, veredas y mantenimiento</small></a>
       <a href="#maquinaria"><span>04</span><strong>Maquinaria</strong><small>Equipamiento comunal</small></a>
     </section>
@@ -86,6 +118,34 @@
         <span class="eyebrow dark">Historia e identidad</span>
         <h2>Una comunidad rural<br>con memoria propia.</h2>
         <p>La Penca y Caraguatá es una sola identidad, construida alrededor del territorio, el trabajo de sus familias, la producción y las instituciones que acompañaron su crecimiento.</p>
+      </div>
+
+      <div class="history-timeline reveal" aria-label="Línea de tiempo histórica">
+        <article>
+          <span>Antes de 1900</span>
+          <strong>Paisaje nativo</strong>
+          <p>Monte, flora local y presencia de pueblos originarios en la región.</p>
+        </article>
+        <article>
+          <span>Primeras décadas del siglo XX</span>
+          <strong>Impulso rural</strong>
+          <p>Consolidación del poblamiento y del trabajo ligado al campo.</p>
+        </article>
+        <article>
+          <span>1930</span>
+          <strong>Comuna</strong>
+          <p>Organización institucional para representar y acompañar a la comunidad.</p>
+        </article>
+        <article>
+          <span>1938</span>
+          <strong>Producción láctea</strong>
+          <p>La Rinconada suma un capítulo clave en la historia productiva local.</p>
+        </article>
+        <article>
+          <span>2023</span>
+          <strong>Centenario</strong>
+          <p>Celebración de cien años de memoria, trabajo y futuro compartido.</p>
+        </article>
       </div>
 
       <div class="history-overview reveal">
@@ -113,8 +173,8 @@
           <div>
             <small>Orígenes</small>
             <h3>El nacimiento de la comunidad</h3>
-            <p>Las referencias históricas disponibles ubican el surgimiento del asentamiento hacia 1923, en el departamento San Justo. No existe una fecha fundacional exacta plenamente documentada, por lo que esta historia continuará enriqueciéndose con archivos comunales, fotografías y testimonios de los vecinos.</p>
-            <p>La Penca y Caraguatá no son dos localidades separadas: forman un solo nombre y una sola comunidad. La denominación se relaciona con la vegetación característica del lugar, especialmente los tunales o pencas y el caraguatá, una planta de hojas resistentes vinculada al paisaje regional.</p>
+            <p>Las referencias históricas disponibles ubican el surgimiento del asentamiento hacia 1923. La Penca y Caraguatá no son dos localidades separadas: forman una sola comunidad, identificada con la vegetación característica del lugar y con un fuerte arraigo rural.</p>
+            <p>Los nombres remiten al paisaje local: la penca o tuna de monte y el caraguatá, una planta muy vinculada a la flora regional. Esa relación con el entorno natural sigue marcando la identidad del pueblo.</p>
           </div>
         </article>
 
@@ -123,7 +183,7 @@
           <div>
             <small>Organización institucional</small>
             <h3>La creación de la Comuna</h3>
-            <p>El 16 de diciembre de 1930 se estableció formalmente la Comuna de La Penca y Caraguatá. La organización comunal permitió representar a los habitantes, atender las necesidades de la localidad y acompañar el mantenimiento de los servicios y de una extensa red de caminos rurales.</p>
+            <p>El 16 de diciembre de 1930 se estableció formalmente la Comuna de La Penca y Caraguatá. Desde entonces, la organización comunal acompaña los servicios, el mantenimiento de caminos, la vida institucional y el crecimiento cotidiano de la localidad.</p>
           </div>
         </article>
       </div>
@@ -133,8 +193,7 @@
         <div>
           <span>La Rinconada · 1938</span>
           <h3>Una historia de trabajo que llegó a todo el país</h3>
-          <p>En el paraje La Rinconada, Colonia La Penca, los inmigrantes españoles Cipriano García Sainz y Hortensia de Simón comenzaron a elaborar quesos artesanalmente en una olla de 75 litros.</p>
-          <p>Con el tiempo, sus hijos se sumaron al emprendimiento familiar y en 1972 comenzó una nueva etapa industrial que dio origen a la marca Tregar.</p>
+          <p>En el paraje La Rinconada, Colonia La Penca, Cipriano García Sainz y Hortensia de Simón comenzaron a elaborar quesos artesanalmente en una olla de 75 litros. Con el tiempo, esa experiencia creció hasta convertirse en un capítulo fundamental de la historia productiva regional.</p>
           <div class="history-stat"><strong>75 litros</strong><small>Capacidad de la primera olla utilizada para producir quesos.</small></div>
         </div>
       </div>
@@ -180,7 +239,7 @@
         </div>
       </div>
 
-      <p class="history-source-note reveal">Reseña elaborada a partir de información histórica disponible y preparada para ser ampliada con documentación oficial y memoria oral de la comunidad.</p>
+      <p class="history-source-note reveal">Reseña elaborada a partir de información histórica disponible y preparada para ser ampliada con documentación oficial, fotografías y memoria oral de la comunidad.</p>
     </section>
 
     <section class="rural section" id="zona-rural">
@@ -192,7 +251,7 @@
       </div>
       <div class="rural-gallery reveal">
         <figure class="rural-main"><img src="assets/rural-camino-1.png" alt="Camino rural"></figure>
-        <figure class="rural-side"><img src="assets/rural-camino-2.jpg" alt="Camino rural arbolado"></figure>
+        <figure class="rural-side"><img src="assets/rural-camino-2.jpeg" alt="Camino rural arbolado"></figure>
         <figure class="rural-flower"><img src="assets/flor-caraguata.jpg" alt="Flor de caraguatá"></figure>
       </div>
     </section>
@@ -205,7 +264,7 @@
 
       <div class="institution-viewer reveal">
         <div class="institution-panels">
-          <article class="institution-panel active" data-panel="club"><img src="assets/club-hd.jpg" alt="Club Atlético La Penca"><div><span>Deporte e identidad</span><h3>Club Atlético La Penca</h3><p>Un espacio de encuentro, pertenencia y vida social.</p></div></article>
+          <article class="institution-panel active" data-panel="club"><img src="assets/club-hd.png" alt="Club Atlético La Penca"><div><span>Deporte e identidad</span><h3>Club Atlético La Penca</h3><p>Un espacio de encuentro, pertenencia y vida social.</p></div></article>
           <article class="institution-panel" data-panel="iglesia"><img src="assets/iglesia-san-francisco-hd.png" alt="Capilla San Francisco de Asís"><div><span>Patrimonio y fe</span><h3>Iglesia San Francisco de Asís</h3><p>Parte central de la historia y las celebraciones de la comunidad.</p></div></article>
           <article class="institution-panel" data-panel="escuela"><img src="assets/escuela-hd.png" alt="Escuela de La Penca y Caraguatá"><div><span>Educación</span><h3>Escuela local</h3><p>Un espacio fundamental para el aprendizaje y el crecimiento de nuevas generaciones.</p></div></article>
           <article class="institution-panel" data-panel="samco"><img src="assets/samco-hd.png" alt="SAMCo La Penca y Caraguatá"><div><span>Salud</span><h3>SAMCo</h3><p>Atención y acompañamiento sanitario para la comunidad.</p></div></article>
@@ -258,6 +317,27 @@
       </figure>
     </section>
 
+    <section class="identity-strip section">
+      <div class="section-head reveal">
+        <span class="eyebrow dark">Identidad local</span>
+        <h2>Lo que define<br>nuestro pueblo.</h2>
+      </div>
+      <div class="identity-grid">
+        <article class="identity-card reveal">
+          <img src="assets/identidad-oficial.png" alt="Identidad oficial de La Penca y Caraguatá">
+          <div><span>Marca del pueblo</span><h3>Una imagen que nos representa</h3><p>La identidad visual acompaña el crecimiento de la comuna y refuerza su presencia institucional.</p></div>
+        </article>
+        <article class="identity-card reveal">
+          <img src="assets/zona-urbana-hd.png" alt="Cartel de zona urbana La Penca">
+          <div><span>Territorio</span><h3>Un pueblo con arraigo</h3><p>La escala humana, la cercanía y la vida comunitaria siguen siendo rasgos centrales de La Penca y Caraguatá.</p></div>
+        </article>
+        <article class="identity-card reveal">
+          <img src="assets/marca-central.jpg" alt="Marca central de La Penca y Caraguatá">
+          <div><span>Centenario</span><h3>Memoria y proyección</h3><p>Los símbolos del pueblo recuerdan el camino recorrido y celebran la historia compartida.</p></div>
+        </article>
+      </div>
+    </section>
+
     <section class="works section" id="obras">
       <div class="section-head inverse reveal"><span class="eyebrow light">Obras públicas</span><h2>Mejoras que cambian<br>la vida cotidiana.</h2><p>Calles, caminos, veredas y mantenimiento de espacios públicos.</p></div>
       <div class="works-collage reveal">
@@ -265,7 +345,7 @@
         <figure><img src="assets/obras-publicas-2.jpg" alt="Mejora de calle"></figure>
         <figure><img src="assets/obras-3.jpg" alt="Obra de vereda"></figure>
         <figure><img src="assets/calle-hd-1.png" alt="Calle de La Penca"></figure>
-        <figure><img src="assets/calle-hd-2.jpg" alt="Avenida de La Penca"></figure>
+        <figure><img src="assets/calle-hd-2.png" alt="Avenida de La Penca"></figure>
       </div>
       <div class="works-list reveal"><span>Mejora de calles</span><span>Caminos rurales</span><span>Veredas</span><span>Espacios públicos</span></div>
     </section>
@@ -275,7 +355,7 @@
       <div class="machinery-grid">
         <article class="machine-card hydro-card reveal">
           <div class="hydro-image">
-            <img src="assets/hidrogrua.jpg" alt="Hidrogrúa adquirida con fondos propios">
+            <img src="assets/hidrogrua.png" alt="Hidrogrúa adquirida con fondos propios">
           </div>
           <div>
             <span>Nueva adquisición</span>
@@ -286,6 +366,24 @@
         <article class="machine-card featured reveal"><img src="assets/maquinaria-nueva.jpg" alt="Retroexcavadora comunal"><div><span>Equipamiento comunal</span><h3>Retroexcavadora</h3><p>Preparada para acompañar tareas de mantenimiento y obras.</p></div></article>
         <article class="machine-card reveal"><img src="assets/maquinaria-nueva-2.jpg" alt="Trabajadores junto a maquinaria"><div><span>Equipo de trabajo</span><h3>Maquinaria al servicio de la comunidad</h3></div></article>
         <article class="machine-card reveal"><img src="assets/maquinas.jpg" alt="Cortadora y desmalezadora"><div><span>Mantenimiento</span><h3>Cortadora y herramientas</h3></div></article>
+      </div>
+    </section>
+
+    <section class="section gallery-section" id="galeria">
+      <div class="section-head reveal">
+        <span class="eyebrow dark">Galería institucional</span>
+        <h2>Una recorrida visual<br>por la comunidad.</h2>
+        <p>Tocá cualquier imagen para verla más grande y navegar por la galería.</p>
+      </div>
+      <div class="gallery-grid">
+        <button class="gallery-card reveal" data-gallery-item="0" data-src="assets/comuna-edificio-hd.png" data-title="Sede comunal" data-copy="Edificio institucional de la Comuna de La Penca y Caraguatá."><img src="assets/comuna-edificio-hd.png" alt="Sede comunal"><span>Sede comunal</span></button>
+        <button class="gallery-card reveal" data-gallery-item="1" data-src="assets/club-hd.png" data-title="Club Atlético La Penca" data-copy="Un espacio central para el deporte y la vida social."><img src="assets/club-hd.png" alt="Club Atlético La Penca"><span>Club</span></button>
+        <button class="gallery-card reveal" data-gallery-item="2" data-src="assets/iglesia-san-francisco-hd.png" data-title="Iglesia San Francisco de Asís" data-copy="Patrimonio religioso y lugar de encuentro comunitario."><img src="assets/iglesia-san-francisco-hd.png" alt="Capilla San Francisco de Asís"><span>Iglesia</span></button>
+        <button class="gallery-card reveal" data-gallery-item="3" data-src="assets/parque-hd.png" data-title="Parque Rincón de los Sueños" data-copy="Espacio público pensado para las familias y los chicos."><img src="assets/parque-hd.png" alt="Parque Rincón de los Sueños"><span>Parque</span></button>
+        <button class="gallery-card reveal" data-gallery-item="4" data-src="assets/grandes-huellas.png" data-title="Pequeños pasos, grandes huellas" data-copy="Acción comunitaria orientada al ambiente y la participación."><img src="assets/grandes-huellas.png" alt="Pequeños pasos, grandes huellas"><span>Ambiente</span></button>
+        <button class="gallery-card reveal" data-gallery-item="5" data-src="assets/monumento-centenario-hd.png" data-title="Monumento del centenario" data-copy="Símbolo conmemorativo de los cien años de historia."><img src="assets/monumento-centenario-hd.png" alt="Monumento del centenario"><span>Centenario</span></button>
+        <button class="gallery-card reveal" data-gallery-item="6" data-src="assets/rural-camino-1.png" data-title="Zona rural" data-copy="Trabajo, producción y arraigo como parte esencial de la comunidad."><img src="assets/rural-camino-1.png" alt="Zona rural"><span>Ruralidad</span></button>
+        <button class="gallery-card reveal" data-gallery-item="7" data-src="assets/hidrogrua.png" data-title="Hidrogrúa" data-copy="Nueva maquinaria incorporada para tareas de mantenimiento comunal."><img src="assets/hidrogrua.png" alt="Hidrogrúa"><span>Maquinaria</span></button>
       </div>
     </section>
 
@@ -334,6 +432,13 @@
           <a href="https://wa.me/5493498502213" target="_blank" rel="noopener"><span>WhatsApp</span><strong>+54 9 3498 50 22 13</strong></a>
           <a href="mailto:comunalapenca@gmail.com"><span>Correo</span><strong>comunalapenca@gmail.com</strong></a>
         </div>
+        <div class="hours-card reveal">
+          <span>Horarios de atención</span>
+          <div>
+            <p><strong>Verano:</strong> 6:30 a 12:30</p>
+            <p><strong>Invierno:</strong> 7:00 a 13:00</p>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -350,6 +455,20 @@
   </footer>
 
   <dialog id="service-dialog"><button aria-label="Cerrar">×</button><span>Próxima etapa</span><h3>Servicio en preparación</h3><p>Este módulo se habilitará cuando la Comuna confirme el procedimiento y el sistema correspondiente.</p></dialog>
+
+  <dialog id="gallery-dialog" class="gallery-dialog">
+    <button class="gallery-close" aria-label="Cerrar galería">×</button>
+    <button class="gallery-nav prev" aria-label="Ver imagen anterior">‹</button>
+    <figure>
+      <img id="gallery-image" src="" alt="Imagen ampliada de la galería">
+      <figcaption>
+        <span id="gallery-kicker">Galería</span>
+        <h3 id="gallery-title">Imagen</h3>
+        <p id="gallery-copy">Descripción</p>
+      </figcaption>
+    </figure>
+    <button class="gallery-nav next" aria-label="Ver imagen siguiente">›</button>
+  </dialog>
 
   <script src="script.js"></script>
 </body>
