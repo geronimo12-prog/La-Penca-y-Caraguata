@@ -1802,3 +1802,33 @@ body.intro-active{overflow:hidden}
   color:#b3261e;
   font-weight:800;
 }
+
+
+/* ==========================================================
+   B20 FIX — botón de iniciar sesión visible dentro del formulario
+   ========================================================== */
+.news-auth-dialog form button[type="submit"]{
+  position:static!important;
+  inset:auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:52px;
+  margin-top:4px;
+  padding:15px 18px;
+  border:0;
+  border-radius:16px;
+  background:var(--navy);
+  color:#fff;
+  font-size:15px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.news-auth-dialog form button[type="submit"]:hover{
+  transform:translateY(-1px);
+}
+
+.news-auth-dialog form button[type="submit"]:disabled{
+  opacity:.65;
+  cursor:wait;
+}
