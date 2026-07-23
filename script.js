@@ -195,7 +195,6 @@ window.addEventListener('keydown', e => {
     editorTitle: $('#news-editor-title'),
     saveStatus: $('#news-save-status'),
     formMessage: $('#news-form-message'),
-    characterCount: $('#news-character-count'),
     adminList: $('#news-admin-list'),
     totalCount: $('#news-total-count'),
     publishedCount: $('#news-published-count'),
@@ -421,12 +420,7 @@ window.addEventListener('keydown', e => {
     ui.customCategory.required = isOther;
     if (!isOther) ui.customCategory.value = '';
   }
-
-  function updateCharacterCount() {
-    ui.characterCount.textContent = ui.description.value.length;
-  }
-
-  function setDirty(isDirty) {
+function setDirty(isDirty) {
     formDirty = isDirty;
     ui.saveStatus.textContent = isDirty ? 'Cambios sin guardar' : 'Sin cambios pendientes';
     ui.saveStatus.className = `news-save-status${isDirty ? ' changed' : ''}`;
@@ -470,7 +464,6 @@ window.addEventListener('keydown', e => {
     currentCoverImage = '';
     updateImagePreview('');
     updateCoverPreview('');
-    updateCharacterCount();
     ui.editorMode.textContent = 'Nueva publicación';
     ui.editorTitle.textContent = 'Crear una noticia';
     ui.saveButton.textContent = 'Guardar y publicar';
@@ -503,7 +496,6 @@ window.addEventListener('keydown', e => {
     ui.published.checked = item.published;
     updateImagePreview(item.image);
     updateCoverPreview(item.coverImage || '');
-    updateCharacterCount();
 
     ui.editorMode.textContent = 'Editando publicación';
     ui.editorTitle.textContent = item.title;
@@ -707,6 +699,12 @@ window.addEventListener('keydown', e => {
     renderAdmin();
     switchTab('editor');
     ui.adminDialog.showModal();
+    requestAnimationFrame(() => {
+      ui.adminDialog.scrollTop = 0;
+      const content = ui.adminDialog.querySelector('.news-admin-content');
+      if (content) content.scrollTop = 0;
+      ui.title?.scrollIntoView({ block: 'center' });
+    });
   });
 
   $('.news-dialog-close')?.addEventListener('click', () => ui.loginDialog.close());
@@ -737,7 +735,6 @@ window.addEventListener('keydown', e => {
   });
 
   ui.description?.addEventListener('input', () => {
-    updateCharacterCount();
     setDirty(true);
   });
 

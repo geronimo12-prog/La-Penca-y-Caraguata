@@ -1579,3 +1579,59 @@ body.intro-active{overflow:hidden}
     grid-template-columns:1fr!important;
   }
 }
+
+
+/* ==========================================================
+   B18 FINAL — título visible y descripción sin límite
+   ========================================================== */
+.news-admin-content{
+  scroll-behavior:smooth;
+}
+
+.news-admin-panel[data-news-panel="editor"]{
+  padding-top:22px!important;
+}
+
+.news-editor-heading{
+  position:sticky;
+  top:0;
+  z-index:6;
+  padding:12px 0 16px;
+  margin-top:0!important;
+  background:linear-gradient(#f7f3eb 82%,rgba(247,243,235,0));
+}
+
+.news-field-wide:first-of-type{
+  scroll-margin-top:130px;
+}
+
+#news-title{
+  min-height:58px;
+  font-size:18px;
+  font-weight:700;
+  background:#fff;
+  position:relative;
+  z-index:2;
+}
+
+#news-description{
+  min-height:220px;
+  resize:vertical;
+}
+
+/* En pantallas chicas, que el título no quede escondido debajo del encabezado */
+@media(max-width:650px){
+  .news-admin-panel[data-news-panel="editor"]{
+    padding-top:14px!important;
+  }
+
+  .news-editor-heading{
+    top:0;
+    padding-top:8px;
+  }
+
+  #news-title{
+    min-height:54px;
+    font-size:16px;
+  }
+}
