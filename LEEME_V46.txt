@@ -1,0 +1,22 @@
+V46 — MERCADO PAGO + CONCILIACIÓN BANCARIA
+
+Incluye:
+- Botón Pagar ahora con Mercado Pago.
+- El comprobante manual ya no aprueba automáticamente.
+- Transferencias quedan pendientes de acreditación.
+- Conciliación bancaria por Excel/CSV.
+- Edge Function para crear preferencias de Checkout Pro.
+- Webhook firmado que consulta el pago real en la API.
+- Solo un pago approved, con referencia, importe y moneda correctos, marca la deuda como Pagado.
+
+Para activar Mercado Pago:
+1. Ejecutar el SQL V46 en Supabase.
+2. Reemplazar styles.css y script.js.
+3. Desplegar las dos Edge Functions incluidas.
+4. Configurar secretos:
+   MP_ACCESS_TOKEN
+   MP_WEBHOOK_SECRET
+   SITE_URL=https://la-penca-y-caraguata.vercel.app
+5. En Mercado Pago activar Webhooks del evento Payments.
+
+No pongas Access Token ni secreto de webhook en index.html o script.js.

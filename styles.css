@@ -5392,3 +5392,62 @@ dialog{
   background:#fff0c8!important;
   color:#825c00!important;
 }
+
+
+/* ==========================================================
+   V46 — Mercado Pago + conciliación segura
+   ========================================================== */
+.citizen-debt-payment-actions{
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:1.25fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+.citizen-debt-payment-actions button{
+  position:static!important;
+  width:100%!important;
+  min-height:50px!important;
+  margin:0!important;
+  padding:12px 14px!important;
+  border-radius:12px!important;
+  font-weight:900!important;
+}
+.citizen-pay-mp{
+  background:#009ee3!important;
+  color:#fff!important;
+  border:0!important;
+}
+.citizen-report-transfer{
+  background:#f4f1eb!important;
+  color:#15366c!important;
+  border:1px solid #d8d1c5!important;
+}
+.bank-reconciliation-card{
+  display:grid;
+  gap:18px;
+}
+.bank-reconciliation-note{
+  display:grid;
+  gap:5px;
+  padding:16px;
+  border-radius:14px;
+  background:#eef4ff;
+  color:#15366c;
+}
+#portal-admin-dialog .residents-subnav{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+@media(max-width:700px){
+  .citizen-debt-payment-actions{
+    grid-template-columns:1fr;
+  }
+  #portal-admin-dialog .residents-subnav{
+    grid-template-columns:1fr 1fr!important;
+  }
+}
+@media(max-width:460px){
+  #portal-admin-dialog .residents-subnav{
+    grid-template-columns:1fr!important;
+  }
+}

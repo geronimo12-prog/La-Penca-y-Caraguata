@@ -1178,6 +1178,24 @@ window.addEventListener('keydown', e => {
     setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
   }
 
+  async function invokeEdgeFunction(name, body) {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+      method:'POST',
+      headers:{
+        apikey:SUPABASE_KEY,
+        Authorization:`Bearer ${SUPABASE_KEY}`,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify(body)
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data?.error || data?.message || 'No se pudo iniciar el pago.');
+    }
+    return data;
+  }
+
   async function request(path, options={}, auth=false){
     const response = await fetch(`${SUPABASE_URL}${path}`, {
       ...options,
@@ -1868,7 +1886,14 @@ window.addEventListener('keydown', e => {
                     <span>${escapeHTML(row.estado || 'Pendiente')}</span>
                   </div>
                   ${String(row.estado).toLowerCase() !== 'pagado' ? `
-                    <button type="button" data-report-payment="${row.id}">Informar pago</button>` : ''}
+                    <div class="citizen-debt-payment-actions">
+                      <button type="button" class="citizen-pay-mp" data-pay-mp="${row.id}">
+                        Pagar ahora con Mercado Pago
+                      </button>
+                      <button type="button" class="citizen-report-transfer" data-report-payment="${row.id}">
+                        Informar transferencia
+                      </button>
+                    </div>` : ''}
                 </article>`).join('') : `
                 <div class="citizen-empty-state">
                   <strong>No hay obligaciones cargadas</strong>
@@ -1892,10 +1917,10 @@ window.addEventListener('keydown', e => {
                       <span class="${String(receipt.estado || '').toLowerCase().replaceAll(' ','-')}">${escapeHTML(receipt.estado || 'Pendiente de revisión')}</span>
                     </div>
                     <p>${receipt.estado === 'Aprobado'
-                      ? 'Pago registrado automáticamente porque el importe coincidió con la deuda.'
+                      ? 'Pago acreditado.'
                       : receipt.estado === 'Rechazado'
                         ? 'Pago rechazado. Comunicate con la Comuna y volvé a cargar un comprobante válido.'
-                        : 'Comprobante recibido. Requiere revisión manual porque el importe no coincidió exactamente.'}</p>
+                        : 'Transferencia informada. Queda pendiente de acreditación bancaria.'}</p>
                   </article>`).join('') : `
                   <div class="citizen-empty-state">
                     <strong>No hay comprobantes cargados</strong>
@@ -2009,6 +2034,35 @@ window.addEventListener('keydown', e => {
           setTimeout(() => button.textContent = 'Copiar', 1200);
         }));
 
+        $$('[data-pay-mp]', portalContent).forEach(button => button.addEventListener('click', async () => {
+          const active = getCitizenSession();
+          const debt = debts.find(row => String(row.id) === button.dataset.payMp);
+
+          if (!active || !debt) return;
+
+          const original = button.textContent;
+          button.disabled = true;
+          button.textContent = 'Abriendo Mercado Pago…';
+
+          try {
+            const result = await invokeEdgeFunction('mercadopago-crear-preferencia', {
+              dni:active.dni,
+              codigo:active.codigo,
+              dispositivo:getDeviceToken(),
+              obligacion_id:debt.id
+            });
+
+            const url = result.init_point || result.sandbox_init_point;
+            if (!url) throw new Error('Mercado Pago no devolvió el enlace de pago.');
+
+            window.location.href = url;
+          } catch (error) {
+            alert(error.message);
+            button.disabled = false;
+            button.textContent = original;
+          }
+        }));
+
         $$('[data-report-payment]', portalContent).forEach(button => button.addEventListener('click', () => {
           const debt = debts.find(row => String(row.id) === button.dataset.reportPayment);
           renderPaymentForm(session, debt);
@@ -2034,7 +2088,7 @@ window.addEventListener('keydown', e => {
             <button type="button" class="citizen-back" id="citizen-back">← Volver a mi cuenta</button>
             <span class="citizen-beta-badge">Informar pago</span>
             <h3>${escapeHTML(debt?.concepto || 'Pago comunal')}</h3>
-            <p>El comprobante es obligatorio. Si el importe coincide exactamente con la deuda, el sistema registrará el pago automáticamente.</p>
+            <p>El comprobante es obligatorio, pero no acredita el pago por sí solo. La transferencia quedará pendiente hasta confirmar que el dinero ingresó.</p>
 
             <form id="citizen-payment-form" class="portal-form citizen-payment-form">
               <label>Concepto
@@ -2054,9 +2108,9 @@ window.addEventListener('keydown', e => {
                 <small>JPG, PNG, WEBP o PDF. Máximo 8 MB.</small>
               </label>
               <div class="citizen-payment-warning">
-                Sin comprobante no se registra el pago. El importe debe coincidir exactamente con la deuda.
+                Sin comprobante no se registra el aviso. La deuda seguirá pendiente hasta confirmar la acreditación.
               </div>
-              <button type="submit">Enviar comprobante y registrar pago</button>
+              <button type="submit">Enviar comprobante de transferencia</button>
               <p data-payment-message></p>
             </form>
           </div>`;
@@ -2127,7 +2181,7 @@ window.addEventListener('keydown', e => {
               })
             });
 
-            message.textContent = result?.aprobado ? 'Pago registrado automáticamente.' : 'Comprobante recibido. Requiere revisión.';
+            message.textContent = 'Comprobante recibido. Transferencia pendiente de acreditación.';
             setTimeout(() => {
               renderAccount(saveCitizenSession({
                 dni:active.dni,
@@ -2356,6 +2410,7 @@ window.addEventListener('keydown', e => {
             <button type="button" data-residents-view="accounts">Cargar tasas</button>
             <button type="button" data-residents-view="import">Importar datos</button>
             <button type="button" data-residents-view="payments">Pagos informados</button>
+            <button type="button" data-residents-view="reconciliation">Conciliación bancaria</button>
           </nav>
           <div id="residents-admin-content" class="residents-admin-content"></div>
         </div>`;
@@ -3199,6 +3254,152 @@ window.addEventListener('keydown', e => {
         });
       };
 
+      const renderReconciliation = () => {
+        content.innerHTML=`
+          <div class="residents-toolbar">
+            <div>
+              <h5>Conciliación bancaria</h5>
+              <p>Importá movimientos bancarios. El sistema busca coincidencias únicas por importe, fecha y referencia.</p>
+            </div>
+          </div>
+
+          <div class="residents-card bank-reconciliation-card">
+            <div class="bank-reconciliation-note">
+              <strong>Formato para pruebas</strong>
+              <span>Columnas: fecha, importe, referencia, descripcion.</span>
+              <span>Se aceptan Excel, CSV y punto y coma.</span>
+            </div>
+
+            <label class="residents-file-drop" for="bank-file">
+              <strong>Seleccionar movimientos del banco</strong>
+              <span>.xlsx, .xls o .csv</span>
+              <input id="bank-file" type="file" accept=".xlsx,.xls,.csv,text/csv">
+            </label>
+
+            <div id="bank-preview" class="residents-import-preview">
+              Todavía no seleccionaste un archivo.
+            </div>
+
+            <button id="bank-reconcile" type="button" class="residents-primary-button" disabled>
+              Conciliar movimientos
+            </button>
+            <p id="bank-message" class="residents-message"></p>
+          </div>`;
+
+        const fileInput = $('#bank-file');
+        const preview = $('#bank-preview');
+        const button = $('#bank-reconcile');
+        const message = $('#bank-message');
+        let movements = [];
+
+        const normalizeHeader = value => String(value || '')
+          .trim().toLowerCase().normalize('NFD')
+          .replace(/[\u0300-\u036f]/g,'')
+          .replace(/\s+/g,'_');
+
+        const normalizeAmount = value => {
+          if (typeof value === 'number') return value;
+          const text = String(value || '').trim().replace(/\$/g,'').replace(/\s/g,'');
+          if (!text) return 0;
+          if (text.includes(',') && text.includes('.')) {
+            return Number(text.replace(/\./g,'').replace(',','.'));
+          }
+          if (text.includes(',')) return Number(text.replace(',','.'));
+          return Number(text);
+        };
+
+        const normalizeDate = value => {
+          if (!value) return '';
+          if (value instanceof Date && !Number.isNaN(value.getTime())) {
+            return value.toISOString().slice(0,10);
+          }
+          if (typeof value === 'number' && window.XLSX?.SSF) {
+            const parsed = XLSX.SSF.parse_date_code(value);
+            if (parsed) return `${parsed.y}-${String(parsed.m).padStart(2,'0')}-${String(parsed.d).padStart(2,'0')}`;
+          }
+          const text = String(value).trim();
+          if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+          const parts = text.split(/[\/\-]/);
+          if (parts.length === 3) {
+            if (parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
+            return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+          }
+          return '';
+        };
+
+        fileInput.addEventListener('change', async () => {
+          movements = [];
+          button.disabled = true;
+          const file = fileInput.files[0];
+          if (!file) return;
+
+          preview.textContent = 'Leyendo movimientos…';
+
+          try {
+            let rows = [];
+
+            if (/\.csv$/i.test(file.name)) {
+              const text = await file.text();
+              const lines = text.split(/\r?\n/).filter(Boolean);
+              const separator = lines[0]?.includes(';') ? ';' : ',';
+              const headers = lines.shift().split(separator).map(normalizeHeader);
+              rows = lines.map(line => {
+                const values = line.split(separator);
+                return Object.fromEntries(headers.map((header,index) => [header,values[index] || '']));
+              });
+            } else {
+              if (!window.XLSX) throw new Error('No se pudo cargar el lector de Excel.');
+              const workbook = XLSX.read(await file.arrayBuffer(), {type:'array',cellDates:true});
+              rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {defval:'',raw:true})
+                .map(row => Object.fromEntries(
+                  Object.entries(row).map(([key,value]) => [normalizeHeader(key),value])
+                ));
+            }
+
+            movements = rows.map((row,index) => ({
+              fila:index + 2,
+              fecha:normalizeDate(row.fecha || row.fecha_movimiento || row.date),
+              importe:normalizeAmount(row.importe || row.monto || row.amount),
+              referencia:String(row.referencia || row.numero_operacion || row.operacion || '').trim(),
+              descripcion:String(row.descripcion || row.detalle || row.concepto || '').trim()
+            })).filter(row => row.fecha && Number.isFinite(row.importe) && row.importe > 0);
+
+            preview.innerHTML=`
+              <div class="resident-import-summary">
+                <article><span>Movimientos válidos</span><strong>${movements.length}</strong></article>
+                <article><span>Archivo</span><strong>${escapeHTML(file.name)}</strong></article>
+              </div>`;
+
+            button.disabled = movements.length === 0;
+          } catch (error) {
+            preview.textContent = error.message;
+          }
+        });
+
+        button.addEventListener('click', async () => {
+          if (!movements.length) return;
+          button.disabled = true;
+          message.textContent = 'Conciliando movimientos…';
+
+          try {
+            const result = await request('/rest/v1/rpc/admin_conciliar_movimientos_beta', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({p_movimientos:movements})
+            }, true);
+
+            message.textContent =
+              `Listo: ${result?.aprobados || 0} pagos acreditados, ` +
+              `${result?.sin_coincidencia || 0} sin coincidencia y ` +
+              `${result?.ambiguos || 0} ambiguos.`;
+          } catch (error) {
+            message.textContent = error.message;
+          } finally {
+            button.disabled = false;
+          }
+        });
+      };
+
       const renderPayments = async () => {
         content.innerHTML=`
           <div class="residents-toolbar">
@@ -3249,6 +3450,7 @@ window.addEventListener('keydown', e => {
         if (currentView === 'accounts') renderAccounts();
         if (currentView === 'import') renderImport();
         if (currentView === 'payments') renderPayments();
+        if (currentView === 'reconciliation') renderReconciliation();
       };
 
       $$('.residents-subnav button').forEach(button => button.addEventListener('click', () => {
