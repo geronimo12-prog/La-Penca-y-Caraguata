@@ -2601,10 +2601,18 @@ window.addEventListener('keydown', e => {
                     <span><b>${group.pendingPayments.length}</b> comprobantes por revisar</span>
                   </div>
 
-                  <span class="resident-summary-open-label">Ver tasas</span>
+                  <span class="resident-summary-open-label"><span class="label-closed">Ver cuenta</span><span class="label-open">Cerrar cuenta</span></span>
                 </summary>
 
                 <div class="resident-summary-body">
+                  <div class="resident-summary-section-title">
+                    <div>
+                      <span>Cuenta corriente</span>
+                      <strong>Tasas y obligaciones</strong>
+                    </div>
+                    <small>${rows.length} registro${rows.length === 1 ? '' : 's'}</small>
+                  </div>
+
                   ${rows.length ? rows.map(row => `
                     <article class="resident-summary-debt" data-obligation="${row.id}">
                       <div>
@@ -2628,7 +2636,13 @@ window.addEventListener('keydown', e => {
                     '<p class="resident-summary-empty">Esta persona no tiene tasas para el filtro seleccionado.</p>'}
 
                   <section class="resident-summary-receipts">
-                    <h6>Comprobantes de ${escapeHTML(group.person.nombre)}</h6>
+                    <div class="resident-summary-section-title receipts-title">
+                      <div>
+                        <span>Pagos informados</span>
+                        <strong>Comprobantes de ${escapeHTML(group.person.nombre)}</strong>
+                      </div>
+                      <small>${group.personPayments.length} archivo${group.personPayments.length === 1 ? '' : 's'}</small>
+                    </div>
                     ${group.personPayments.length ? group.personPayments.map(payment => `
                       <article class="resident-admin-receipt" data-admin-payment="${payment.id}">
                         <div>

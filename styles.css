@@ -5045,3 +5045,326 @@ dialog{
     min-height:42px!important;
   }
 }
+
+
+/* ==========================================================
+   V43 — ORDEN COMO PRIORIDAD EN RESUMEN POR PERSONA
+   ========================================================== */
+
+/* Tarjeta de cada persona */
+.resident-summary-card{
+  border:1px solid #d8d2c7!important;
+  border-radius:20px!important;
+  background:#fff!important;
+  box-shadow:0 8px 24px rgba(25,40,67,.05)!important;
+  overflow:hidden!important;
+}
+
+.resident-summary-card + .resident-summary-card{
+  margin-top:4px!important;
+}
+
+/* Cabecera compacta y clara */
+.resident-summary-card summary{
+  display:grid!important;
+  grid-template-columns:minmax(210px,1.3fr) minmax(480px,2.6fr) 130px!important;
+  gap:18px!important;
+  align-items:center!important;
+  min-height:102px!important;
+  padding:18px 18px 18px 20px!important;
+  background:#fff!important;
+  border:0!important;
+}
+
+.resident-summary-card[open] summary{
+  background:#eef4ff!important;
+  border-bottom:1px solid #cfdbea!important;
+}
+
+.resident-summary-person{
+  min-width:0!important;
+}
+
+.resident-summary-person strong{
+  font-size:19px!important;
+  line-height:1.15!important;
+  color:#101b2e!important;
+}
+
+.resident-summary-person small{
+  margin-top:7px!important;
+  color:#697488!important;
+}
+
+/* Indicadores en una sola franja ordenada */
+.resident-summary-numbers{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(105px,1fr))!important;
+  gap:8px!important;
+}
+
+.resident-summary-numbers span{
+  min-height:64px!important;
+  padding:10px 11px!important;
+  border:1px solid #e6e0d6!important;
+  border-radius:13px!important;
+  background:#f6f3ed!important;
+  color:#6a7280!important;
+  font-size:10px!important;
+  letter-spacing:.08em!important;
+}
+
+.resident-summary-numbers b{
+  font-size:15px!important;
+  line-height:1.15!important;
+  color:#13213a!important;
+}
+
+/* Botón abrir/cerrar claro */
+.resident-summary-open-label{
+  width:100%!important;
+  min-height:46px!important;
+  padding:10px 12px!important;
+  border-radius:12px!important;
+  background:#15366c!important;
+  color:#fff!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  text-align:center!important;
+}
+
+.resident-summary-open-label::after{
+  display:none!important;
+}
+
+.resident-summary-open-label .label-open{
+  display:none;
+}
+
+.resident-summary-card[open] .resident-summary-open-label .label-closed{
+  display:none;
+}
+
+.resident-summary-card[open] .resident-summary-open-label .label-open{
+  display:inline;
+}
+
+/* Interior de la cuenta */
+.resident-summary-body{
+  display:grid!important;
+  gap:14px!important;
+  padding:18px!important;
+  background:#fbfaf7!important;
+}
+
+.resident-summary-section-title{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:16px!important;
+  padding:2px 2px 6px!important;
+}
+
+.resident-summary-section-title span,
+.resident-summary-section-title strong{
+  display:block!important;
+}
+
+.resident-summary-section-title span{
+  margin-bottom:4px!important;
+  color:#df3a2f!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  letter-spacing:.16em!important;
+  text-transform:uppercase!important;
+}
+
+.resident-summary-section-title strong{
+  color:#15366c!important;
+  font-size:17px!important;
+}
+
+.resident-summary-section-title small{
+  flex:none!important;
+  padding:6px 9px!important;
+  border-radius:999px!important;
+  background:#e8edf6!important;
+  color:#15366c!important;
+  font-weight:800!important;
+}
+
+/* Cada obligación como fila administrativa limpia */
+.resident-summary-debt{
+  display:grid!important;
+  grid-template-columns:minmax(230px,1.4fr) minmax(150px,.7fr) minmax(250px,1fr)!important;
+  gap:18px!important;
+  align-items:center!important;
+  min-height:96px!important;
+  padding:15px 16px!important;
+  border:1px solid #e2dcd2!important;
+  border-radius:16px!important;
+  background:#fff!important;
+}
+
+.resident-summary-debt > div:first-child{
+  min-width:0!important;
+}
+
+.resident-summary-debt > div:first-child > span{
+  margin-bottom:5px!important;
+  color:#df3a2f!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  letter-spacing:.14em!important;
+  text-transform:uppercase!important;
+}
+
+.resident-summary-debt > div:first-child > strong{
+  color:#141d2e!important;
+  font-size:16px!important;
+}
+
+.resident-summary-debt > div:first-child > small{
+  margin-top:7px!important;
+  color:#697488!important;
+}
+
+.resident-summary-amount{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  gap:8px!important;
+  min-width:0!important;
+  text-align:right!important;
+}
+
+.resident-summary-amount > strong{
+  font-size:18px!important;
+  color:#111827!important;
+}
+
+.resident-summary-amount .resident-status{
+  margin:0!important;
+}
+
+/* Acciones compactas, ya no gigantes */
+.resident-summary-debt .resident-card-actions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:9px!important;
+  width:100%!important;
+  justify-content:stretch!important;
+}
+
+.resident-summary-debt .resident-card-actions button{
+  position:static!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:44px!important;
+  margin:0!important;
+  padding:9px 11px!important;
+  border-radius:11px!important;
+  font-size:13px!important;
+  line-height:1.15!important;
+}
+
+/* Comprobantes dentro de la misma persona */
+.resident-summary-receipts{
+  display:grid!important;
+  gap:10px!important;
+  margin-top:6px!important;
+  padding:18px!important;
+  border:1px solid #d5deec!important;
+  border-radius:16px!important;
+  background:#f4f8ff!important;
+}
+
+.resident-summary-receipts .receipts-title{
+  padding:0 0 8px!important;
+  border-bottom:1px solid #d9e2f0!important;
+}
+
+.resident-admin-receipt{
+  padding:14px!important;
+  border-radius:13px!important;
+  background:#fff!important;
+}
+
+/* Botón de agregar tasa separado y claro */
+.resident-summary-add{
+  min-height:48px!important;
+  margin-top:2px!important;
+  border:2px dashed #9fb0c8!important;
+  border-radius:13px!important;
+  background:#f8fbff!important;
+  font-size:14px!important;
+}
+
+/* Espacio entre personas */
+.residents-summary-list{
+  gap:16px!important;
+}
+
+/* Responsive */
+@media(max-width:1180px){
+  .resident-summary-card summary{
+    grid-template-columns:1fr!important;
+  }
+
+  .resident-summary-numbers{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+
+  .resident-summary-open-label{
+    width:100%!important;
+  }
+}
+
+@media(max-width:900px){
+  .resident-summary-debt{
+    grid-template-columns:1fr 180px!important;
+  }
+
+  .resident-summary-debt .resident-card-actions{
+    grid-column:1 / -1!important;
+  }
+}
+
+@media(max-width:650px){
+  .resident-summary-card summary{
+    padding:16px!important;
+  }
+
+  .resident-summary-numbers{
+    grid-template-columns:1fr 1fr!important;
+  }
+
+  .resident-summary-body{
+    padding:14px!important;
+  }
+
+  .resident-summary-debt{
+    grid-template-columns:1fr!important;
+  }
+
+  .resident-summary-amount{
+    align-items:flex-start!important;
+    text-align:left!important;
+  }
+
+  .resident-summary-debt .resident-card-actions{
+    grid-template-columns:1fr!important;
+  }
+
+  .resident-summary-section-title{
+    align-items:flex-start!important;
+    flex-direction:column!important;
+  }
+}
+
+@media(max-width:430px){
+  .resident-summary-numbers{
+    grid-template-columns:1fr!important;
+  }
+}

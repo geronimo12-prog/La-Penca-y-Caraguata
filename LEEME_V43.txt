@@ -1,0 +1,18 @@
+V43 — ORDEN POR PERSONA
+
+Mejoras:
+- Cada persona se ve como una ficha independiente.
+- Cabecera más limpia.
+- Totales alineados.
+- Botón Ver cuenta / Cerrar cuenta.
+- Tasas agrupadas bajo Cuenta corriente.
+- Botones Marcar/Borrar compactos y alineados.
+- Comprobantes dentro de un bloque separado.
+- Botón cargar tasa separado del resto.
+- Mejor adaptación a pantallas chicas.
+
+Reemplazar:
+- styles.css
+- script.js
+
+No requiere SQL nuevo.
