@@ -3962,3 +3962,136 @@ dialog{
     display:none!important;
   }
 }
+
+
+/* ==========================================================
+   V37 — Acceso estable y botones públicos ordenados
+   ========================================================== */
+#hero-tramites-open{
+  appearance:none!important;
+  font:inherit!important;
+  cursor:pointer!important;
+}
+
+#portal-dialog{
+  width:min(1000px,calc(100vw - 24px))!important;
+  max-height:92vh!important;
+}
+
+#portal-dialog .portal-public-wrap{
+  position:relative!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-height:calc(92vh - 30px)!important;
+  overflow-y:auto!important;
+  padding:32px 34px 28px!important;
+}
+
+#portal-dialog .portal-dialog-close{
+  position:fixed!important;
+  top:max(18px,calc((100vh - 92vh)/2 + 14px))!important;
+  right:max(18px,calc((100vw - min(1000px,calc(100vw - 24px)))/2 + 14px))!important;
+  width:44px!important;
+  height:44px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  z-index:999!important;
+  border-radius:50%!important;
+}
+
+.citizen-account-head{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:16px!important;
+  padding-right:56px!important;
+}
+
+.citizen-account-actions{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  width:100%!important;
+  gap:9px!important;
+  align-items:stretch!important;
+}
+
+.citizen-account-actions > *{
+  position:static!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:44px!important;
+  margin:0!important;
+  white-space:normal!important;
+  line-height:1.15!important;
+  text-align:center!important;
+}
+
+.citizen-countdown{
+  display:flex!important;
+}
+
+.citizen-debt-card,
+.citizen-payment-data,
+.citizen-account-summary{
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+
+.citizen-payment-data p{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  gap:9px!important;
+  align-items:center!important;
+}
+
+.citizen-payment-data p button{
+  width:auto!important;
+  min-width:72px!important;
+}
+
+@media(max-width:850px){
+  .citizen-account-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+
+  .citizen-account-actions .citizen-countdown{
+    grid-column:1 / -1!important;
+  }
+}
+
+@media(max-width:600px){
+  #portal-dialog{
+    width:calc(100vw - 10px)!important;
+    max-height:97vh!important;
+  }
+
+  #portal-dialog .portal-public-wrap{
+    max-height:calc(97vh - 18px)!important;
+    padding:24px 14px 24px!important;
+  }
+
+  #portal-dialog .portal-dialog-close{
+    top:10px!important;
+    right:10px!important;
+  }
+
+  .citizen-account-head{
+    padding-right:42px!important;
+  }
+
+  .citizen-account-actions{
+    grid-template-columns:1fr!important;
+  }
+
+  .citizen-account-actions .citizen-countdown{
+    grid-column:auto!important;
+  }
+
+  .citizen-payment-data p{
+    grid-template-columns:1fr!important;
+  }
+
+  .citizen-payment-data p button{
+    width:100%!important;
+  }
+}

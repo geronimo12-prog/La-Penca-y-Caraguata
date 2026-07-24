@@ -1,0 +1,17 @@
+V37 — CORRECCIÓN DIRECTA
+
+Solucionado:
+- Ver trámites abre directamente la consulta.
+- Se puede cerrar sesión y volver a ingresar sin recargar.
+- El botón correcto de iniciar sesión se habilita/deshabilita.
+- El acceso usa delegación de eventos y no se rompe al reabrir.
+- Los botones de la cuenta ya no se montan.
+- Diseño corregido para celular.
+
+IMPORTANTE:
+Reemplazar los tres archivos:
+index.html
+styles.css
+script.js
+
+No requiere cambios en Supabase.

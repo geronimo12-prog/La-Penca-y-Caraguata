@@ -1525,6 +1525,8 @@ window.addEventListener('keydown', e => {
   };
 
   $('.portal-dialog-close')?.addEventListener('click',()=>{
+    clearTimeout(window.__citizenSessionTimer);
+    clearInterval(window.__citizenCountdownInterval);
     portalDialog?.close();
   });
 
@@ -1680,7 +1682,8 @@ window.addEventListener('keydown', e => {
           }
 
           message.textContent = 'Validando acceso…';
-          form.querySelector('button').disabled = true;
+          const submitButton = form.querySelector('button[type="submit"]');
+          if (submitButton) submitButton.disabled = true;
 
           try {
             const result = await request('/rest/v1/rpc/consultar_estado_cuenta_beta', {
@@ -1698,7 +1701,7 @@ window.addEventListener('keydown', e => {
               message.textContent = attempt.blockedUntil
                 ? 'Demasiados intentos. El acceso quedó bloqueado durante 10 minutos.'
                 : 'No se pudo validar el acceso. Revisá los datos.';
-              form.querySelector('button').disabled = Boolean(attempt.blockedUntil);
+              if (submitButton) submitButton.disabled = Boolean(attempt.blockedUntil);
               return;
             }
 
@@ -1714,7 +1717,7 @@ window.addEventListener('keydown', e => {
             message.textContent = 'No se pudo validar el acceso. Revisá los datos.';
           } finally {
             if (form.isConnected && !readAttemptState().blockedUntil) {
-              form.querySelector('button').disabled = false;
+              if (submitButton) submitButton.disabled = false;
             }
           }
         });
@@ -1854,7 +1857,12 @@ window.addEventListener('keydown', e => {
           clearTimeout(window.__citizenSessionTimer);
           clearInterval(window.__citizenCountdownInterval);
           clearCitizenSession();
+
+          portalContent.innerHTML = '';
           renderLogin();
+
+          const dniInput = $('#citizen-access-form input[name="dni"]');
+          setTimeout(() => dniInput?.focus(), 30);
         });
 
         $$('[data-copy]', portalContent).forEach(button => button.addEventListener('click', async () => {
@@ -2034,7 +2042,19 @@ window.addEventListener('keydown', e => {
       $('.portal-public-list',portalContent).innerHTML=rows?.length?rows.map(def.render).join(''):'<p>No hay contenido publicado por el momento.</p>';
     }catch(e){$('.portal-public-list',portalContent).innerHTML=`<p>${escapeHTML(e.message)}</p>`}
   }
-  $$('[data-portal-open]').forEach(b=>b.addEventListener('click',()=>openPublicModule(b.dataset.portalOpen)));
+  // Delegación robusta: sigue funcionando aunque el contenido cambie o se reabra.
+  document.addEventListener('click', event => {
+    const trigger = event.target.closest('[data-portal-open]');
+    if (!trigger) return;
+
+    event.preventDefault();
+    openPublicModule(trigger.dataset.portalOpen);
+  });
+
+  $('#hero-tramites-open')?.addEventListener('click', event => {
+    event.preventDefault();
+    openPublicModule('tramites');
+  });
 
   // Suscripción
   $('#subscribe-form')?.addEventListener('submit',async e=>{
@@ -2829,22 +2849,6 @@ window.addEventListener('keydown', e => {
     }catch(e){$('[data-module-list]',panel).textContent=e.message}
   }
 
-
-  const heroTramitesLink = $('#hero-tramites-link');
-
-  heroTramitesLink?.addEventListener('click', event => {
-    event.preventDefault();
-
-    const section = $('#portal-ciudadano');
-    section?.scrollIntoView({
-      behavior:'smooth',
-      block:'start'
-    });
-
-    setTimeout(() => {
-      $('[data-portal-open="tramites"]')?.focus();
-    }, 650);
-  });
 
   loadAlerts();
   loadImportantSection();
