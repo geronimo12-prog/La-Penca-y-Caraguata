@@ -2192,7 +2192,8 @@ window.addEventListener('keydown', e => {
         <div class="residents-admin-shell">
           <nav class="residents-subnav" aria-label="Secciones de datos de habitantes">
             <button type="button" class="active" data-residents-view="people">Personas</button>
-            <button type="button" data-residents-view="accounts">Cuentas y tasas</button>
+            <button type="button" data-residents-view="summary">Resumen por persona</button>
+            <button type="button" data-residents-view="accounts">Cargar tasas</button>
             <button type="button" data-residents-view="import">Importar datos</button>
             <button type="button" data-residents-view="payments">Pagos informados</button>
           </nav>
@@ -2268,9 +2269,9 @@ window.addEventListener('keydown', e => {
 
           $$('[data-resident-account]', list).forEach(button => button.addEventListener('click', () => {
             const card = button.closest('[data-resident]');
-            renderAccounts(card.dataset.resident);
-            $$('.residents-subnav button').forEach(btn => btn.classList.toggle('active', btn.dataset.residentsView === 'accounts'));
-            currentView = 'accounts';
+            renderSummary(card.dataset.resident);
+            $$('.residents-subnav button').forEach(btn => btn.classList.toggle('active', btn.dataset.residentsView === 'summary'));
+            currentView = 'summary';
           }));
 
           $$('[data-reset-code]', list).forEach(button => button.addEventListener('click', async () => {
@@ -2339,6 +2340,208 @@ window.addEventListener('keydown', e => {
         });
 
         await loadRows();
+      };
+
+      const renderSummary = async selectedResidentId => {
+        content.innerHTML=`
+          <div class="residents-toolbar">
+            <div>
+              <h5>Resumen por persona</h5>
+              <p>Cada habitante aparece una sola vez. Abrí su ficha para ver todas sus tasas juntas.</p>
+            </div>
+            <label class="residents-search">Buscar
+              <input id="summary-search" placeholder="Nombre o últimos números del DNI">
+            </label>
+          </div>
+
+          <div class="residents-summary-filters">
+            <label>Estado
+              <select id="summary-state">
+                <option value="">Todos</option>
+                <option>Pendiente</option>
+                <option>Pagado</option>
+                <option>Vencido</option>
+              </select>
+            </label>
+            <label>Concepto
+              <select id="summary-concept">
+                <option value="">Todos</option>
+                <option>Agua</option>
+                <option>Luz</option>
+                <option>Tasa comunal</option>
+                <option>Tasa por hectárea</option>
+                <option>Tasa inmobiliaria</option>
+                <option>Otro</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="residents-summary-list" class="residents-summary-list">Cargando…</div>`;
+
+        const list = $('#residents-summary-list');
+        let people = [];
+        let obligations = [];
+
+        const buildGroups = () => {
+          const query = String($('#summary-search')?.value || '').trim().toLowerCase();
+          const state = $('#summary-state')?.value || '';
+          const concept = $('#summary-concept')?.value || '';
+
+          const groups = people
+            .filter(person => {
+              const name = String(person.nombre || '').toLowerCase();
+              const dni = String(person.dni_normalizado || '');
+              return !query || name.includes(query) || dni.endsWith(query);
+            })
+            .map(person => {
+              const allRows = obligations.filter(row => row.contribuyente_id === person.id);
+              const visibleRows = allRows.filter(row =>
+                (!state || row.estado === state) &&
+                (!concept || row.concepto === concept)
+              );
+
+              const pendingRows = allRows.filter(row => row.estado !== 'Pagado');
+              const pendingTotal = pendingRows.reduce((sum,row) => sum + Number(row.importe || 0), 0);
+              const paidTotal = allRows
+                .filter(row => row.estado === 'Pagado')
+                .reduce((sum,row) => sum + Number(row.importe || 0), 0);
+
+              return {
+                person,
+                allRows,
+                visibleRows,
+                pendingRows,
+                pendingTotal,
+                paidTotal
+              };
+            })
+            .filter(group => {
+              if (!state && !concept) return true;
+              return group.visibleRows.length > 0;
+            });
+
+          if (selectedResidentId) {
+            groups.sort((a,b) =>
+              String(a.person.id) === String(selectedResidentId) ? -1 :
+              String(b.person.id) === String(selectedResidentId) ? 1 :
+              a.person.nombre.localeCompare(b.person.nombre,'es')
+            );
+          } else {
+            groups.sort((a,b) => a.person.nombre.localeCompare(b.person.nombre,'es'));
+          }
+
+          list.innerHTML = groups.length ? groups.map((group,index) => {
+            const open = selectedResidentId
+              ? String(group.person.id) === String(selectedResidentId)
+              : index === 0;
+
+            const rows = (state || concept) ? group.visibleRows : group.allRows;
+
+            return `
+              <details class="resident-summary-card" data-summary-person="${group.person.id}" ${open ? 'open' : ''}>
+                <summary>
+                  <div class="resident-summary-person">
+                    <strong>${escapeHTML(group.person.nombre)}</strong>
+                    <small>DNI terminado en ${escapeHTML(String(group.person.dni_normalizado).slice(-4))}</small>
+                  </div>
+
+                  <div class="resident-summary-numbers">
+                    <span><b>${group.pendingRows.length}</b> pendientes</span>
+                    <span><b>${currency(group.pendingTotal)}</b> total pendiente</span>
+                    <span><b>${currency(group.paidTotal)}</b> pagado</span>
+                  </div>
+
+                  <span class="resident-summary-open-label">Ver tasas</span>
+                </summary>
+
+                <div class="resident-summary-body">
+                  ${rows.length ? rows.map(row => `
+                    <article class="resident-summary-debt" data-obligation="${row.id}">
+                      <div>
+                        <span>${escapeHTML(row.concepto)}</span>
+                        <strong>${escapeHTML(row.periodo)}</strong>
+                        <small>${row.vencimiento ? `Vence: ${escapeHTML(row.vencimiento)}` : 'Sin vencimiento'}</small>
+                      </div>
+
+                      <div class="resident-summary-amount">
+                        <strong>${currency(row.importe)}</strong>
+                        <span class="resident-status ${String(row.estado).toLowerCase()}">${escapeHTML(row.estado)}</span>
+                      </div>
+
+                      <div class="resident-card-actions">
+                        <button type="button" data-summary-toggle>
+                          ${row.estado === 'Pagado' ? 'Marcar pendiente' : 'Marcar pagado'}
+                        </button>
+                        <button type="button" class="danger" data-summary-delete>Borrar</button>
+                      </div>
+                    </article>`).join('') :
+                    '<p class="resident-summary-empty">Esta persona no tiene tasas para el filtro seleccionado.</p>'}
+
+                  <button type="button" class="resident-summary-add" data-summary-add="${group.person.id}">
+                    + Cargar otra tasa a esta persona
+                  </button>
+                </div>
+              </details>`;
+          }).join('') : '<p>No se encontraron personas para estos filtros.</p>';
+
+          $$('[data-summary-toggle]', list).forEach(button => button.addEventListener('click', async event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const card = button.closest('[data-obligation]');
+            const row = obligations.find(item => String(item.id) === card.dataset.obligation);
+            const estado = row.estado === 'Pagado' ? 'Pendiente' : 'Pagado';
+
+            await request(`/rest/v1/obligaciones?id=eq.${card.dataset.obligation}`, {
+              method:'PATCH',
+              headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+              body:JSON.stringify({estado,updated_at:new Date().toISOString()})
+            }, true);
+
+            await loadData();
+          }));
+
+          $$('[data-summary-delete]', list).forEach(button => button.addEventListener('click', async event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const card = button.closest('[data-obligation]');
+            if (!confirm('¿Borrar esta tasa?')) return;
+
+            await request(`/rest/v1/obligaciones?id=eq.${card.dataset.obligation}`, {
+              method:'DELETE',
+              headers:{'Prefer':'return=minimal'}
+            }, true);
+
+            await loadData();
+          }));
+
+          $$('[data-summary-add]', list).forEach(button => button.addEventListener('click', () => {
+            renderAccounts(button.dataset.summaryAdd);
+            $$('.residents-subnav button').forEach(btn =>
+              btn.classList.toggle('active', btn.dataset.residentsView === 'accounts')
+            );
+            currentView = 'accounts';
+          }));
+        };
+
+        const loadData = async () => {
+          try {
+            [people, obligations] = await Promise.all([
+              request('/rest/v1/contribuyentes?select=id,nombre,dni_normalizado,activo&order=nombre.asc', {}, true),
+              request('/rest/v1/obligaciones?select=*&order=created_at.desc', {}, true)
+            ]);
+            buildGroups();
+          } catch (error) {
+            list.textContent = error.message;
+          }
+        };
+
+        $('#summary-search')?.addEventListener('input', buildGroups);
+        $('#summary-state')?.addEventListener('change', buildGroups);
+        $('#summary-concept')?.addEventListener('change', buildGroups);
+
+        await loadData();
       };
 
       const renderAccounts = async selectedResidentId => {
@@ -2773,6 +2976,7 @@ window.addEventListener('keydown', e => {
 
       const renderCurrent = () => {
         if (currentView === 'people') renderPeople();
+        if (currentView === 'summary') renderSummary();
         if (currentView === 'accounts') renderAccounts();
         if (currentView === 'import') renderImport();
         if (currentView === 'payments') renderPayments();

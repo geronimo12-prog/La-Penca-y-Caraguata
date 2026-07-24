@@ -1,0 +1,18 @@
+V40 — RESUMEN POR PERSONA
+
+Nuevo apartado:
+- Resumen por persona.
+
+Ahora:
+- Cada habitante aparece una sola vez.
+- Al abrir su ficha se ven juntas todas sus tasas.
+- Muestra cantidad de pendientes, total pendiente y total pagado.
+- Permite filtrar por nombre, DNI, estado y concepto.
+- Desde cada ficha se puede marcar pagado, borrar o cargar otra tasa.
+- Personas, importación y carga manual siguen funcionando.
+
+Reemplazar:
+- styles.css
+- script.js
+
+No requiere SQL nuevo.

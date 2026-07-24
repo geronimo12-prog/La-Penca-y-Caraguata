@@ -4338,3 +4338,203 @@ dialog{
     grid-template-columns:1fr;
   }
 }
+
+
+/* ==========================================================
+   V40 — Resumen agrupado por persona
+   ========================================================== */
+#portal-admin-dialog .residents-subnav{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+
+.residents-summary-filters{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:16px;
+}
+.residents-summary-filters label{
+  display:grid;
+  gap:6px;
+  font-weight:800;
+}
+.residents-summary-filters select{
+  min-height:44px;
+  padding:10px 12px;
+  border:1px solid #d8d1c5;
+  border-radius:11px;
+  background:#fff;
+}
+.residents-summary-list{
+  display:grid;
+  gap:14px;
+}
+.resident-summary-card{
+  border:1px solid #ddd6ca;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+}
+.resident-summary-card summary{
+  list-style:none;
+  display:grid;
+  grid-template-columns:minmax(190px,1fr) minmax(330px,1.5fr) auto;
+  gap:16px;
+  align-items:center;
+  padding:18px;
+  cursor:pointer;
+  background:#fff;
+}
+.resident-summary-card summary::-webkit-details-marker{
+  display:none;
+}
+.resident-summary-card[open] summary{
+  background:#eef4ff;
+  border-bottom:1px solid #d8e2f2;
+}
+.resident-summary-person strong,
+.resident-summary-person small{
+  display:block;
+}
+.resident-summary-person strong{
+  font-size:18px;
+}
+.resident-summary-person small{
+  margin-top:4px;
+  color:#70798a;
+}
+.resident-summary-numbers{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+.resident-summary-numbers span{
+  display:grid;
+  gap:3px;
+  min-height:58px;
+  padding:9px 10px;
+  border-radius:11px;
+  background:#f4f1eb;
+  color:#5e6878;
+  font-size:11px;
+  text-transform:uppercase;
+}
+.resident-summary-numbers b{
+  color:#17233b;
+  font-size:14px;
+  text-transform:none;
+}
+.resident-summary-open-label{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  padding:8px 12px;
+  border-radius:10px;
+  background:#15366c;
+  color:#fff;
+  font-weight:900;
+  white-space:nowrap;
+}
+.resident-summary-card[open] .resident-summary-open-label::after{
+  content:' ↑';
+}
+.resident-summary-card:not([open]) .resident-summary-open-label::after{
+  content:' ↓';
+}
+.resident-summary-body{
+  display:grid;
+  gap:10px;
+  padding:16px;
+}
+.resident-summary-debt{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(220px,auto);
+  gap:14px;
+  align-items:center;
+  padding:14px;
+  border:1px solid #ebe4d9;
+  border-radius:14px;
+  background:#fff;
+}
+.resident-summary-debt span,
+.resident-summary-debt strong,
+.resident-summary-debt small{
+  display:block;
+}
+.resident-summary-debt small{
+  margin-top:4px;
+  color:#737c8c;
+}
+.resident-summary-amount{
+  text-align:right;
+}
+.resident-summary-amount .resident-status{
+  margin-top:5px;
+  margin-left:auto;
+}
+.resident-summary-debt .resident-card-actions{
+  grid-column:auto!important;
+  justify-content:flex-end;
+}
+.resident-summary-debt .resident-card-actions button{
+  min-width:115px!important;
+}
+.resident-summary-add{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:44px!important;
+  border:1px dashed #8fa1bb!important;
+  border-radius:12px!important;
+  background:#f5f8fd!important;
+  color:#15366c!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+.resident-summary-empty{
+  margin:0;
+  padding:18px;
+  text-align:center;
+  color:#6c7585;
+}
+
+@media(max-width:1050px){
+  .resident-summary-card summary{
+    grid-template-columns:1fr;
+  }
+  .resident-summary-open-label{
+    width:100%;
+  }
+  .resident-summary-debt{
+    grid-template-columns:1fr auto;
+  }
+  .resident-summary-debt .resident-card-actions{
+    grid-column:1 / -1!important;
+  }
+}
+@media(max-width:760px){
+  #portal-admin-dialog .residents-subnav{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .residents-summary-filters,
+  .resident-summary-numbers{
+    grid-template-columns:1fr!important;
+  }
+  .resident-summary-debt{
+    grid-template-columns:1fr!important;
+  }
+  .resident-summary-amount{
+    text-align:left;
+  }
+  .resident-summary-amount .resident-status{
+    margin-left:0;
+  }
+}
+@media(max-width:480px){
+  #portal-admin-dialog .residents-subnav{
+    grid-template-columns:1fr!important;
+  }
+}
