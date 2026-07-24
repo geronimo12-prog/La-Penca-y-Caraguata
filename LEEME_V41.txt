@@ -1,0 +1,16 @@
+V41 — COMPROBANTES ORDENADOS
+
+Incluye:
+- El comprobante es obligatorio.
+- El archivo real se sube a un bucket privado.
+- Sin archivo no se registra ni aprueba el pago.
+- El pago queda Pendiente de revisión.
+- La persona ve dos pestañas: Lo que debo / Mis comprobantes.
+- Administración ve comprobantes dentro de cada persona.
+- Al aprobar, la obligación recién pasa a Pagado.
+- Al rechazar, sigue sin considerarse pagada.
+
+Pasos:
+1. Ejecutar SUPABASE_V41_COMPROBANTES.sql.
+2. Reemplazar styles.css y script.js.
+3. Probar con datos ficticios.

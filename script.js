@@ -161,6 +161,79 @@ window.addEventListener('keydown', e => {
   const SUPABASE_KEY = 'sb_publishable_3fZv9U_m_RuGujOtSk6zYA_WatgOb_n';
   const TABLE_URL = `${SUPABASE_URL}/rest/v1/noticias`;
   const STORAGE_BUCKET = 'noticias-imagenes';
+  const PAYMENT_RECEIPTS_BUCKET = 'comprobantes-pago';
+
+  const safeFileName = value => String(value || 'comprobante')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9._-]+/g,'-')
+    .replace(/-+/g,'-')
+    .slice(0,120);
+
+  async function uploadPaymentReceipt(file) {
+    if (!file) throw new Error('Falta de comprobante.');
+
+    const allowed = ['image/jpeg','image/png','image/webp','application/pdf'];
+    const maxBytes = 8 * 1024 * 1024;
+
+    if (!allowed.includes(file.type)) {
+      throw new Error('El comprobante debe ser JPG, PNG, WEBP o PDF.');
+    }
+
+    if (file.size > maxBytes) {
+      throw new Error('El comprobante no puede superar los 8 MB.');
+    }
+
+    const extension = safeFileName(file.name).split('.').pop() || 'bin';
+    const path = `${crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`}.${extension}`;
+
+    const response = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/${PAYMENT_RECEIPTS_BUCKET}/${path}`,
+      {
+        method:'POST',
+        headers:{
+          apikey:SUPABASE_ANON_KEY,
+          Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type':file.type,
+          'x-upsert':'false'
+        },
+        body:file
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error || 'No se pudo subir el comprobante.');
+    }
+
+    return {
+      path,
+      name:safeFileName(file.name),
+      mime:file.type,
+      size:file.size
+    };
+  }
+
+  async function openPrivatePaymentReceipt(path) {
+    if (!path) return;
+
+    const response = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/${PAYMENT_RECEIPTS_BUCKET}/${encodeURIComponent(path)}`,
+      {
+        headers:{
+          apikey:SUPABASE_ANON_KEY,
+          Authorization:`Bearer ${token()}`
+        }
+      }
+    );
+
+    if (!response.ok) throw new Error('No se pudo abrir el comprobante.');
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    window.open(objectUrl,'_blank','noopener');
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  }
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -1732,6 +1805,7 @@ window.addEventListener('keydown', e => {
 
         const account = session.cuenta || {};
         const debts = Array.isArray(account.obligaciones) ? account.obligaciones : [];
+        const receipts = Array.isArray(account.comprobantes) ? account.comprobantes : [];
         const config = account.pagos || {};
         const pending = debts.filter(row => String(row.estado).toLowerCase() !== 'pagado');
         const total = pending.reduce((sum,row) => sum + Number(row.importe || 0), 0);
@@ -1756,8 +1830,15 @@ window.addEventListener('keydown', e => {
             <div class="citizen-account-summary">
               <article><span>Pendientes</span><strong>${pending.length}</strong></article>
               <article><span>Total informado</span><strong>${money(total)}</strong></article>
+              <article><span>Comprobantes</span><strong>${receipts.length}</strong></article>
             </div>
 
+            <nav class="citizen-account-tabs" aria-label="Secciones de mi cuenta">
+              <button type="button" class="active" data-citizen-tab="debts">Lo que debo</button>
+              <button type="button" data-citizen-tab="receipts">Mis comprobantes</button>
+            </nav>
+
+            <section class="citizen-account-panel active" data-citizen-panel="debts">
             <div class="citizen-debt-list" id="citizen-debt-list">
               ${debts.length ? debts.map(row => `
                 <article class="citizen-debt-card ${String(row.estado).toLowerCase()==='pagado'?'is-paid':'is-pending'}">
@@ -1778,6 +1859,34 @@ window.addEventListener('keydown', e => {
                   <span>La Comuna todavía no registró tasas o deudas para esta cuenta.</span>
                 </div>`}
             </div>
+            </section>
+
+            <section class="citizen-account-panel" data-citizen-panel="receipts">
+              <div class="citizen-receipts-list">
+                ${receipts.length ? receipts.map(receipt => `
+                  <article class="citizen-receipt-card">
+                    <div>
+                      <span>${escapeHTML(receipt.concepto || 'Pago comunal')}</span>
+                      <h4>${escapeHTML(receipt.comprobante_nombre || 'Comprobante cargado')}</h4>
+                      <small>${receipt.fecha_pago ? `Pago informado: ${escapeHTML(receipt.fecha_pago)}` : ''}
+                      ${receipt.created_at ? ` · Enviado: ${escapeHTML(new Date(receipt.created_at).toLocaleString('es-AR'))}` : ''}</small>
+                    </div>
+                    <div class="citizen-receipt-status">
+                      <strong>${money(receipt.importe)}</strong>
+                      <span class="${String(receipt.estado || '').toLowerCase().replaceAll(' ','-')}">${escapeHTML(receipt.estado || 'Pendiente de revisión')}</span>
+                    </div>
+                    <p>${receipt.estado === 'Aprobado'
+                      ? 'Pago aprobado por la Comuna.'
+                      : receipt.estado === 'Rechazado'
+                        ? 'Pago rechazado. Comunicate con la Comuna y volvé a cargar un comprobante válido.'
+                        : 'Comprobante recibido. El pago todavía no está aprobado.'}</p>
+                  </article>`).join('') : `
+                  <div class="citizen-empty-state">
+                    <strong>No hay comprobantes cargados</strong>
+                    <span>Cuando informes un pago con su archivo, aparecerá acá.</span>
+                  </div>`}
+              </div>
+            </section>
 
             <div class="citizen-payment-data">
               <div>
@@ -1795,6 +1904,15 @@ window.addEventListener('keydown', e => {
             </div>
             <button type="button" class="citizen-scroll-top" id="citizen-scroll-top">Volver arriba ↑</button>
           </div>`;
+
+        $$('[data-citizen-tab]', portalContent).forEach(button => button.addEventListener('click', () => {
+          $$('[data-citizen-tab]', portalContent).forEach(tab =>
+            tab.classList.toggle('active', tab === button)
+          );
+          $$('[data-citizen-panel]', portalContent).forEach(panel =>
+            panel.classList.toggle('active', panel.dataset.citizenPanel === button.dataset.citizenTab)
+          );
+        }));
 
         const updateCountdown = () => {
           const active = getCitizenSession();
@@ -1900,7 +2018,7 @@ window.addEventListener('keydown', e => {
             <button type="button" class="citizen-back" id="citizen-back">← Volver a mi cuenta</button>
             <span class="citizen-beta-badge">Informar pago</span>
             <h3>${escapeHTML(debt?.concepto || 'Pago comunal')}</h3>
-            <p>Completá los datos. Después se abrirá WhatsApp con el mensaje preparado. El comprobante se adjunta desde WhatsApp.</p>
+            <p>El comprobante es obligatorio. El pago quedará como “Pendiente de revisión” hasta que la Comuna lo apruebe.</p>
 
             <form id="citizen-payment-form" class="portal-form citizen-payment-form">
               <label>Concepto
@@ -1915,11 +2033,14 @@ window.addEventListener('keydown', e => {
               <label>Referencia o número de operación
                 <input name="referencia" maxlength="100" placeholder="Opcional">
               </label>
-              <label class="citizen-file-label">Comprobante
-                <input name="comprobante" type="file" accept="image/*,.pdf">
-                <small>Por seguridad, en esta beta se adjunta manualmente dentro de WhatsApp.</small>
+              <label class="citizen-file-label">Comprobante obligatorio
+                <input name="comprobante" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required>
+                <small>JPG, PNG, WEBP o PDF. Máximo 8 MB.</small>
               </label>
-              <button type="submit">Guardar aviso y abrir WhatsApp</button>
+              <div class="citizen-payment-warning">
+                Sin comprobante, el pago no se envía ni puede figurar como aprobado.
+              </div>
+              <button type="submit">Enviar comprobante para revisión</button>
               <p data-payment-message></p>
             </form>
           </div>`;
@@ -1938,6 +2059,14 @@ window.addEventListener('keydown', e => {
           }
 
           const formData = new FormData(event.target);
+          const file = formData.get('comprobante');
+          const submitButton = event.target.querySelector('button[type="submit"]');
+
+          if (!(file instanceof File) || !file.size) {
+            message.textContent = 'Falta de comprobante. El pago no fue enviado ni aprobado.';
+            return;
+          }
+
           const payload = {
             p_dni:activeSession.dni,
             p_codigo:activeSession.codigo,
@@ -1946,39 +2075,54 @@ window.addEventListener('keydown', e => {
             p_concepto:String(formData.get('concepto') || ''),
             p_importe:Number(formData.get('importe') || 0),
             p_fecha_pago:String(formData.get('fecha_pago') || ''),
-            p_referencia:String(formData.get('referencia') || ''),
-            p_comprobante_nombre:String(formData.get('comprobante')?.name || '')
+            p_referencia:String(formData.get('referencia') || '')
           };
 
-          message.textContent = 'Registrando el aviso de pago…';
+          submitButton.disabled = true;
+          message.textContent = 'Subiendo comprobante…';
 
           try {
-            const result = await request('/rest/v1/rpc/informar_pago_beta', {
+            const receipt = await uploadPaymentReceipt(file);
+
+            message.textContent = 'Registrando el pago para revisión…';
+
+            const result = await request('/rest/v1/rpc/informar_pago_beta_v2', {
               method:'POST',
               headers:{'Content-Type':'application/json'},
-              body:JSON.stringify(payload)
+              body:JSON.stringify({
+                ...payload,
+                p_comprobante_path:receipt.path,
+                p_comprobante_nombre:receipt.name,
+                p_comprobante_mime:receipt.mime,
+                p_comprobante_size:receipt.size
+              })
             });
 
-            if (!result?.ok) throw new Error('No se pudo registrar.');
+            if (!result?.ok) throw new Error(result?.mensaje || 'No se pudo registrar.');
 
-            const whatsapp = String(config.whatsapp || '5493498502213').replace(/\D/g,'');
-            const text = [
-              'Hola, envío información de un pago comunal.',
-              `Nombre: ${account.nombre || ''}`,
-              `DNI: terminado en ${String(activeSession.dni).slice(-4)}`,
-              `Concepto: ${payload.p_concepto}`,
-              `Importe: ${money(payload.p_importe)}`,
-              `Fecha: ${payload.p_fecha_pago}`,
-              payload.p_referencia ? `Referencia: ${payload.p_referencia}` : '',
-              payload.p_comprobante_nombre
-                ? `Comprobante seleccionado: ${payload.p_comprobante_nombre} (lo adjunto en este chat).`
-                : 'Adjunto el comprobante en este chat.'
-            ].filter(Boolean).join('\n');
+            const active = getCitizenSession();
+            const refreshed = await request('/rest/v1/rpc/consultar_estado_cuenta_beta', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({
+                p_dni:active.dni,
+                p_codigo:active.codigo,
+                p_dispositivo:getDeviceToken()
+              })
+            });
 
-            message.textContent = 'Aviso registrado. Se abrirá WhatsApp.';
-            window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
-          } catch {
-            message.textContent = 'No se pudo registrar el pago. Probá nuevamente.';
+            message.textContent = 'Comprobante recibido. Pago pendiente de revisión.';
+            setTimeout(() => {
+              renderAccount(saveCitizenSession({
+                dni:active.dni,
+                codigo:active.codigo,
+                cuenta:refreshed
+              }));
+              $('[data-citizen-tab="receipts"]')?.click();
+            }, 900);
+          } catch (error) {
+            message.textContent = error.message || 'No se pudo enviar el comprobante.';
+            submitButton.disabled = false;
           }
         });
       };
@@ -2381,6 +2525,7 @@ window.addEventListener('keydown', e => {
         const list = $('#residents-summary-list');
         let people = [];
         let obligations = [];
+        let payments = [];
 
         const buildGroups = () => {
           const query = String($('#summary-search')?.value || '').trim().toLowerCase();
@@ -2405,6 +2550,8 @@ window.addEventListener('keydown', e => {
               const paidTotal = allRows
                 .filter(row => row.estado === 'Pagado')
                 .reduce((sum,row) => sum + Number(row.importe || 0), 0);
+              const personPayments = payments.filter(row => row.contribuyente_id === person.id);
+              const pendingPayments = personPayments.filter(row => row.estado === 'Pendiente de revisión');
 
               return {
                 person,
@@ -2412,7 +2559,9 @@ window.addEventListener('keydown', e => {
                 visibleRows,
                 pendingRows,
                 pendingTotal,
-                paidTotal
+                paidTotal,
+                personPayments,
+                pendingPayments
               };
             })
             .filter(group => {
@@ -2449,6 +2598,7 @@ window.addEventListener('keydown', e => {
                     <span><b>${group.pendingRows.length}</b> pendientes</span>
                     <span><b>${currency(group.pendingTotal)}</b> total pendiente</span>
                     <span><b>${currency(group.paidTotal)}</b> pagado</span>
+                    <span><b>${group.pendingPayments.length}</b> comprobantes por revisar</span>
                   </div>
 
                   <span class="resident-summary-open-label">Ver tasas</span>
@@ -2476,6 +2626,25 @@ window.addEventListener('keydown', e => {
                       </div>
                     </article>`).join('') :
                     '<p class="resident-summary-empty">Esta persona no tiene tasas para el filtro seleccionado.</p>'}
+
+                  <section class="resident-summary-receipts">
+                    <h6>Comprobantes de ${escapeHTML(group.person.nombre)}</h6>
+                    ${group.personPayments.length ? group.personPayments.map(payment => `
+                      <article class="resident-admin-receipt" data-admin-payment="${payment.id}">
+                        <div>
+                          <span>${escapeHTML(payment.concepto || 'Pago comunal')}</span>
+                          <strong>${escapeHTML(payment.comprobante_nombre || 'Comprobante')}</strong>
+                          <small>${escapeHTML(payment.fecha_pago || '')} · ${currency(payment.importe)}</small>
+                        </div>
+                        <span class="resident-status ${String(payment.estado || '').toLowerCase().replaceAll(' ','-')}">${escapeHTML(payment.estado || 'Pendiente de revisión')}</span>
+                        <div class="resident-card-actions">
+                          <button type="button" data-view-receipt="${escapeHTML(payment.comprobante_path || '')}">Ver comprobante</button>
+                          ${payment.estado === 'Pendiente de revisión' ? `
+                            <button type="button" data-resolve-payment="Aprobado">Aprobar pago</button>
+                            <button type="button" class="danger" data-resolve-payment="Rechazado">Rechazar</button>` : ''}
+                        </div>
+                      </article>`).join('') : '<p class="resident-summary-empty">No hay comprobantes enviados.</p>'}
+                  </section>
 
                   <button type="button" class="resident-summary-add" data-summary-add="${group.person.id}">
                     + Cargar otra tasa a esta persona
@@ -2516,6 +2685,42 @@ window.addEventListener('keydown', e => {
             await loadData();
           }));
 
+          $$('[data-view-receipt]', list).forEach(button => button.addEventListener('click', async event => {
+            event.preventDefault();
+            event.stopPropagation();
+            try {
+              await openPrivatePaymentReceipt(button.dataset.viewReceipt);
+            } catch (error) {
+              alert(error.message);
+            }
+          }));
+
+          $$('[data-resolve-payment]', list).forEach(button => button.addEventListener('click', async event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const card = button.closest('[data-admin-payment]');
+            const estado = button.dataset.resolvePayment;
+
+            if (!confirm(`${estado === 'Aprobado' ? '¿Aprobar' : '¿Rechazar'} este pago?`)) return;
+
+            const result = await request('/rest/v1/rpc/admin_resolver_pago_beta', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({
+                p_pago_id:card.dataset.adminPayment,
+                p_estado:estado
+              })
+            }, true);
+
+            if (!result?.ok) {
+              alert(result?.mensaje || 'No se pudo actualizar el pago.');
+              return;
+            }
+
+            await loadData();
+          }));
+
           $$('[data-summary-add]', list).forEach(button => button.addEventListener('click', () => {
             renderAccounts(button.dataset.summaryAdd);
             $$('.residents-subnav button').forEach(btn =>
@@ -2527,9 +2732,10 @@ window.addEventListener('keydown', e => {
 
         const loadData = async () => {
           try {
-            [people, obligations] = await Promise.all([
+            [people, obligations, payments] = await Promise.all([
               request('/rest/v1/contribuyentes?select=id,nombre,dni_normalizado,activo&order=nombre.asc', {}, true),
-              request('/rest/v1/obligaciones?select=*&order=created_at.desc', {}, true)
+              request('/rest/v1/obligaciones?select=*&order=created_at.desc', {}, true),
+              request('/rest/v1/pagos_informados?select=*&order=created_at.desc', {}, true)
             ]);
             buildGroups();
           } catch (error) {

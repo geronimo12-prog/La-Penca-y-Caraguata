@@ -4538,3 +4538,142 @@ dialog{
     grid-template-columns:1fr!important;
   }
 }
+
+
+/* ==========================================================
+   V41 — Comprobantes obligatorios y ordenados
+   ========================================================== */
+.citizen-account-summary{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+.citizen-account-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:20px 0 14px;
+  padding:7px;
+  border-radius:15px;
+  background:#e9e4da;
+}
+.citizen-account-tabs button{
+  position:static!important;
+  min-height:46px!important;
+  border:0!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  color:#25334c!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+.citizen-account-tabs button.active{
+  background:#15366c!important;
+  color:#fff!important;
+}
+.citizen-account-panel{
+  display:none;
+}
+.citizen-account-panel.active{
+  display:block;
+}
+.citizen-receipts-list{
+  display:grid;
+  gap:12px;
+}
+.citizen-receipt-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:14px;
+  padding:16px;
+  border:1px solid #e4ddd2;
+  border-radius:16px;
+  background:#fff;
+}
+.citizen-receipt-card h4{
+  margin:5px 0;
+}
+.citizen-receipt-card small{
+  color:#6d7686;
+}
+.citizen-receipt-card p{
+  grid-column:1 / -1;
+  margin:0;
+  color:#596273;
+}
+.citizen-receipt-status{
+  text-align:right;
+}
+.citizen-receipt-status span{
+  display:inline-flex;
+  margin-top:6px;
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.citizen-receipt-status .pendiente-de-revisión{
+  background:#fff0c8;
+  color:#825c00;
+}
+.citizen-receipt-status .aprobado{
+  background:#dff2e2;
+  color:#236333;
+}
+.citizen-receipt-status .rechazado{
+  background:#f6dddd;
+  color:#8f2420;
+}
+.citizen-payment-warning{
+  padding:13px 15px;
+  border:1px solid #e5c06a;
+  border-radius:12px;
+  background:#fff4d4;
+  color:#735400;
+  font-weight:900;
+}
+.resident-summary-numbers{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+.resident-summary-receipts{
+  display:grid;
+  gap:10px;
+  margin-top:8px;
+  padding-top:16px;
+  border-top:1px solid #e7e0d6;
+}
+.resident-summary-receipts h6{
+  margin:0;
+  font-size:16px;
+  color:#15366c;
+}
+.resident-admin-receipt{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  padding:14px;
+  border:1px solid #d9e1ef;
+  border-radius:14px;
+  background:#f7faff;
+}
+.resident-admin-receipt .resident-card-actions{
+  grid-column:1 / -1;
+}
+.resident-status.pendiente-de-revisión{
+  background:#fff0c8;
+  color:#825c00;
+}
+@media(max-width:760px){
+  .citizen-account-summary,
+  .citizen-account-tabs,
+  .resident-summary-numbers{
+    grid-template-columns:1fr!important;
+  }
+  .citizen-receipt-card,
+  .resident-admin-receipt{
+    grid-template-columns:1fr!important;
+  }
+  .citizen-receipt-status{
+    text-align:left;
+  }
+}
