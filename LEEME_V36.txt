@@ -1,0 +1,22 @@
+V36 — BETA DE TRÁMITES MEJORADA
+
+Correcciones:
+- Solucionado el error que impedía volver a ingresar después de cerrar sesión.
+- El modal ya no intenta abrirse nuevamente cuando ya estaba abierto.
+- Botón visible para iniciar sesión en PC y celular.
+- Mostrar/ocultar código.
+- Ayuda para quien no tiene código.
+- Temporizador visible de la sesión.
+- Botón Actualizar.
+- Botón Imprimir resumen.
+- Ver detalle y Volver arriba ahora desplazan el contenido correcto.
+- Botones públicos reordenados para celular.
+
+IMPORTANTE:
+Reemplazar los TRES archivos:
+- index.html
+- styles.css
+- script.js
+
+Reemplazar solamente index.html deja el JavaScript y los estilos viejos y provoca errores.
+No requiere SQL nuevo.

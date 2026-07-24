@@ -2757,3 +2757,1208 @@ dialog{
     grid-template-columns:1fr!important;
   }
 }
+
+
+/* ==========================================================
+   V31 — Trámites privados beta
+   ========================================================== */
+.citizen-featured-card{
+  background:linear-gradient(135deg,#14366d,#235596)!important;
+  color:#fff!important;
+  border-color:transparent!important;
+  box-shadow:0 24px 55px rgba(20,54,109,.22);
+}
+.citizen-featured-card span,
+.citizen-featured-card small{
+  color:rgba(255,255,255,.76)!important;
+}
+.citizen-account-wrap{
+  max-width:900px;
+  margin:auto;
+}
+.citizen-beta-badge{
+  display:inline-flex;
+  padding:7px 10px;
+  border-radius:999px;
+  background:#eaf1ff;
+  color:#15366c;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.citizen-access-form{
+  max-width:520px;
+  margin:26px auto 0;
+  padding:24px;
+  background:#f8f6f1;
+  border:1px solid #e8e1d5;
+  border-radius:22px;
+}
+.citizen-access-form label,
+.citizen-payment-form label{
+  display:grid;
+  gap:7px;
+  font-weight:800;
+  color:#26354e;
+}
+.citizen-security-note{
+  display:grid;
+  gap:5px;
+  max-width:520px;
+  margin:16px auto 0;
+  padding:15px 18px;
+  border-radius:16px;
+  background:#fff8df;
+  border:1px solid #eed995;
+}
+.citizen-security-note span{
+  color:#6d633e;
+  font-size:13px;
+}
+.citizen-account-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+}
+.citizen-logout,
+.citizen-back{
+  border:0;
+  border-radius:12px;
+  padding:11px 15px;
+  background:#eee9df;
+  color:#20304a;
+  font-weight:900;
+  cursor:pointer;
+}
+.citizen-account-summary{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin:24px 0;
+}
+.citizen-account-summary article{
+  padding:18px;
+  border-radius:18px;
+  background:#15366c;
+  color:#fff;
+}
+.citizen-account-summary span{
+  display:block;
+  font-size:12px;
+  opacity:.75;
+}
+.citizen-account-summary strong{
+  display:block;
+  margin-top:7px;
+  font-size:25px;
+}
+.citizen-debt-list{
+  display:grid;
+  gap:12px;
+}
+.citizen-debt-card{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  align-items:center;
+  gap:18px;
+  padding:18px;
+  border:1px solid #e4ded2;
+  border-radius:18px;
+  background:#fff;
+}
+.citizen-debt-card.is-paid{
+  opacity:.72;
+  background:#f4faf4;
+}
+.citizen-debt-card h4{
+  margin:5px 0;
+}
+.citizen-debt-card small{
+  color:#697386;
+}
+.citizen-debt-amount{
+  text-align:right;
+}
+.citizen-debt-amount strong,
+.citizen-debt-amount span{
+  display:block;
+}
+.citizen-debt-amount span{
+  margin-top:5px;
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.citizen-debt-card button{
+  border:0;
+  border-radius:11px;
+  padding:11px 13px;
+  background:#efb62d;
+  color:#18233a;
+  font-weight:900;
+  cursor:pointer;
+}
+.citizen-payment-data{
+  margin-top:22px;
+  padding:20px;
+  border-radius:20px;
+  background:#eff5ff;
+  border:1px solid #d5e2f5;
+}
+.citizen-payment-data>div{
+  display:grid;
+  gap:4px;
+  margin-bottom:12px;
+}
+.citizen-payment-data p{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin:8px 0;
+}
+.citizen-payment-data button{
+  border:0;
+  border-radius:8px;
+  padding:6px 9px;
+  background:#15366c;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+.citizen-session-warning{
+  margin-top:14px;
+  text-align:center;
+  color:#7a6151;
+  font-size:12px;
+}
+.citizen-empty-state{
+  display:grid;
+  gap:5px;
+  padding:25px;
+  border:1px dashed #cfc6b7;
+  border-radius:18px;
+  text-align:center;
+}
+.citizen-payment-form{
+  margin-top:22px;
+}
+.citizen-file-label small{
+  color:#727b8b;
+  font-weight:500;
+}
+.citizen-admin-grid{
+  align-items:start;
+}
+.citizen-admin-grid .portal-admin-form{
+  position:sticky;
+  top:10px;
+}
+.citizen-admin-grid .portal-admin-item p{
+  color:#687184;
+  margin:8px 0 0;
+}
+
+@media(max-width:700px){
+  .citizen-account-head{
+    display:grid;
+  }
+  .citizen-account-summary{
+    grid-template-columns:1fr;
+  }
+  .citizen-debt-card{
+    grid-template-columns:1fr;
+    align-items:start;
+  }
+  .citizen-debt-amount{
+    text-align:left;
+  }
+  .citizen-admin-grid .portal-admin-form{
+    position:static;
+  }
+}
+
+
+/* ==========================================================
+   V32 — Datos de habitantes e importación masiva
+   ========================================================== */
+.portal-admin-dialog{
+  width:min(1280px,calc(100vw - 24px))!important;
+}
+.portal-admin-layout{
+  grid-template-columns:220px minmax(0,1fr)!important;
+}
+.portal-admin-layout aside{
+  overflow-y:auto!important;
+  padding:16px 12px!important;
+}
+.portal-admin-layout aside button{
+  display:flex!important;
+  width:100%!important;
+  min-height:44px!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  padding:11px 13px!important;
+  border-radius:11px!important;
+  visibility:visible!important;
+  opacity:1!important;
+  overflow:visible!important;
+  white-space:normal!important;
+}
+.portal-admin-layout main{
+  min-width:0!important;
+  overflow:auto!important;
+}
+
+.residents-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:16px;
+}
+.residents-help-button{
+  border:0;
+  border-radius:11px;
+  padding:10px 14px;
+  background:#ffcf55;
+  color:#12223f;
+  font-weight:900;
+  cursor:pointer;
+}
+.residents-admin-shell{
+  display:grid;
+  gap:16px;
+}
+.residents-subnav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:8px;
+  border-radius:16px;
+  background:#ebe6dc;
+}
+.residents-subnav button{
+  border:0;
+  border-radius:11px;
+  padding:11px 14px;
+  background:transparent;
+  color:#293750;
+  font-weight:900;
+  cursor:pointer;
+}
+.residents-subnav button.active{
+  background:#15366c;
+  color:#fff;
+}
+.residents-admin-content{
+  min-width:0;
+}
+.residents-toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:18px;
+  margin-bottom:16px;
+}
+.residents-toolbar h5{
+  margin:0 0 5px;
+  font-size:23px;
+}
+.residents-toolbar p{
+  margin:0;
+  color:#697184;
+}
+.residents-search{
+  display:grid;
+  gap:6px;
+  min-width:min(310px,100%);
+  font-weight:800;
+}
+.residents-search input,
+.residents-form input,
+.residents-form select,
+.residents-list-filter select{
+  min-height:44px;
+  border:1px solid #d8d1c5;
+  border-radius:11px;
+  padding:10px 12px;
+  background:#fff;
+}
+.residents-two-columns{
+  display:grid;
+  grid-template-columns:minmax(290px,360px) minmax(0,1fr);
+  gap:16px;
+  align-items:start;
+}
+.residents-card{
+  min-width:0;
+  padding:18px;
+  border:1px solid #e0d9ce;
+  border-radius:20px;
+  background:#fff;
+}
+.residents-card h6{
+  margin:0 0 15px;
+  font-size:18px;
+}
+.residents-form{
+  display:grid;
+  gap:12px;
+  position:sticky;
+  top:0;
+}
+.residents-form label{
+  display:grid;
+  gap:6px;
+  font-weight:800;
+}
+.resident-check{
+  grid-template-columns:auto 1fr!important;
+  align-items:center;
+}
+.residents-primary-button,
+.citizen-login-button{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:50px!important;
+  border:0!important;
+  border-radius:13px!important;
+  background:#15366c!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+.residents-message{
+  min-height:18px;
+  margin:0;
+  text-align:center;
+  font-weight:800;
+}
+.residents-message.is-error{
+  color:#a31e18;
+}
+.resident-person-card,
+.resident-obligation-card,
+.resident-payment-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  padding:15px 0;
+  border-bottom:1px solid #ece6dc;
+}
+.resident-person-card:last-child,
+.resident-obligation-card:last-child,
+.resident-payment-card:last-child{
+  border-bottom:0;
+}
+.resident-person-card strong,
+.resident-obligation-card strong,
+.resident-payment-card strong{
+  display:block;
+}
+.resident-person-card small,
+.resident-obligation-card small,
+.resident-payment-card small,
+.resident-obligation-card span,
+.resident-payment-card span{
+  display:block;
+  margin-top:4px;
+  color:#6f7786;
+}
+.resident-status{
+  display:inline-flex!important;
+  width:max-content;
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.resident-status.active,
+.resident-status.pagado,
+.resident-status.aprobado{
+  background:#dff2e2;
+  color:#236333;
+}
+.resident-status.inactive,
+.resident-status.rechazado{
+  background:#f6dddd;
+  color:#8f2420;
+}
+.resident-status.pendiente,
+.resident-status.vencido{
+  background:#fff0c8;
+  color:#825c00;
+}
+.resident-card-actions{
+  grid-column:1 / -1;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.resident-card-actions button{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:38px!important;
+  border:1px solid #d5cec2!important;
+  border-radius:10px!important;
+  padding:8px 11px!important;
+  background:#f5f1e9!important;
+  color:#26344d!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.resident-card-actions button.danger{
+  background:#b92822!important;
+  color:#fff!important;
+  border-color:#8f1c18!important;
+}
+.resident-obligation-value{
+  text-align:right;
+}
+.residents-list-filter{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:15px;
+}
+.residents-list-filter label{
+  display:grid;
+  gap:6px;
+  font-weight:800;
+}
+.residents-import-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.residents-import-grid code{
+  display:block;
+  overflow:auto;
+  padding:11px;
+  border-radius:10px;
+  background:#112344;
+  color:#fff;
+}
+.residents-import-grid input[type=file]{
+  display:block;
+  width:100%;
+  margin:14px 0;
+}
+.residents-import-example{
+  color:#606a7b;
+  font-size:13px;
+  line-height:1.6;
+}
+.residents-import-note{
+  margin-top:16px;
+}
+.citizen-access-form{
+  display:grid!important;
+  gap:14px!important;
+}
+.citizen-login-button{
+  margin-top:4px!important;
+}
+
+@media(max-width:900px){
+  .portal-admin-layout{
+    grid-template-columns:1fr!important;
+  }
+  .portal-admin-layout aside{
+    display:flex!important;
+    gap:8px!important;
+    overflow-x:auto!important;
+  }
+  .portal-admin-layout aside button{
+    min-width:max-content!important;
+    width:auto!important;
+  }
+  .residents-two-columns,
+  .residents-import-grid{
+    grid-template-columns:1fr;
+  }
+  .residents-form{
+    position:static;
+  }
+}
+@media(max-width:600px){
+  .residents-toolbar,
+  .residents-head{
+    align-items:stretch!important;
+    flex-direction:column;
+  }
+  .residents-list-filter{
+    grid-template-columns:1fr;
+  }
+  .resident-obligation-value{
+    text-align:left;
+  }
+}
+
+
+/* ==========================================================
+   V33 — Botón visible Datos de habitantes
+   ========================================================== */
+.news-admin-residents{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:48px!important;
+  padding:12px 18px!important;
+  border:2px solid #15366c!important;
+  border-radius:13px!important;
+  background:#15366c!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+  visibility:visible!important;
+  opacity:1!important;
+  white-space:nowrap!important;
+}
+.news-admin-residents:hover{
+  background:#214d8e!important;
+}
+[data-portal-admin-tab="residents"]{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+@media(max-width:900px){
+  .news-admin-residents{
+    min-height:44px!important;
+    padding:10px 13px!important;
+    font-size:13px!important;
+  }
+}
+
+
+/* ==========================================================
+   V34 — Corrección definitiva de botones en Administración
+   ========================================================== */
+
+/* La regla general de los diálogos movía todos los botones arriba.
+   Dentro de Administración, solamente la X puede ser absoluta. */
+#portal-admin-dialog button{
+  position:static!important;
+  inset:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  left:auto!important;
+  float:none!important;
+  width:auto;
+  height:auto;
+}
+
+#portal-admin-dialog > header{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  min-height:108px!important;
+  padding:24px 76px 24px 24px!important;
+  background:#fff!important;
+  border-bottom:1px solid #ddd7cc!important;
+  overflow:hidden!important;
+}
+
+#portal-admin-dialog > header > div{
+  min-width:0!important;
+}
+
+#portal-admin-dialog > header h3{
+  margin:5px 0 0!important;
+  line-height:1.08!important;
+}
+
+#portal-admin-dialog .portal-admin-close{
+  position:absolute!important;
+  top:24px!important;
+  right:24px!important;
+  width:46px!important;
+  height:46px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  border:2px solid #17233b!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#111!important;
+  z-index:20!important;
+}
+
+/* Menú lateral ordenado */
+#portal-admin-dialog .portal-admin-layout aside{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:8px!important;
+  padding:18px 12px!important;
+  background:#123468!important;
+  overflow-y:auto!important;
+}
+
+#portal-admin-dialog .portal-admin-layout aside button{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  min-height:44px!important;
+  padding:11px 13px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:11px!important;
+  background:transparent!important;
+  color:#fff!important;
+  text-align:left!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  white-space:normal!important;
+}
+
+#portal-admin-dialog .portal-admin-layout aside button.active{
+  background:#ffcf55!important;
+  color:#11264a!important;
+}
+
+/* Botones internos de Datos de habitantes */
+#portal-admin-dialog .residents-subnav{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:10px!important;
+  min-height:auto!important;
+  padding:10px!important;
+  margin:0 0 18px!important;
+  border-radius:16px!important;
+  background:#e9e4da!important;
+  overflow:visible!important;
+}
+
+#portal-admin-dialog .residents-subnav button{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:48px!important;
+  padding:11px 12px!important;
+  margin:0!important;
+  border:1px solid transparent!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  color:#25334c!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  line-height:1.2!important;
+  text-align:center!important;
+  white-space:normal!important;
+  cursor:pointer!important;
+}
+
+#portal-admin-dialog .residents-subnav button.active{
+  background:#15366c!important;
+  color:#fff!important;
+  border-color:#15366c!important;
+}
+
+/* Formularios: títulos, campos y botón en orden natural */
+#portal-admin-dialog .residents-form{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:13px!important;
+  align-content:start!important;
+}
+
+#portal-admin-dialog .residents-form > *{
+  position:static!important;
+  order:initial!important;
+}
+
+#portal-admin-dialog .residents-primary-button{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:50px!important;
+  margin-top:4px!important;
+  padding:12px 16px!important;
+  border:0!important;
+  border-radius:13px!important;
+  background:#15366c!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+}
+
+/* Botones de cada registro */
+#portal-admin-dialog .resident-card-actions{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+}
+
+#portal-admin-dialog .resident-card-actions button{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:120px!important;
+  min-height:40px!important;
+  padding:9px 12px!important;
+  margin:0!important;
+  border-radius:10px!important;
+}
+
+/* Botón de ayuda */
+#portal-admin-dialog .residents-help-button{
+  position:static!important;
+  min-height:42px!important;
+  padding:10px 14px!important;
+}
+
+@media(max-width:900px){
+  #portal-admin-dialog > header{
+    min-height:96px!important;
+    padding:20px 68px 20px 20px!important;
+  }
+
+  #portal-admin-dialog .portal-admin-layout{
+    grid-template-columns:1fr!important;
+  }
+
+  #portal-admin-dialog .portal-admin-layout aside{
+    flex-direction:row!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+  }
+
+  #portal-admin-dialog .portal-admin-layout aside button{
+    min-width:max-content!important;
+    width:auto!important;
+  }
+
+  #portal-admin-dialog .residents-subnav{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+
+@media(max-width:560px){
+  #portal-admin-dialog .residents-subnav{
+    grid-template-columns:1fr!important;
+  }
+
+  #portal-admin-dialog .resident-card-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+  }
+
+  #portal-admin-dialog .resident-card-actions button{
+    width:100%!important;
+  }
+}
+
+
+/* ==========================================================
+   V35 — Trámites mejorados y navegación clara
+   ========================================================== */
+
+/* Botón principal Ver trámites */
+#hero-tramites-link{
+  cursor:pointer!important;
+}
+
+/* Portal ciudadano */
+#portal-ciudadano{
+  scroll-margin-top:90px;
+}
+.citizen-featured-card em{
+  display:inline-flex;
+  margin-top:18px;
+  font-style:normal;
+  font-size:13px;
+  font-weight:900;
+  color:#fff;
+  opacity:.95;
+}
+.citizen-featured-card:focus{
+  outline:3px solid #ffcf55!important;
+  outline-offset:4px!important;
+}
+
+/* Login público */
+.citizen-access-form{
+  display:grid!important;
+  gap:16px!important;
+}
+.citizen-access-form button{
+  position:static!important;
+}
+.citizen-login-button{
+  min-height:56px!important;
+  font-size:16px!important;
+  box-shadow:0 12px 30px rgba(21,54,108,.18)!important;
+}
+.citizen-login-button:disabled{
+  opacity:.55!important;
+  cursor:not-allowed!important;
+}
+.citizen-access-form input{
+  min-height:52px!important;
+  font-size:16px!important;
+}
+
+/* Modal público: scroll real y usable */
+#portal-dialog{
+  max-height:90vh!important;
+  overflow:hidden!important;
+}
+#portal-dialog .portal-public-wrap{
+  max-height:calc(90vh - 40px)!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  scrollbar-gutter:stable!important;
+  padding-right:10px!important;
+}
+#portal-dialog .portal-public-wrap::-webkit-scrollbar{
+  width:10px;
+}
+#portal-dialog .portal-public-wrap::-webkit-scrollbar-thumb{
+  background:#b9c2d1;
+  border-radius:999px;
+}
+#portal-dialog .portal-public-wrap::-webkit-scrollbar-track{
+  background:#eef1f5;
+  border-radius:999px;
+}
+
+/* Cuenta pública */
+.citizen-account-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:10px;
+}
+.citizen-scroll-down,
+.citizen-scroll-top{
+  position:static!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:42px!important;
+  padding:10px 14px!important;
+  border:0!important;
+  border-radius:11px!important;
+  background:#ffcf55!important;
+  color:#17233b!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+.citizen-scroll-top{
+  width:100%!important;
+  margin-top:14px!important;
+  background:#15366c!important;
+  color:#fff!important;
+}
+.citizen-debt-list{
+  scroll-margin-top:16px;
+}
+.citizen-debt-card{
+  grid-template-columns:minmax(0,1fr) auto!important;
+}
+.citizen-debt-card>button{
+  grid-column:1 / -1!important;
+  width:100%!important;
+  min-height:44px!important;
+}
+.citizen-payment-data{
+  word-break:break-word;
+}
+.citizen-payment-data p{
+  align-items:center!important;
+}
+.citizen-payment-data button{
+  position:static!important;
+}
+.citizen-logout{
+  position:static!important;
+}
+
+/* Administración general */
+#portal-admin-dialog .residents-toolbar{
+  align-items:center!important;
+}
+#portal-admin-dialog .residents-search input{
+  width:100%!important;
+}
+#portal-admin-dialog .resident-person-card,
+#portal-admin-dialog .resident-obligation-card,
+#portal-admin-dialog .resident-payment-card{
+  border:1px solid #e7e0d5!important;
+  border-radius:16px!important;
+  padding:16px!important;
+  margin-bottom:12px!important;
+}
+#portal-admin-dialog .resident-card-actions button{
+  flex:1 1 150px!important;
+}
+#portal-admin-dialog .resident-card-actions button:first-child{
+  background:#15366c!important;
+  color:#fff!important;
+  border-color:#15366c!important;
+}
+#portal-admin-dialog .residents-primary-button{
+  box-shadow:0 10px 24px rgba(21,54,108,.15)!important;
+}
+
+/* Mensajes de error/estado */
+[data-citizen-message],
+[data-payment-message],
+.residents-message{
+  display:block!important;
+  min-height:20px!important;
+  margin-top:4px!important;
+  text-align:center!important;
+  font-weight:800!important;
+  line-height:1.4!important;
+}
+[data-citizen-message]:not(:empty),
+[data-payment-message]:not(:empty),
+.residents-message:not(:empty){
+  padding:10px 12px!important;
+  border-radius:10px!important;
+  background:#f2eee6!important;
+}
+
+/* Móvil */
+@media(max-width:700px){
+  #portal-dialog{
+    width:calc(100vw - 14px)!important;
+    max-height:96vh!important;
+  }
+
+  #portal-dialog .portal-public-wrap{
+    max-height:calc(96vh - 24px)!important;
+    padding:8px 6px 18px!important;
+  }
+
+  .citizen-account-head{
+    gap:14px!important;
+  }
+
+  .citizen-account-actions{
+    width:100%;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+  }
+
+  .citizen-account-actions button{
+    width:100%!important;
+  }
+
+  .citizen-account-summary{
+    gap:10px!important;
+  }
+
+  .citizen-debt-card{
+    grid-template-columns:1fr!important;
+  }
+
+  .citizen-debt-amount{
+    text-align:left!important;
+  }
+
+  #portal-admin-dialog .residents-subnav{
+    grid-template-columns:1fr 1fr!important;
+  }
+}
+
+@media(max-width:460px){
+  .citizen-account-actions{
+    grid-template-columns:1fr!important;
+  }
+
+  #portal-admin-dialog .residents-subnav{
+    grid-template-columns:1fr!important;
+  }
+}
+
+
+/* ==========================================================
+   V36 — Acceso público y cuenta más simples
+   ========================================================== */
+.citizen-password-field{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  align-items:stretch;
+}
+.citizen-password-field input{
+  width:100%!important;
+  min-width:0!important;
+}
+.citizen-password-toggle{
+  position:static!important;
+  min-width:76px!important;
+  border:1px solid #d6d0c5!important;
+  border-radius:12px!important;
+  background:#f2eee6!important;
+  color:#20304a!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+.citizen-access-help{
+  position:static!important;
+  width:100%!important;
+  min-height:44px!important;
+  border:1px solid #d6d0c5!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  color:#15366c!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+.citizen-login-button{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:static!important;
+  width:100%!important;
+  min-height:56px!important;
+  margin:4px 0 0!important;
+}
+.citizen-account-actions{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+}
+.citizen-account-actions button{
+  position:static!important;
+  min-height:42px!important;
+  padding:9px 12px!important;
+  border-radius:11px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+.citizen-countdown{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  min-width:72px;
+  padding:8px 11px;
+  border-radius:11px;
+  background:#eef3fb;
+  color:#15366c;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+.citizen-refresh{
+  border:1px solid #cfd8e7!important;
+  background:#eef3fb!important;
+  color:#15366c!important;
+}
+.citizen-print{
+  border:1px solid #d6d0c5!important;
+  background:#fff!important;
+  color:#20304a!important;
+}
+.citizen-logout{
+  border:0!important;
+  background:#a32621!important;
+  color:#fff!important;
+}
+.citizen-scroll-down{
+  border:0!important;
+  background:#ffcf55!important;
+  color:#17233b!important;
+}
+.citizen-debt-card{
+  overflow:hidden!important;
+}
+.citizen-debt-card button[data-report-payment]{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:46px!important;
+  margin-top:5px!important;
+}
+#portal-dialog .portal-public-wrap{
+  scroll-behavior:smooth!important;
+}
+#portal-dialog .portal-dialog-close{
+  position:fixed!important;
+  z-index:30!important;
+}
+@media(max-width:700px){
+  .citizen-account-actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    width:100%!important;
+  }
+  .citizen-countdown{
+    width:100%!important;
+  }
+  .citizen-account-actions button{
+    width:100%!important;
+  }
+  .citizen-password-field{
+    grid-template-columns:1fr!important;
+  }
+  .citizen-password-toggle{
+    min-height:44px!important;
+  }
+}
+@media(max-width:460px){
+  .citizen-account-actions{
+    grid-template-columns:1fr!important;
+  }
+}
+
+/* Impresión limpia del estado de cuenta */
+@media print{
+  body *{
+    visibility:hidden!important;
+  }
+  #portal-dialog,
+  #portal-dialog *{
+    visibility:visible!important;
+  }
+  #portal-dialog{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    max-height:none!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  #portal-dialog .portal-public-wrap{
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  .portal-dialog-close,
+  .citizen-account-actions,
+  .citizen-scroll-top,
+  [data-report-payment]{
+    display:none!important;
+  }
+}

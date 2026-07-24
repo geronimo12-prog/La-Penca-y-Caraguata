@@ -1,0 +1,15 @@
+V32 — DATOS DE HABITANTES
+
+Cambios:
+- Administración general queda como estaba.
+- Nuevo apartado único: Datos de habitantes.
+- Dentro: Personas, Cuentas y tasas, Importar datos y Pagos informados.
+- Importación masiva desde CSV para evitar cargar uno por uno.
+- Botones laterales y botones de acción corregidos para que siempre sean visibles.
+- Acceso público más claro: “Consultar mis tasas” con botón “Iniciar sesión y consultar”.
+- Incluye plantillas CSV.
+
+Pasos:
+1. Si todavía no ejecutaste V31, ejecutá primero su SQL.
+2. Ejecutá SUPABASE_V32_IMPORTACION_MASIVA.sql.
+3. Reemplazá index.html, styles.css y script.js.

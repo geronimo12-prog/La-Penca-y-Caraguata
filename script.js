@@ -1519,7 +1519,14 @@ window.addEventListener('keydown', e => {
   // Portal público
   const portalDialog=$('#portal-dialog');
   const portalContent=$('#portal-dialog-content');
-  $('.portal-dialog-close')?.addEventListener('click',()=>portalDialog?.close());
+
+  const openPortalDialogSafely = () => {
+    if (portalDialog && !portalDialog.open) portalDialog.showModal();
+  };
+
+  $('.portal-dialog-close')?.addEventListener('click',()=>{
+    portalDialog?.close();
+  });
 
   async function openPublicModule(name){
     const definitions={
@@ -1530,6 +1537,446 @@ window.addEventListener('keydown', e => {
       transparency:{title:'Portal de transparencia',table:'documentos',order:'fecha.desc',extra:'&es_transparencia=eq.true',render:r=>`
         <article class="portal-public-card"><span>${escapeHTML(r.tipo||'Información pública')}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.url?`<a target="_blank" rel="noopener" href="${r.url}">Consultar →</a>`:''}</article>`}
     };
+
+    if(name==='tramites'){
+      const SESSION_MS = 5 * 60 * 1000;
+      const MAX_ATTEMPTS = 5;
+      const BLOCK_MS = 10 * 60 * 1000;
+      const sessionKey = 'tramitesBetaSessionV31';
+      const attemptsKey = 'tramitesBetaAttemptsV31';
+      const deviceKey = 'tramitesBetaDeviceV31';
+
+      const getDeviceToken = () => {
+        let value = localStorage.getItem(deviceKey);
+        if (!value) {
+          value = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+          localStorage.setItem(deviceKey, value);
+        }
+        return value;
+      };
+
+      const clearCitizenSession = () => {
+        sessionStorage.removeItem(sessionKey);
+      };
+
+      const getCitizenSession = () => {
+        try {
+          const session = JSON.parse(sessionStorage.getItem(sessionKey) || 'null');
+          if (!session || Date.now() >= session.expiresAt) {
+            clearCitizenSession();
+            return null;
+          }
+          return session;
+        } catch {
+          clearCitizenSession();
+          return null;
+        }
+      };
+
+      const saveCitizenSession = data => {
+        const session = {
+          ...data,
+          expiresAt: Date.now() + SESSION_MS
+        };
+        sessionStorage.setItem(sessionKey, JSON.stringify(session));
+        return session;
+      };
+
+      const readAttemptState = () => {
+        try {
+          const state = JSON.parse(localStorage.getItem(attemptsKey) || '{"count":0,"blockedUntil":0}');
+          if (state.blockedUntil && Date.now() >= state.blockedUntil) {
+            localStorage.removeItem(attemptsKey);
+            return {count:0, blockedUntil:0};
+          }
+          return state;
+        } catch {
+          return {count:0, blockedUntil:0};
+        }
+      };
+
+      const registerFailedAttempt = () => {
+        const state = readAttemptState();
+        const count = Number(state.count || 0) + 1;
+        const blockedUntil = count >= MAX_ATTEMPTS ? Date.now() + BLOCK_MS : 0;
+        localStorage.setItem(attemptsKey, JSON.stringify({count, blockedUntil}));
+        return {count, blockedUntil};
+      };
+
+      const clearAttempts = () => localStorage.removeItem(attemptsKey);
+
+      const money = value => new Intl.NumberFormat('es-AR', {
+        style:'currency',
+        currency:'ARS',
+        maximumFractionDigits:2
+      }).format(Number(value || 0));
+
+      const renderLogin = () => {
+        const state = readAttemptState();
+        const blocked = state.blockedUntil > Date.now();
+        const minutes = blocked ? Math.ceil((state.blockedUntil - Date.now()) / 60000) : 0;
+
+        portalContent.innerHTML=`
+          <div class="portal-public-wrap citizen-account-wrap">
+            <span class="citizen-beta-badge">Beta privada</span>
+            <h3>Consultar mis tasas</h3>
+            <p>Ingresá con el DNI y el código personal entregado por la Comuna. Por seguridad, el sistema no informa cuál de los dos datos es incorrecto.</p>
+
+            <form id="citizen-access-form" class="portal-form citizen-access-form" autocomplete="off">
+              <label>DNI
+                <input name="dni" inputmode="numeric" maxlength="11" placeholder="Sin puntos ni espacios" autocomplete="username" autofocus required>
+              </label>
+              <label>Código personal
+                <span class="citizen-password-field">
+                  <input name="codigo" type="password" maxlength="40" placeholder="Código privado" autocomplete="current-password" required>
+                  <button type="button" class="citizen-password-toggle" aria-label="Mostrar código">Ver</button>
+                </span>
+              </label>
+              <button type="submit" class="citizen-login-button" ${blocked ? 'disabled' : ''}>Ingresar y consultar mi cuenta</button>
+              <button type="button" class="citizen-access-help">¿No tenés tu código?</button>
+              <p data-citizen-message>${blocked ? `Demasiados intentos. Probá nuevamente en ${minutes} minuto${minutes===1?'':'s'}.` : ''}</p>
+            </form>
+
+            <div class="citizen-security-note">
+              <strong>Acceso protegido</strong>
+              <span>La sesión se cierra automáticamente después de 5 minutos. No compartas tu código.</span>
+            </div>
+          </div>`;
+
+        openPortalDialogSafely();
+
+        const form = $('#citizen-access-form');
+
+        $('.citizen-password-toggle', form)?.addEventListener('click', event => {
+          const input = form.elements.codigo;
+          const visible = input.type === 'text';
+          input.type = visible ? 'password' : 'text';
+          event.currentTarget.textContent = visible ? 'Ver' : 'Ocultar';
+          event.currentTarget.setAttribute('aria-label', visible ? 'Mostrar código' : 'Ocultar código');
+        });
+
+        $('.citizen-access-help', form)?.addEventListener('click', () => {
+          const message = $('[data-citizen-message]', form);
+          message.textContent = 'Solicitá tu código personal en la Comuna. Por seguridad, no se entrega desde esta página.';
+        });
+
+        form?.addEventListener('submit', async event => {
+          event.preventDefault();
+          const stateNow = readAttemptState();
+          const message = $('[data-citizen-message]', form);
+
+          if (stateNow.blockedUntil > Date.now()) {
+            message.textContent = 'Acceso temporalmente bloqueado. Esperá unos minutos.';
+            return;
+          }
+
+          const data = new FormData(form);
+          const dni = String(data.get('dni') || '').replace(/\D/g, '');
+          const codigo = String(data.get('codigo') || '');
+
+          if (dni.length < 7 || codigo.length < 4) {
+            message.textContent = 'No se pudo validar el acceso. Revisá los datos.';
+            return;
+          }
+
+          message.textContent = 'Validando acceso…';
+          form.querySelector('button').disabled = true;
+
+          try {
+            const result = await request('/rest/v1/rpc/consultar_estado_cuenta_beta', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({
+                p_dni:dni,
+                p_codigo:codigo,
+                p_dispositivo:getDeviceToken()
+              })
+            });
+
+            if (!result?.ok) {
+              const attempt = registerFailedAttempt();
+              message.textContent = attempt.blockedUntil
+                ? 'Demasiados intentos. El acceso quedó bloqueado durante 10 minutos.'
+                : 'No se pudo validar el acceso. Revisá los datos.';
+              form.querySelector('button').disabled = Boolean(attempt.blockedUntil);
+              return;
+            }
+
+            clearAttempts();
+            const session = saveCitizenSession({
+              dni,
+              codigo,
+              cuenta:result
+            });
+            renderAccount(session);
+          } catch {
+            registerFailedAttempt();
+            message.textContent = 'No se pudo validar el acceso. Revisá los datos.';
+          } finally {
+            if (form.isConnected && !readAttemptState().blockedUntil) {
+              form.querySelector('button').disabled = false;
+            }
+          }
+        });
+      };
+
+      const renderAccount = session => {
+        const account = session.cuenta || {};
+        const debts = Array.isArray(account.obligaciones) ? account.obligaciones : [];
+        const config = account.pagos || {};
+        const pending = debts.filter(row => String(row.estado).toLowerCase() !== 'pagado');
+        const total = pending.reduce((sum,row) => sum + Number(row.importe || 0), 0);
+
+        portalContent.innerHTML=`
+          <div class="portal-public-wrap citizen-account-wrap">
+            <div class="citizen-account-head">
+              <div>
+                <span class="citizen-beta-badge">Sesión privada · 5 minutos</span>
+                <h3>${escapeHTML(account.nombre || 'Mi cuenta')}</h3>
+                <p>Estado de tasas y obligaciones cargadas por la Comuna.</p>
+              </div>
+              <div class="citizen-account-actions">
+                <span class="citizen-countdown" id="citizen-countdown">05:00</span>
+                <button type="button" class="citizen-refresh" id="citizen-refresh">Actualizar</button>
+                <button type="button" class="citizen-print" id="citizen-print">Imprimir resumen</button>
+                <button type="button" class="citizen-scroll-down" id="citizen-scroll-down">Ver detalle ↓</button>
+                <button type="button" class="citizen-logout" id="citizen-logout">Cerrar sesión</button>
+              </div>
+            </div>
+
+            <div class="citizen-account-summary">
+              <article><span>Pendientes</span><strong>${pending.length}</strong></article>
+              <article><span>Total informado</span><strong>${money(total)}</strong></article>
+            </div>
+
+            <div class="citizen-debt-list" id="citizen-debt-list">
+              ${debts.length ? debts.map(row => `
+                <article class="citizen-debt-card ${String(row.estado).toLowerCase()==='pagado'?'is-paid':'is-pending'}">
+                  <div>
+                    <span>${escapeHTML(row.concepto || 'Tasa comunal')}</span>
+                    <h4>${escapeHTML(row.periodo || 'Período sin informar')}</h4>
+                    <small>${row.vencimiento ? `Vence: ${escapeHTML(row.vencimiento)}` : 'Sin vencimiento informado'}</small>
+                  </div>
+                  <div class="citizen-debt-amount">
+                    <strong>${money(row.importe)}</strong>
+                    <span>${escapeHTML(row.estado || 'Pendiente')}</span>
+                  </div>
+                  ${String(row.estado).toLowerCase() !== 'pagado' ? `
+                    <button type="button" data-report-payment="${row.id}">Informar pago</button>` : ''}
+                </article>`).join('') : `
+                <div class="citizen-empty-state">
+                  <strong>No hay obligaciones cargadas</strong>
+                  <span>La Comuna todavía no registró tasas o deudas para esta cuenta.</span>
+                </div>`}
+            </div>
+
+            <div class="citizen-payment-data">
+              <div>
+                <span>Datos para transferencia</span>
+                <strong>${escapeHTML(config.titular || 'Comuna de La Penca y Caraguatá')}</strong>
+              </div>
+              <p><b>Alias:</b> <span>${escapeHTML(config.alias || 'A configurar')}</span>
+                <button type="button" data-copy="${escapeHTML(config.alias || '')}">Copiar</button></p>
+              <p><b>CBU:</b> <span>${escapeHTML(config.cbu || 'A configurar')}</span>
+                <button type="button" data-copy="${escapeHTML(config.cbu || '')}">Copiar</button></p>
+            </div>
+
+            <div class="citizen-session-warning">
+              Esta consulta se cerrará automáticamente por seguridad.
+            </div>
+            <button type="button" class="citizen-scroll-top" id="citizen-scroll-top">Volver arriba ↑</button>
+          </div>`;
+
+        const updateCountdown = () => {
+          const active = getCitizenSession();
+          const counter = $('#citizen-countdown');
+          if (!counter || !active) return;
+
+          const remaining = Math.max(0, active.expiresAt - Date.now());
+          const minutes = Math.floor(remaining / 60000);
+          const seconds = Math.floor((remaining % 60000) / 1000);
+          counter.textContent = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+        };
+
+        clearInterval(window.__citizenCountdownInterval);
+        updateCountdown();
+        window.__citizenCountdownInterval = setInterval(updateCountdown, 1000);
+
+        $('#citizen-refresh')?.addEventListener('click', async event => {
+          const button = event.currentTarget;
+          const active = getCitizenSession();
+          if (!active) {
+            renderLogin();
+            return;
+          }
+
+          button.disabled = true;
+          button.textContent = 'Actualizando…';
+
+          try {
+            const result = await request('/rest/v1/rpc/consultar_estado_cuenta_beta', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({
+                p_dni:active.dni,
+                p_codigo:active.codigo,
+                p_dispositivo:getDeviceToken()
+              })
+            });
+
+            if (!result?.ok) throw new Error();
+            renderAccount(saveCitizenSession({dni:active.dni,codigo:active.codigo,cuenta:result}));
+          } catch {
+            button.disabled = false;
+            button.textContent = 'Actualizar';
+            alert('No se pudo actualizar la cuenta.');
+          }
+        });
+
+        $('#citizen-print')?.addEventListener('click', () => window.print());
+
+        $('#citizen-scroll-down')?.addEventListener('click', () => {
+          const wrap = $('.portal-public-wrap', portalContent);
+          const list = $('#citizen-debt-list');
+          if (wrap && list) {
+            wrap.scrollTo({
+              top: Math.max(0, list.offsetTop - 20),
+              behavior:'smooth'
+            });
+          }
+        });
+
+        $('#citizen-scroll-top')?.addEventListener('click', () => {
+          $('.portal-public-wrap', portalContent)?.scrollTo({top:0,behavior:'smooth'});
+        });
+
+        $('#citizen-logout')?.addEventListener('click', () => {
+          clearTimeout(window.__citizenSessionTimer);
+          clearInterval(window.__citizenCountdownInterval);
+          clearCitizenSession();
+          renderLogin();
+        });
+
+        $$('[data-copy]', portalContent).forEach(button => button.addEventListener('click', async () => {
+          const value = button.dataset.copy;
+          if (!value) return;
+          await navigator.clipboard.writeText(value);
+          button.textContent = 'Copiado';
+          setTimeout(() => button.textContent = 'Copiar', 1200);
+        }));
+
+        $$('[data-report-payment]', portalContent).forEach(button => button.addEventListener('click', () => {
+          const debt = debts.find(row => String(row.id) === button.dataset.reportPayment);
+          renderPaymentForm(session, debt);
+        }));
+
+        clearTimeout(window.__citizenSessionTimer);
+        window.__citizenSessionTimer = setTimeout(() => {
+          clearCitizenSession();
+          if (portalDialog.open) {
+            renderLogin();
+            const msg = $('[data-citizen-message]');
+            if (msg) msg.textContent = 'La sesión se cerró automáticamente por seguridad.';
+          }
+        }, Math.max(1000, session.expiresAt - Date.now()));
+      };
+
+      const renderPaymentForm = (session, debt) => {
+        const account = session.cuenta || {};
+        const config = account.pagos || {};
+        portalContent.innerHTML=`
+          <div class="portal-public-wrap citizen-account-wrap">
+            <button type="button" class="citizen-back" id="citizen-back">← Volver a mi cuenta</button>
+            <span class="citizen-beta-badge">Informar pago</span>
+            <h3>${escapeHTML(debt?.concepto || 'Pago comunal')}</h3>
+            <p>Completá los datos. Después se abrirá WhatsApp con el mensaje preparado. El comprobante se adjunta desde WhatsApp.</p>
+
+            <form id="citizen-payment-form" class="portal-form citizen-payment-form">
+              <label>Concepto
+                <input name="concepto" value="${escapeHTML(debt?.concepto || '')}" required>
+              </label>
+              <label>Importe pagado
+                <input name="importe" type="number" min="0" step="0.01" value="${Number(debt?.importe || 0)}" required>
+              </label>
+              <label>Fecha del pago
+                <input name="fecha_pago" type="date" required>
+              </label>
+              <label>Referencia o número de operación
+                <input name="referencia" maxlength="100" placeholder="Opcional">
+              </label>
+              <label class="citizen-file-label">Comprobante
+                <input name="comprobante" type="file" accept="image/*,.pdf">
+                <small>Por seguridad, en esta beta se adjunta manualmente dentro de WhatsApp.</small>
+              </label>
+              <button type="submit">Guardar aviso y abrir WhatsApp</button>
+              <p data-payment-message></p>
+            </form>
+          </div>`;
+
+        $('#citizen-back')?.addEventListener('click', () => renderAccount(getCitizenSession() || session));
+
+        $('#citizen-payment-form')?.addEventListener('submit', async event => {
+          event.preventDefault();
+          const activeSession = getCitizenSession();
+          const message = $('[data-payment-message]', event.target);
+
+          if (!activeSession) {
+            clearCitizenSession();
+            renderLogin();
+            return;
+          }
+
+          const formData = new FormData(event.target);
+          const payload = {
+            p_dni:activeSession.dni,
+            p_codigo:activeSession.codigo,
+            p_dispositivo:getDeviceToken(),
+            p_obligacion_id:debt?.id || null,
+            p_concepto:String(formData.get('concepto') || ''),
+            p_importe:Number(formData.get('importe') || 0),
+            p_fecha_pago:String(formData.get('fecha_pago') || ''),
+            p_referencia:String(formData.get('referencia') || ''),
+            p_comprobante_nombre:String(formData.get('comprobante')?.name || '')
+          };
+
+          message.textContent = 'Registrando el aviso de pago…';
+
+          try {
+            const result = await request('/rest/v1/rpc/informar_pago_beta', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify(payload)
+            });
+
+            if (!result?.ok) throw new Error('No se pudo registrar.');
+
+            const whatsapp = String(config.whatsapp || '5493498502213').replace(/\D/g,'');
+            const text = [
+              'Hola, envío información de un pago comunal.',
+              `Nombre: ${account.nombre || ''}`,
+              `DNI: terminado en ${String(activeSession.dni).slice(-4)}`,
+              `Concepto: ${payload.p_concepto}`,
+              `Importe: ${money(payload.p_importe)}`,
+              `Fecha: ${payload.p_fecha_pago}`,
+              payload.p_referencia ? `Referencia: ${payload.p_referencia}` : '',
+              payload.p_comprobante_nombre
+                ? `Comprobante seleccionado: ${payload.p_comprobante_nombre} (lo adjunto en este chat).`
+                : 'Adjunto el comprobante en este chat.'
+            ].filter(Boolean).join('\n');
+
+            message.textContent = 'Aviso registrado. Se abrirá WhatsApp.';
+            window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+          } catch {
+            message.textContent = 'No se pudo registrar el pago. Probá nuevamente.';
+          }
+        });
+      };
+
+      const existing = getCitizenSession();
+      if (existing) renderAccount(existing);
+      else renderLogin();
+      return;
+    }
 
     if(name==='providers'){
       portalContent.innerHTML=`
@@ -1544,7 +1991,7 @@ window.addEventListener('keydown', e => {
           <textarea name="detalle" placeholder="Detalle adicional"></textarea>
           <button>Enviar registro</button><p data-form-message></p>
         </form></div>`;
-      portalDialog.showModal();
+      openPortalDialogSafely();
       $('#provider-form').addEventListener('submit',async e=>{
         e.preventDefault(); const f=new FormData(e.target); const data=Object.fromEntries(f);
         try{
@@ -1558,7 +2005,7 @@ window.addEventListener('keydown', e => {
 
     if(name==='surveys'){
       portalContent.innerHTML='<div class="portal-public-wrap"><h3>Encuestas vecinales</h3><p>Consultas abiertas para participar.</p><div id="survey-public-list" class="portal-public-list"></div></div>';
-      portalDialog.showModal();
+      openPortalDialogSafely();
       try{
         const rows=await request('/rest/v1/encuestas?select=*&activa=eq.true&order=created_at.desc');
         $('#survey-public-list').innerHTML=rows?.length?rows.map(r=>`
@@ -1581,7 +2028,7 @@ window.addEventListener('keydown', e => {
 
     const def=definitions[name];
     portalContent.innerHTML=`<div class="portal-public-wrap"><h3>${def.title}</h3><p>Información cargada y actualizada desde la administración comunal.</p><div class="portal-public-list"><p>Cargando…</p></div></div>`;
-    portalDialog.showModal();
+    openPortalDialogSafely();
     try{
       const rows=await request(`/rest/v1/${def.table}?select=*&publicado=eq.true${def.extra||''}&order=${def.order}`);
       $('.portal-public-list',portalContent).innerHTML=rows?.length?rows.map(def.render).join(''):'<p>No hay contenido publicado por el momento.</p>';
@@ -1602,11 +2049,44 @@ window.addEventListener('keydown', e => {
 
   // Admin general genérico
   const adminDialog=$('#portal-admin-dialog');
+  $('#residents-admin-open')?.addEventListener('click',()=>{
+    if(!token()){alert('Primero iniciá sesión.');return}
+
+    adminDialog.showModal();
+
+    const target = $('[data-portal-admin-tab="residents"]');
+
+    $$('[data-portal-admin-tab]').forEach(button=>{
+      button.classList.toggle('active', button === target);
+    });
+
+    $$('[data-portal-admin-panel]').forEach(section=>{
+      section.classList.toggle(
+        'active',
+        section.dataset.portalAdminPanel === 'residents'
+      );
+    });
+
+    loadAdminPanel('residents');
+  });
+
   $('#portal-admin-open')?.addEventListener('click',()=>{
     if(!token()){alert('Primero iniciá sesión.');return}
     adminDialog.showModal(); loadAdminPanel('alerts');
   });
   $('.portal-admin-close')?.addEventListener('click',()=>adminDialog.close());
+  const keepResidentsTabVisible = () => {
+    const tab = $('[data-portal-admin-tab="residents"]');
+    if (!tab) return;
+    tab.hidden = false;
+    tab.style.display = 'flex';
+    tab.style.visibility = 'visible';
+    tab.style.opacity = '1';
+  };
+
+  keepResidentsTabVisible();
+  window.addEventListener('resize', keepResidentsTabVisible);
+
   $$('[data-portal-admin-tab]').forEach(btn=>btn.addEventListener('click',()=>{
     $$('[data-portal-admin-tab]').forEach(b=>b.classList.toggle('active',b===btn));
     $$('[data-portal-admin-panel]').forEach(p=>p.classList.toggle('active',p.dataset.portalAdminPanel===btn.dataset.portalAdminTab));
@@ -1651,7 +2131,483 @@ window.addEventListener('keydown', e => {
   async function loadAdminPanel(name){
     const panel=$(`[data-portal-admin-panel="${name}"]`);
     if(!panel)return;
+    if(name==='residents'){
+      panel.innerHTML=`
+        <div class="portal-admin-module-head residents-head">
+          <div>
+            <h4>Datos de habitantes</h4>
+            <small>Personas, tasas, vencimientos, pagos e importación masiva.</small>
+          </div>
+          <button type="button" class="residents-help-button" id="residents-help">Cómo usarlo</button>
+        </div>
+
+        <div class="residents-admin-shell">
+          <nav class="residents-subnav" aria-label="Secciones de datos de habitantes">
+            <button type="button" class="active" data-residents-view="people">Personas</button>
+            <button type="button" data-residents-view="accounts">Cuentas y tasas</button>
+            <button type="button" data-residents-view="import">Importar datos</button>
+            <button type="button" data-residents-view="payments">Pagos informados</button>
+          </nav>
+          <div id="residents-admin-content" class="residents-admin-content"></div>
+        </div>`;
+
+      const content = $('#residents-admin-content');
+      let currentView = 'people';
+
+      const currency = value => new Intl.NumberFormat('es-AR',{
+        style:'currency',
+        currency:'ARS'
+      }).format(Number(value || 0));
+
+      const showMessage = (container, text, type='ok') => {
+        if (!container) return;
+        container.textContent = text;
+        container.className = `residents-message is-${type}`;
+      };
+
+      const renderPeople = async () => {
+        content.innerHTML=`
+          <div class="residents-toolbar">
+            <div>
+              <h5>Habitantes registrados</h5>
+              <p>Creá accesos individuales o buscá una persona ya cargada.</p>
+            </div>
+            <label class="residents-search">Buscar
+              <input id="residents-search-input" placeholder="Nombre o últimos números del DNI">
+            </label>
+          </div>
+
+          <div class="residents-two-columns">
+            <form id="resident-form" class="residents-card residents-form">
+              <h6>Nueva persona</h6>
+              <label>Nombre completo<input name="nombre" required></label>
+              <label>DNI<input name="dni" inputmode="numeric" required></label>
+              <label>Código personal<input name="codigo" minlength="6" required></label>
+              <label class="resident-check"><input name="activo" type="checkbox" checked> Acceso activo</label>
+              <button type="submit" class="residents-primary-button">Guardar datos</button>
+              <p class="residents-message" data-resident-message></p>
+            </form>
+
+            <div class="residents-card">
+              <div id="residents-list">Cargando…</div>
+            </div>
+          </div>`;
+
+        let rows = [];
+
+        const draw = query => {
+          const list = $('#residents-list');
+          const normalized = String(query || '').toLowerCase().trim();
+          const filtered = rows.filter(row => {
+            const name = String(row.nombre || '').toLowerCase();
+            const dni = String(row.dni_normalizado || '');
+            return !normalized || name.includes(normalized) || dni.endsWith(normalized);
+          });
+
+          list.innerHTML = filtered.length ? filtered.map(row => `
+            <article class="resident-person-card" data-resident="${row.id}">
+              <div>
+                <strong>${escapeHTML(row.nombre)}</strong>
+                <small>DNI terminado en ${escapeHTML(String(row.dni_normalizado).slice(-4))}</small>
+              </div>
+              <span class="resident-status ${row.activo ? 'active' : 'inactive'}">${row.activo ? 'Activo' : 'Inactivo'}</span>
+              <div class="resident-card-actions">
+                <button type="button" data-resident-account>Abrir cuenta</button>
+                <button type="button" data-reset-code>Cambiar código</button>
+                <button type="button" class="danger" data-toggle-resident>${row.activo ? 'Desactivar' : 'Activar'}</button>
+              </div>
+            </article>`).join('') : '<p>No se encontraron personas.</p>';
+
+          $$('[data-resident-account]', list).forEach(button => button.addEventListener('click', () => {
+            const card = button.closest('[data-resident]');
+            renderAccounts(card.dataset.resident);
+            $$('.residents-subnav button').forEach(btn => btn.classList.toggle('active', btn.dataset.residentsView === 'accounts'));
+            currentView = 'accounts';
+          }));
+
+          $$('[data-reset-code]', list).forEach(button => button.addEventListener('click', async () => {
+            const card = button.closest('[data-resident]');
+            const code = prompt('Nuevo código personal (mínimo 6 caracteres):');
+            if (!code || code.length < 6) return;
+            await request('/rest/v1/rpc/admin_cambiar_codigo_contribuyente', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({p_contribuyente_id:card.dataset.resident,p_codigo:code})
+            }, true);
+            alert('Código actualizado correctamente.');
+          }));
+
+          $$('[data-toggle-resident]', list).forEach(button => button.addEventListener('click', async () => {
+            const card = button.closest('[data-resident]');
+            const row = rows.find(item => String(item.id) === card.dataset.resident);
+            await request(`/rest/v1/contribuyentes?id=eq.${card.dataset.resident}`, {
+              method:'PATCH',
+              headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+              body:JSON.stringify({activo:!row.activo})
+            }, true);
+            await loadRows();
+          }));
+        };
+
+        const loadRows = async () => {
+          const list = $('#residents-list');
+          try {
+            rows = await request('/rest/v1/contribuyentes?select=id,nombre,dni_normalizado,activo,created_at&order=nombre.asc', {}, true);
+            draw($('#residents-search-input')?.value || '');
+          } catch (error) {
+            list.textContent = error.message;
+          }
+        };
+
+        $('#residents-search-input')?.addEventListener('input', event => draw(event.target.value));
+
+        $('#resident-form')?.addEventListener('submit', async event => {
+          event.preventDefault();
+          const form = event.target;
+          const data = new FormData(form);
+          const message = $('[data-resident-message]', form);
+          showMessage(message,'Guardando…');
+
+          try {
+            const result = await request('/rest/v1/rpc/admin_crear_contribuyente_beta', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({
+                p_nombre:String(data.get('nombre') || ''),
+                p_dni:String(data.get('dni') || '').replace(/\D/g,''),
+                p_codigo:String(data.get('codigo') || ''),
+                p_activo:data.get('activo') === 'on'
+              })
+            }, true);
+
+            if (!result?.ok) throw new Error(result?.mensaje || 'No se pudo guardar.');
+            showMessage(message,'Persona guardada correctamente.');
+            form.reset();
+            form.elements.activo.checked = true;
+            await loadRows();
+          } catch (error) {
+            showMessage(message,error.message,'error');
+          }
+        });
+
+        await loadRows();
+      };
+
+      const renderAccounts = async selectedResidentId => {
+        content.innerHTML=`
+          <div class="residents-toolbar">
+            <div>
+              <h5>Cuentas y tasas</h5>
+              <p>Gestioná agua, luz, tasa por hectárea, inmobiliaria y otros conceptos.</p>
+            </div>
+          </div>
+
+          <div class="residents-two-columns">
+            <form id="account-form" class="residents-card residents-form">
+              <h6>Nueva tasa o deuda</h6>
+              <label>Persona<select name="contribuyente_id" required><option value="">Cargando…</option></select></label>
+              <label>Concepto
+                <select name="concepto" required>
+                  <option>Agua</option>
+                  <option>Luz</option>
+                  <option>Tasa comunal</option>
+                  <option>Tasa por hectárea</option>
+                  <option>Tasa inmobiliaria</option>
+                  <option>Otro</option>
+                </select>
+              </label>
+              <label>Período<input name="periodo" placeholder="Ej.: Julio 2026" required></label>
+              <label>Importe<input name="importe" type="number" min="0" step="0.01" required></label>
+              <label>Vencimiento<input name="vencimiento" type="date"></label>
+              <label>Estado
+                <select name="estado">
+                  <option>Pendiente</option>
+                  <option>Pagado</option>
+                  <option>Vencido</option>
+                </select>
+              </label>
+              <button type="submit" class="residents-primary-button">Guardar tasa o deuda</button>
+              <p class="residents-message" data-account-message></p>
+            </form>
+
+            <div class="residents-card">
+              <div class="residents-list-filter">
+                <label>Filtrar persona<select id="accounts-filter"><option value="">Todas</option></select></label>
+                <label>Filtrar estado
+                  <select id="accounts-state-filter">
+                    <option value="">Todos</option>
+                    <option>Pendiente</option>
+                    <option>Pagado</option>
+                    <option>Vencido</option>
+                  </select>
+                </label>
+              </div>
+              <div id="accounts-list">Cargando…</div>
+            </div>
+          </div>`;
+
+        let contributors = [];
+        let obligations = [];
+        const personSelect = $('#account-form select[name="contribuyente_id"]');
+        const filterSelect = $('#accounts-filter');
+
+        const draw = () => {
+          const selectedPerson = filterSelect.value;
+          const selectedState = $('#accounts-state-filter').value;
+          const list = $('#accounts-list');
+
+          const rows = obligations.filter(row =>
+            (!selectedPerson || row.contribuyente_id === selectedPerson) &&
+            (!selectedState || row.estado === selectedState)
+          );
+
+          list.innerHTML = rows.length ? rows.map(row => `
+            <article class="resident-obligation-card" data-obligation="${row.id}">
+              <div>
+                <strong>${escapeHTML(row.contribuyentes?.nombre || 'Persona')}</strong>
+                <span>${escapeHTML(row.concepto)} · ${escapeHTML(row.periodo)}</span>
+                <small>${row.vencimiento ? `Vence: ${escapeHTML(row.vencimiento)}` : 'Sin vencimiento'}</small>
+              </div>
+              <div class="resident-obligation-value">
+                <strong>${currency(row.importe)}</strong>
+                <span class="resident-status ${String(row.estado).toLowerCase()}">${escapeHTML(row.estado)}</span>
+              </div>
+              <div class="resident-card-actions">
+                <button type="button" data-toggle-paid>${row.estado === 'Pagado' ? 'Marcar pendiente' : 'Marcar pagado'}</button>
+                <button type="button" class="danger" data-delete-obligation>Borrar</button>
+              </div>
+            </article>`).join('') : '<p>No hay tasas para este filtro.</p>';
+
+          $$('[data-toggle-paid]', list).forEach(button => button.addEventListener('click', async () => {
+            const card = button.closest('[data-obligation]');
+            const row = obligations.find(item => String(item.id) === card.dataset.obligation);
+            const estado = row.estado === 'Pagado' ? 'Pendiente' : 'Pagado';
+            await request(`/rest/v1/obligaciones?id=eq.${card.dataset.obligation}`, {
+              method:'PATCH',
+              headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+              body:JSON.stringify({estado,updated_at:new Date().toISOString()})
+            }, true);
+            await loadObligations();
+          }));
+
+          $$('[data-delete-obligation]', list).forEach(button => button.addEventListener('click', async () => {
+            const card = button.closest('[data-obligation]');
+            if (!confirm('¿Borrar esta tasa?')) return;
+            await request(`/rest/v1/obligaciones?id=eq.${card.dataset.obligation}`, {
+              method:'DELETE',
+              headers:{'Prefer':'return=minimal'}
+            }, true);
+            await loadObligations();
+          }));
+        };
+
+        const loadObligations = async () => {
+          obligations = await request('/rest/v1/obligaciones?select=*,contribuyentes(nombre)&order=created_at.desc', {}, true);
+          draw();
+        };
+
+        contributors = await request('/rest/v1/contribuyentes?select=id,nombre,dni_normalizado&activo=eq.true&order=nombre.asc', {}, true);
+        const options = contributors.map(row =>
+          `<option value="${row.id}">${escapeHTML(row.nombre)} · DNI …${escapeHTML(String(row.dni_normalizado).slice(-4))}</option>`
+        ).join('');
+
+        personSelect.innerHTML = '<option value="">Seleccionar persona</option>' + options;
+        filterSelect.innerHTML = '<option value="">Todas</option>' + options;
+
+        if (selectedResidentId) {
+          personSelect.value = selectedResidentId;
+          filterSelect.value = selectedResidentId;
+        }
+
+        filterSelect.addEventListener('change', draw);
+        $('#accounts-state-filter').addEventListener('change', draw);
+
+        $('#account-form').addEventListener('submit', async event => {
+          event.preventDefault();
+          const form = event.target;
+          const data = Object.fromEntries(new FormData(form));
+          const message = $('[data-account-message]', form);
+          showMessage(message,'Guardando…');
+
+          try {
+            data.importe = Number(data.importe || 0);
+            if (!data.vencimiento) delete data.vencimiento;
+            await request('/rest/v1/obligaciones', {
+              method:'POST',
+              headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+              body:JSON.stringify(data)
+            }, true);
+            showMessage(message,'Tasa guardada correctamente.');
+            const keepPerson = data.contribuyente_id;
+            form.reset();
+            form.elements.contribuyente_id.value = keepPerson;
+            await loadObligations();
+          } catch (error) {
+            showMessage(message,error.message,'error');
+          }
+        });
+
+        await loadObligations();
+      };
+
+      const renderImport = () => {
+        content.innerHTML=`
+          <div class="residents-toolbar">
+            <div>
+              <h5>Importar datos</h5>
+              <p>Cargá muchas personas y tasas de una sola vez desde Excel guardado como CSV.</p>
+            </div>
+          </div>
+
+          <div class="residents-import-grid">
+            <section class="residents-card">
+              <h6>Formato para personas</h6>
+              <p>Columnas requeridas:</p>
+              <code>nombre,dni,codigo,activo</code>
+              <p class="residents-import-example">Ejemplo:<br>Juan Pérez,12345678,LP583921,true</p>
+              <input type="file" id="import-people-file" accept=".csv,text/csv">
+              <button type="button" class="residents-primary-button" id="import-people-button">Importar personas</button>
+              <p class="residents-message" id="import-people-message"></p>
+            </section>
+
+            <section class="residents-card">
+              <h6>Formato para tasas</h6>
+              <p>Columnas requeridas:</p>
+              <code>dni,concepto,periodo,importe,vencimiento,estado</code>
+              <p class="residents-import-example">Ejemplo:<br>12345678,Agua,Julio 2026,25000,2026-07-31,Pendiente</p>
+              <input type="file" id="import-debts-file" accept=".csv,text/csv">
+              <button type="button" class="residents-primary-button" id="import-debts-button">Importar tasas</button>
+              <p class="residents-message" id="import-debts-message"></p>
+            </section>
+          </div>
+
+          <div class="residents-card residents-import-note">
+            <strong>Importación masiva</strong>
+            <p>Podés preparar el archivo en Excel, elegir “Guardar como CSV UTF-8” y cargarlo acá. El sistema valida fila por fila y evita que tengas que escribir todo manualmente.</p>
+          </div>`;
+
+        const parseCsv = text => {
+          const lines = text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(line => line.trim());
+          if (lines.length < 2) return [];
+          const separator = lines[0].includes(';') ? ';' : ',';
+          const headers = lines[0].split(separator).map(value => value.trim().toLowerCase());
+
+          return lines.slice(1).map(line => {
+            const values = line.split(separator).map(value => value.trim());
+            return Object.fromEntries(headers.map((header,index) => [header, values[index] ?? '']));
+          });
+        };
+
+        $('#import-people-button').addEventListener('click', async () => {
+          const file = $('#import-people-file').files[0];
+          const message = $('#import-people-message');
+          if (!file) return showMessage(message,'Elegí un archivo CSV.','error');
+
+          const rows = parseCsv(await file.text());
+          showMessage(message,`Importando ${rows.length} personas…`);
+
+          try {
+            const result = await request('/rest/v1/rpc/admin_importar_contribuyentes_beta', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({p_filas:rows})
+            }, true);
+
+            showMessage(message,`Importación terminada: ${result?.creados || 0} creados, ${result?.actualizados || 0} actualizados y ${result?.errores || 0} errores.`);
+          } catch (error) {
+            showMessage(message,error.message,'error');
+          }
+        });
+
+        $('#import-debts-button').addEventListener('click', async () => {
+          const file = $('#import-debts-file').files[0];
+          const message = $('#import-debts-message');
+          if (!file) return showMessage(message,'Elegí un archivo CSV.','error');
+
+          const rows = parseCsv(await file.text());
+          showMessage(message,`Importando ${rows.length} tasas…`);
+
+          try {
+            const result = await request('/rest/v1/rpc/admin_importar_obligaciones_beta', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({p_filas:rows})
+            }, true);
+
+            showMessage(message,`Importación terminada: ${result?.creados || 0} tasas creadas y ${result?.errores || 0} errores.`);
+          } catch (error) {
+            showMessage(message,error.message,'error');
+          }
+        });
+      };
+
+      const renderPayments = async () => {
+        content.innerHTML=`
+          <div class="residents-toolbar">
+            <div>
+              <h5>Pagos informados</h5>
+              <p>Aprobá o rechazá comprobantes enviados desde el portal.</p>
+            </div>
+          </div>
+          <div class="residents-card"><div id="residents-payments-list">Cargando…</div></div>`;
+
+        const list = $('#residents-payments-list');
+
+        try {
+          const rows = await request('/rest/v1/pagos_informados?select=*,contribuyentes(nombre,dni_normalizado)&order=created_at.desc', {}, true);
+
+          list.innerHTML = rows?.length ? rows.map(row => `
+            <article class="resident-payment-card" data-payment="${row.id}">
+              <div>
+                <strong>${escapeHTML(row.contribuyentes?.nombre || 'Persona')}</strong>
+                <span>${escapeHTML(row.concepto)} · ${currency(row.importe)}</span>
+                <small>${escapeHTML(row.fecha_pago || '')}${row.referencia ? ` · Ref. ${escapeHTML(row.referencia)}` : ''}</small>
+              </div>
+              <span class="resident-status ${String(row.estado).toLowerCase()}">${escapeHTML(row.estado)}</span>
+              <div class="resident-card-actions">
+                <button type="button" data-payment-status="Aprobado">Aprobar</button>
+                <button type="button" class="danger" data-payment-status="Rechazado">Rechazar</button>
+              </div>
+            </article>`).join('') : '<p>No hay pagos informados.</p>';
+
+          $$('[data-payment-status]', list).forEach(button => button.addEventListener('click', async () => {
+            const card = button.closest('[data-payment]');
+            const estado = button.dataset.paymentStatus;
+            await request(`/rest/v1/pagos_informados?id=eq.${card.dataset.payment}`, {
+              method:'PATCH',
+              headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+              body:JSON.stringify({estado})
+            }, true);
+            renderPayments();
+          }));
+        } catch (error) {
+          list.textContent = error.message;
+        }
+      };
+
+      const renderCurrent = () => {
+        if (currentView === 'people') renderPeople();
+        if (currentView === 'accounts') renderAccounts();
+        if (currentView === 'import') renderImport();
+        if (currentView === 'payments') renderPayments();
+      };
+
+      $$('.residents-subnav button').forEach(button => button.addEventListener('click', () => {
+        currentView = button.dataset.residentsView;
+        $$('.residents-subnav button').forEach(btn => btn.classList.toggle('active', btn === button));
+        renderCurrent();
+      }));
+
+      $('#residents-help')?.addEventListener('click', () => {
+        alert('1. Importá personas o crealas manualmente.\n2. Cargá o importá las tasas.\n3. La persona entra con DNI y código.\n4. Cuando paga, informa el pago y administración lo aprueba.');
+      });
+
+      renderPeople();
+      return;
+    }
+
     if(name==='providers'){
+
       panel.innerHTML=`
         <div class="portal-admin-module-head">
           <h4>Proveedores registrados</h4>
@@ -1873,6 +2829,23 @@ window.addEventListener('keydown', e => {
     }catch(e){$('[data-module-list]',panel).textContent=e.message}
   }
 
+
+  const heroTramitesLink = $('#hero-tramites-link');
+
+  heroTramitesLink?.addEventListener('click', event => {
+    event.preventDefault();
+
+    const section = $('#portal-ciudadano');
+    section?.scrollIntoView({
+      behavior:'smooth',
+      block:'start'
+    });
+
+    setTimeout(() => {
+      $('[data-portal-open="tramites"]')?.focus();
+    }, 650);
+  });
+
   loadAlerts();
   loadImportantSection();
 
@@ -1972,3 +2945,9 @@ window.addEventListener('keydown', e => {
   resetFloatingButtons();
   addEventListener('resize', resetFloatingButtons);
 })();
+
+
+// V36 — Limpieza de temporizadores visuales al cerrar el portal.
+document.querySelector('#portal-dialog')?.addEventListener('close', () => {
+  clearInterval(window.__citizenCountdownInterval);
+});

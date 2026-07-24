@@ -1,0 +1,18 @@
+V35 — TRÁMITES MEJORADOS
+
+Cambios:
+- “Ver trámites” baja al Portal ciudadano.
+- La tarjeta de trámites muestra “Iniciar consulta”.
+- Botón visible “Ingresar y ver lo que debo”.
+- No hace falta usar Enter.
+- El modal público tiene scroll real en PC y celular.
+- Botón “Ver detalle” para bajar y “Volver arriba”.
+- Botones y tarjetas de administración más claros.
+- Mejoras en mensajes, errores y diseño móvil.
+
+Reemplazar:
+- index.html
+- styles.css
+- script.js
+
+No requiere SQL nuevo.

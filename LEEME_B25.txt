@@ -1,0 +1,13 @@
+B25 — AVISOS FINALES
+
+Incluye:
+- Avisos prediseñados: luz, agua, residuos, horario, calle, clima u otro.
+- Fecha, hora desde, hora hasta, detalle y activo/inactivo.
+- Botón flotante Avisos conectado al panel.
+- Se quitó Empleo y oportunidades.
+- SQL completo para crear/reparar todas las tablas y eliminar errores de schema cache.
+
+Pasos:
+1. Ejecutar PEGAR_EN_SUPABASE_B25.sql.
+2. Reemplazar index.html, styles.css y script.js en GitHub.
+3. Esperar Vercel y hacer Ctrl+F5.

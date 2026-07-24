@@ -1,0 +1,11 @@
+V33
+
+Se agregó el botón azul visible “Datos de habitantes” en la cabecera de Noticias.
+Abre directamente el sistema para cargar:
+- Personas
+- Cuentas y tasas
+- Importación masiva
+- Pagos informados
+
+Gestión general queda separado y sin cambios.
+No requiere SQL nuevo.

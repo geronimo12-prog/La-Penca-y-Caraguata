@@ -458,24 +458,30 @@
       <div class="section-head reveal">
         <span class="eyebrow dark">Portal ciudadano</span>
         <h2>Todo lo nuevo,<br>bien organizado.</h2>
-        <p>Agenda, documentos, proveedores, encuestas y suscripciones dentro de un único apartado para no recargar la página principal.</p>
+        <p>Trámites, agenda, documentos, proveedores, encuestas y suscripciones dentro de un único apartado.</p>
       </div>
 
       <div class="citizen-portal-grid reveal">
+        <button type="button" data-portal-open="tramites" class="citizen-featured-card">
+          <span>01 · Acceso privado</span>
+          <strong>Consultar mis tasas</strong>
+          <small>Ingresar con DNI y código personal</small>
+          <em>Iniciar consulta →</em>
+        </button>
         <button type="button" data-portal-open="agenda">
-          <span>01</span><strong>Agenda comunal</strong><small>Eventos, operativos y fechas importantes</small>
+          <span>02</span><strong>Agenda comunal</strong><small>Eventos, operativos y fechas importantes</small>
         </button>
         <button type="button" data-portal-open="documents">
-          <span>02</span><strong>Documentos públicos</strong><small>Ordenanzas, resoluciones y comunicados</small>
+          <span>03</span><strong>Documentos públicos</strong><small>Ordenanzas, resoluciones y comunicados</small>
         </button>
         <button type="button" data-portal-open="providers">
-          <span>03</span><strong>Registro de proveedores</strong><small>Presentación de datos y servicios</small>
+          <span>04</span><strong>Registro de proveedores</strong><small>Presentación de datos y servicios</small>
         </button>
         <button type="button" data-portal-open="surveys">
-          <span>04</span><strong>Encuestas vecinales</strong><small>Participación en consultas públicas</small>
+          <span>05</span><strong>Encuestas vecinales</strong><small>Participación en consultas públicas</small>
         </button>
         <button type="button" data-portal-open="transparency">
-          <span>05</span><strong>Transparencia</strong><small>Información institucional y acceso público</small>
+          <span>06</span><strong>Transparencia</strong><small>Información institucional y acceso público</small>
         </button>
       </div>
 
@@ -578,6 +584,7 @@
     </div>
 
     <div class="news-admin-top-actions">
+      <button id="residents-admin-open" class="news-admin-residents" type="button">Datos de habitantes</button>
       <button id="portal-admin-open" class="news-admin-new portal-admin-launch" type="button">Gestión general</button>
       <button id="news-logout-button" class="news-admin-new news-logout-button" type="button">Cerrar sesión</button>
       <button id="news-new-button" class="news-admin-new" type="button">+ Nueva noticia</button>
@@ -812,6 +819,7 @@
       <button data-portal-admin-tab="events">Agenda</button>
       <button data-portal-admin-tab="documents">Documentos</button>
       <button data-portal-admin-tab="surveys">Encuestas</button>
+      <button data-portal-admin-tab="residents">Datos de habitantes</button>
       <button data-portal-admin-tab="providers">Proveedores</button>
       <button data-portal-admin-tab="subscribers">Suscripciones</button>
       <button data-portal-admin-tab="stats">Estadísticas</button>
@@ -821,6 +829,7 @@
       <section data-portal-admin-panel="events"></section>
       <section data-portal-admin-panel="documents"></section>
       <section data-portal-admin-panel="surveys"></section>
+      <section data-portal-admin-panel="residents"></section>
       <section data-portal-admin-panel="providers"></section>
       <section data-portal-admin-panel="subscribers"></section>
       <section data-portal-admin-panel="stats"></section>

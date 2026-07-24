@@ -1,0 +1,12 @@
+V34 — BOTONES ORDENADOS
+
+Corrección:
+- La regla general de los diálogos estaba poniendo todos los botones arriba.
+- Ahora solamente la X queda flotante.
+- El menú lateral queda vertical y ordenado.
+- Personas, Cuentas y tasas, Importar datos y Pagos informados aparecen en una barra clara.
+- Guardar persona queda debajo de los campos.
+- Los botones de acción quedan alineados.
+- No requiere cambios en Supabase.
+
+Reemplazar solamente styles.css.

@@ -1,0 +1,8 @@
+V28
+
+- Avisos, Noticias y WhatsApp ya no se superponen.
+- La agenda siempre muestra seis estados predeterminados.
+- Cada aviso reemplaza solamente la fila correspondiente.
+- Un evento reemplaza la fila de actos/comunidad.
+- Los botones Editar y Borrar quedan centrados y visibles.
+- No hace falta ejecutar otro SQL si V27 ya funciona.

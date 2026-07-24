@@ -1,0 +1,17 @@
+V31 — TRÁMITES PRIVADOS BETA
+
+Incluye:
+- Acceso con DNI + código privado.
+- Mensaje genérico si algún dato es incorrecto.
+- 5 intentos y bloqueo temporal de 10 minutos.
+- Sesión automática de 5 minutos.
+- Consulta de tasas y obligaciones.
+- Alias y CBU configurables en Supabase.
+- Aviso de pago y mensaje preparado para WhatsApp.
+- Administración de contribuyentes, códigos, obligaciones y pagos informados.
+
+IMPORTANTE:
+1. Ejecutar SUPABASE_V31_TRAMITES_BETA.sql.
+2. Cargar primero datos ficticios.
+3. En GitHub reemplazar index.html, styles.css y script.js.
+4. La foto/PDF del comprobante no se envía automáticamente: se adjunta en WhatsApp.
