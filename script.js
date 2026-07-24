@@ -161,80 +161,6 @@ window.addEventListener('keydown', e => {
   const SUPABASE_KEY = 'sb_publishable_3fZv9U_m_RuGujOtSk6zYA_WatgOb_n';
   const TABLE_URL = `${SUPABASE_URL}/rest/v1/noticias`;
   const STORAGE_BUCKET = 'noticias-imagenes';
-  const PAYMENT_RECEIPTS_BUCKET = 'comprobantes-pago';
-
-  const safeFileName = value => String(value || 'comprobante')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-zA-Z0-9._-]+/g,'-')
-    .replace(/-+/g,'-')
-    .slice(0,120);
-
-  async function uploadPaymentReceipt(file) {
-    if (!file) throw new Error('Falta de comprobante.');
-
-    const allowed = ['image/jpeg','image/png','image/webp','application/pdf'];
-    const maxBytes = 8 * 1024 * 1024;
-
-    if (!allowed.includes(file.type)) {
-      throw new Error('El comprobante debe ser JPG, PNG, WEBP o PDF.');
-    }
-
-    if (file.size > maxBytes) {
-      throw new Error('El comprobante no puede superar los 8 MB.');
-    }
-
-    const extension = safeFileName(file.name).split('.').pop() || 'bin';
-    const path = `${crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`}.${extension}`;
-
-    const response = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/${PAYMENT_RECEIPTS_BUCKET}/${path}`,
-      {
-        method:'POST',
-        headers:{
-          apikey:SUPABASE_ANON_KEY,
-          Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
-          'Content-Type':file.type,
-          'x-upsert':'false'
-        },
-        body:file
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(error || 'No se pudo subir el comprobante.');
-    }
-
-    return {
-      path,
-      name:safeFileName(file.name),
-      mime:file.type,
-      size:file.size
-    };
-  }
-
-  async function openPrivatePaymentReceipt(path) {
-    if (!path) return;
-
-    const response = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/${PAYMENT_RECEIPTS_BUCKET}/${encodeURIComponent(path)}`,
-      {
-        headers:{
-          apikey:SUPABASE_ANON_KEY,
-          Authorization:`Bearer ${token()}`
-        }
-      }
-    );
-
-    if (!response.ok) throw new Error('No se pudo abrir el comprobante.');
-
-    const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    window.open(objectUrl,'_blank','noopener');
-    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
-  }
-
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -1161,6 +1087,96 @@ window.addEventListener('keydown', e => {
 
   const publicHeaders = {'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
   const authHeaders = () => ({'apikey':SUPABASE_KEY,'Authorization':`Bearer ${token()}`});
+
+  const PAYMENT_RECEIPTS_BUCKET = 'comprobantes-pago';
+
+  const safePaymentFileName = value => String(value || 'comprobante')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9._-]+/g,'-')
+    .replace(/-+/g,'-')
+    .slice(0,120);
+
+  async function uploadPaymentReceipt(file) {
+    if (!(file instanceof File) || !file.size) {
+      throw new Error('Falta de comprobante.');
+    }
+
+    const allowed = ['image/jpeg','image/png','image/webp','application/pdf'];
+    const maxBytes = 8 * 1024 * 1024;
+
+    if (!allowed.includes(file.type)) {
+      throw new Error('El comprobante debe ser JPG, PNG, WEBP o PDF.');
+    }
+
+    if (file.size > maxBytes) {
+      throw new Error('El comprobante no puede superar los 8 MB.');
+    }
+
+    const originalName = safePaymentFileName(file.name);
+    const extension = originalName.includes('.')
+      ? originalName.split('.').pop().toLowerCase()
+      : 'bin';
+
+    const unique = typeof crypto?.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    const path = `${unique}.${extension}`;
+
+    const response = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/${PAYMENT_RECEIPTS_BUCKET}/${path}`,
+      {
+        method:'POST',
+        headers:{
+          apikey:SUPABASE_KEY,
+          Authorization:`Bearer ${SUPABASE_KEY}`,
+          'Content-Type':file.type,
+          'x-upsert':'false'
+        },
+        body:file
+      }
+    );
+
+    if (!response.ok) {
+      let message = 'No se pudo subir el comprobante.';
+      try {
+        const data = await response.json();
+        message = data.message || data.error || message;
+      } catch {}
+      throw new Error(message);
+    }
+
+    return {
+      path,
+      name:originalName,
+      mime:file.type,
+      size:file.size
+    };
+  }
+
+  async function openPrivatePaymentReceipt(path) {
+    if (!path) throw new Error('Este pago no tiene comprobante.');
+
+    const response = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/${PAYMENT_RECEIPTS_BUCKET}/${encodeURIComponent(path)}`,
+      {
+        headers:{
+          apikey:SUPABASE_KEY,
+          Authorization:`Bearer ${token()}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('No se pudo abrir el comprobante.');
+    }
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    window.open(objectUrl,'_blank','noopener');
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  }
 
   async function request(path, options={}, auth=false){
     const response = await fetch(`${SUPABASE_URL}${path}`, {

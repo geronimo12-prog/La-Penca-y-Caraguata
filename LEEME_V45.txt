@@ -1,0 +1,19 @@
+V45 — FIX SUBIDA DE COMPROBANTE
+
+Error corregido:
+Can't find variable: uploadPaymentReceipt
+
+Causa:
+La función estaba dentro del módulo de Noticias y el formulario de pagos no podía acceder a ella.
+
+Corrección:
+- La función ahora está dentro del Portal ciudadano.
+- Usa la clave pública correcta.
+- Mantiene validación JPG, PNG, WEBP o PDF.
+- Mantiene límite de 8 MB.
+- También funciona la apertura privada del comprobante en Administración.
+
+Reemplazar únicamente:
+script.js
+
+No requiere SQL nuevo.
