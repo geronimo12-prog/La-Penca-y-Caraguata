@@ -4677,3 +4677,371 @@ dialog{
     text-align:left;
   }
 }
+
+
+/* ==========================================================
+   V42 — BOTONES ACOMODADOS DE FORMA DEFINITIVA
+   ========================================================== */
+
+/* ---------- PANEL PÚBLICO: CUENTA DEL HABITANTE ---------- */
+
+#portal-dialog{
+  overflow:hidden!important;
+}
+
+#portal-dialog .portal-public-wrap{
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  padding:34px 38px 32px!important;
+  overflow-x:hidden!important;
+}
+
+#portal-dialog .portal-dialog-close{
+  position:absolute!important;
+  top:16px!important;
+  right:16px!important;
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  min-height:46px!important;
+  margin:0!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  z-index:100!important;
+}
+
+/* Cabecera de la cuenta */
+.citizen-account-head{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:18px!important;
+  width:100%!important;
+  padding-right:58px!important;
+}
+
+.citizen-account-head > div:first-child{
+  min-width:0!important;
+}
+
+.citizen-account-head h3{
+  margin:8px 0 12px!important;
+  line-height:1.05!important;
+}
+
+/* Botonera principal: dos filas limpias, sin montarse */
+.citizen-account-actions{
+  display:grid!important;
+  grid-template-columns:110px repeat(4,minmax(140px,1fr))!important;
+  gap:10px!important;
+  width:100%!important;
+  margin:0!important;
+  align-items:stretch!important;
+}
+
+.citizen-account-actions > *{
+  position:static!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  left:auto!important;
+  float:none!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:52px!important;
+  height:auto!important;
+  margin:0!important;
+  padding:11px 13px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  line-height:1.15!important;
+  border-radius:13px!important;
+  box-sizing:border-box!important;
+}
+
+.citizen-countdown{
+  font-size:13px!important;
+}
+
+.citizen-refresh,
+.citizen-print{
+  background:#f3f6fb!important;
+  color:#15366c!important;
+  border:1px solid #cfd8e7!important;
+}
+
+.citizen-scroll-down{
+  background:#ffca35!important;
+  color:#17233b!important;
+  border:0!important;
+}
+
+.citizen-logout{
+  background:#b62822!important;
+  color:#fff!important;
+  border:0!important;
+}
+
+/* Resumen */
+.citizen-account-summary{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+  width:100%!important;
+  margin:22px 0!important;
+}
+
+.citizen-account-summary article{
+  min-width:0!important;
+  min-height:92px!important;
+  padding:18px!important;
+  box-sizing:border-box!important;
+}
+
+/* Pestañas: Lo que debo / Mis comprobantes */
+.citizen-account-tabs{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  width:100%!important;
+  margin:18px 0!important;
+  padding:8px!important;
+  border-radius:16px!important;
+  box-sizing:border-box!important;
+  background:#e9e4da!important;
+}
+
+.citizen-account-tabs button{
+  position:static!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:52px!important;
+  margin:0!important;
+  padding:12px 16px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:1.2!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  border-radius:12px!important;
+}
+
+.citizen-account-tabs button.active{
+  background:#15366c!important;
+  color:#fff!important;
+}
+
+/* Botones dentro de cada deuda */
+.citizen-debt-card button[data-report-payment]{
+  position:static!important;
+  width:100%!important;
+  min-height:50px!important;
+  margin-top:12px!important;
+  padding:12px 16px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:12px!important;
+  line-height:1.2!important;
+}
+
+/* Datos de transferencia */
+.citizen-payment-data p{
+  display:grid!important;
+  grid-template-columns:70px minmax(0,1fr) 95px!important;
+  gap:10px!important;
+  align-items:center!important;
+}
+
+.citizen-payment-data p button{
+  position:static!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:42px!important;
+  padding:8px 10px!important;
+  margin:0!important;
+  border-radius:10px!important;
+}
+
+/* ---------- FORMULARIO INFORMAR PAGO ---------- */
+
+#portal-dialog .citizen-back{
+  position:static!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:auto!important;
+  min-width:190px!important;
+  min-height:46px!important;
+  margin:0 0 22px!important;
+  padding:10px 14px!important;
+  border-radius:12px!important;
+  background:#15366c!important;
+  color:#fff!important;
+  font-weight:900!important;
+  z-index:auto!important;
+}
+
+.citizen-payment-form{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:16px!important;
+  width:100%!important;
+}
+
+.citizen-payment-form label{
+  min-width:0!important;
+}
+
+.citizen-payment-form label:nth-child(4),
+.citizen-payment-form .citizen-file-label,
+.citizen-payment-form .citizen-payment-warning,
+.citizen-payment-form button[type="submit"],
+.citizen-payment-form [data-payment-message]{
+  grid-column:1 / -1!important;
+}
+
+.citizen-payment-form input{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+
+.citizen-payment-form button[type="submit"]{
+  position:static!important;
+  width:100%!important;
+  min-height:54px!important;
+  margin:0!important;
+  padding:13px 16px!important;
+  border-radius:13px!important;
+  background:#15366c!important;
+  color:#fff!important;
+  font-weight:900!important;
+}
+
+/* ---------- ADMINISTRACIÓN GENERAL ---------- */
+
+#portal-admin-dialog{
+  position:relative!important;
+}
+
+.portal-admin-scroll-controls{
+  position:absolute!important;
+  top:18px!important;
+  right:22px!important;
+  bottom:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  z-index:90!important;
+}
+
+.portal-admin-scroll-controls button{
+  position:static!important;
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  min-height:46px!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:50%!important;
+}
+
+#portal-admin-dialog > header{
+  padding-right:90px!important;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media(max-width:1000px){
+  .citizen-account-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+
+  .citizen-account-actions .citizen-countdown{
+    grid-column:1 / -1!important;
+  }
+}
+
+@media(max-width:700px){
+  #portal-dialog .portal-public-wrap{
+    padding:24px 16px 26px!important;
+  }
+
+  .citizen-account-head{
+    padding-right:48px!important;
+  }
+
+  .citizen-account-actions{
+    grid-template-columns:1fr 1fr!important;
+  }
+
+  .citizen-account-actions .citizen-countdown{
+    grid-column:1 / -1!important;
+  }
+
+  .citizen-account-summary{
+    grid-template-columns:1fr!important;
+  }
+
+  .citizen-account-tabs{
+    grid-template-columns:1fr!important;
+  }
+
+  .citizen-payment-form{
+    grid-template-columns:1fr!important;
+  }
+
+  .citizen-payment-form label,
+  .citizen-payment-form label:nth-child(4),
+  .citizen-payment-form .citizen-file-label,
+  .citizen-payment-form .citizen-payment-warning,
+  .citizen-payment-form button[type="submit"],
+  .citizen-payment-form [data-payment-message]{
+    grid-column:1!important;
+  }
+
+  .citizen-payment-data p{
+    grid-template-columns:1fr!important;
+  }
+
+  .citizen-payment-data p button{
+    width:100%!important;
+  }
+
+  #portal-dialog .citizen-back{
+    width:100%!important;
+    min-width:0!important;
+  }
+}
+
+@media(max-width:470px){
+  .citizen-account-actions{
+    grid-template-columns:1fr!important;
+  }
+
+  .citizen-account-actions .citizen-countdown{
+    grid-column:auto!important;
+  }
+
+  .portal-admin-scroll-controls{
+    top:12px!important;
+    right:12px!important;
+  }
+
+  .portal-admin-scroll-controls button{
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    min-height:42px!important;
+  }
+}

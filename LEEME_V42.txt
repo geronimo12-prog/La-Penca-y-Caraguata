@@ -1,0 +1,16 @@
+V42 — BOTONES ACOMODADOS
+
+Se corrigió:
+- Botones de la cuenta sin montarse.
+- Actualizar, Imprimir, Ver detalle y Cerrar sesión alineados.
+- Pestañas Lo que debo / Mis comprobantes ordenadas.
+- Botón Volver a mi cuenta visible.
+- Formulario Informar pago ordenado.
+- Botones de copiar Alias y CBU alineados.
+- Flechas de Administración ubicadas sin tapar contenido.
+- Mejoras para celular.
+
+Reemplazar solamente:
+styles.css
+
+No requiere SQL.
