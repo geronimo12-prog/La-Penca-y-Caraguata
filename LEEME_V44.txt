@@ -1,0 +1,21 @@
+V44 — FLUJO POR PERSONA Y PAGO AUTOMÁTICO
+
+Correcciones:
+- Al marcar una tasa de María, la ficha de María sigue abierta.
+- La página recuerda la última persona abierta.
+- Después de actualizar vuelve a esa persona y hace scroll a su ficha.
+
+Pago automático:
+- Requiere comprobante.
+- Requiere una obligación existente.
+- El importe debe coincidir exactamente con la deuda.
+- Si coincide, la obligación pasa automáticamente a Pagado.
+- Si no coincide, queda Pendiente de revisión.
+
+IMPORTANTE:
+Un comprobante subido no demuestra por sí solo que el dinero entró al banco.
+La confirmación bancaria real requiere integración con banco o proveedor de pagos.
+
+Pasos:
+1. Ejecutar SUPABASE_V44_PAGO_AUTOMATICO.sql.
+2. Reemplazar styles.css y script.js.

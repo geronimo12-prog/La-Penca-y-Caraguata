@@ -5368,3 +5368,27 @@ dialog{
     grid-template-columns:1fr!important;
   }
 }
+
+
+/* ==========================================================
+   V44 — Mantener persona abierta y pago automático
+   ========================================================== */
+.resident-summary-card{
+  scroll-margin-top:18px!important;
+}
+.resident-summary-card[open]{
+  box-shadow:0 12px 30px rgba(21,54,108,.10)!important;
+}
+.resident-summary-card[open] summary{
+  position:sticky!important;
+  top:0!important;
+  z-index:4!important;
+}
+.citizen-receipt-status .aprobado{
+  background:#dff2e2!important;
+  color:#236333!important;
+}
+.citizen-receipt-status .pendiente-de-revisión{
+  background:#fff0c8!important;
+  color:#825c00!important;
+}

@@ -1876,10 +1876,10 @@ window.addEventListener('keydown', e => {
                       <span class="${String(receipt.estado || '').toLowerCase().replaceAll(' ','-')}">${escapeHTML(receipt.estado || 'Pendiente de revisión')}</span>
                     </div>
                     <p>${receipt.estado === 'Aprobado'
-                      ? 'Pago aprobado por la Comuna.'
+                      ? 'Pago registrado automáticamente porque el importe coincidió con la deuda.'
                       : receipt.estado === 'Rechazado'
                         ? 'Pago rechazado. Comunicate con la Comuna y volvé a cargar un comprobante válido.'
-                        : 'Comprobante recibido. El pago todavía no está aprobado.'}</p>
+                        : 'Comprobante recibido. Requiere revisión manual porque el importe no coincidió exactamente.'}</p>
                   </article>`).join('') : `
                   <div class="citizen-empty-state">
                     <strong>No hay comprobantes cargados</strong>
@@ -2018,7 +2018,7 @@ window.addEventListener('keydown', e => {
             <button type="button" class="citizen-back" id="citizen-back">← Volver a mi cuenta</button>
             <span class="citizen-beta-badge">Informar pago</span>
             <h3>${escapeHTML(debt?.concepto || 'Pago comunal')}</h3>
-            <p>El comprobante es obligatorio. El pago quedará como “Pendiente de revisión” hasta que la Comuna lo apruebe.</p>
+            <p>El comprobante es obligatorio. Si el importe coincide exactamente con la deuda, el sistema registrará el pago automáticamente.</p>
 
             <form id="citizen-payment-form" class="portal-form citizen-payment-form">
               <label>Concepto
@@ -2038,9 +2038,9 @@ window.addEventListener('keydown', e => {
                 <small>JPG, PNG, WEBP o PDF. Máximo 8 MB.</small>
               </label>
               <div class="citizen-payment-warning">
-                Sin comprobante, el pago no se envía ni puede figurar como aprobado.
+                Sin comprobante no se registra el pago. El importe debe coincidir exactamente con la deuda.
               </div>
-              <button type="submit">Enviar comprobante para revisión</button>
+              <button type="submit">Enviar comprobante y registrar pago</button>
               <p data-payment-message></p>
             </form>
           </div>`;
@@ -2111,7 +2111,7 @@ window.addEventListener('keydown', e => {
               })
             });
 
-            message.textContent = 'Comprobante recibido. Pago pendiente de revisión.';
+            message.textContent = result?.aprobado ? 'Pago registrado automáticamente.' : 'Comprobante recibido. Requiere revisión.';
             setTimeout(() => {
               renderAccount(saveCitizenSession({
                 dni:active.dni,
@@ -2487,6 +2487,8 @@ window.addEventListener('keydown', e => {
       };
 
       const renderSummary = async selectedResidentId => {
+        selectedResidentId = selectedResidentId || sessionStorage.getItem('residentSummaryOpenId') || '';
+
         content.innerHTML=`
           <div class="residents-toolbar">
             <div>
@@ -2667,11 +2669,26 @@ window.addEventListener('keydown', e => {
               </details>`;
           }).join('') : '<p>No se encontraron personas para estos filtros.</p>';
 
+          $$('[data-summary-person]', list).forEach(details => {
+            details.addEventListener('toggle', () => {
+              if (details.open) {
+                selectedResidentId = details.dataset.summaryPerson;
+                sessionStorage.setItem('residentSummaryOpenId', selectedResidentId);
+              }
+            });
+          });
+
           $$('[data-summary-toggle]', list).forEach(button => button.addEventListener('click', async event => {
             event.preventDefault();
             event.stopPropagation();
 
             const card = button.closest('[data-obligation]');
+            const personCard = button.closest('[data-summary-person]');
+            if (personCard) {
+              selectedResidentId = personCard.dataset.summaryPerson;
+              sessionStorage.setItem('residentSummaryOpenId', selectedResidentId);
+            }
+
             const row = obligations.find(item => String(item.id) === card.dataset.obligation);
             const estado = row.estado === 'Pagado' ? 'Pendiente' : 'Pagado';
 
@@ -2689,6 +2706,12 @@ window.addEventListener('keydown', e => {
             event.stopPropagation();
 
             const card = button.closest('[data-obligation]');
+            const personCard = button.closest('[data-summary-person]');
+            if (personCard) {
+              selectedResidentId = personCard.dataset.summaryPerson;
+              sessionStorage.setItem('residentSummaryOpenId', selectedResidentId);
+            }
+
             if (!confirm('¿Borrar esta tasa?')) return;
 
             await request(`/rest/v1/obligaciones?id=eq.${card.dataset.obligation}`, {
@@ -2752,6 +2775,16 @@ window.addEventListener('keydown', e => {
               request('/rest/v1/pagos_informados?select=*&order=created_at.desc', {}, true)
             ]);
             buildGroups();
+
+            if (selectedResidentId) {
+              const selectedCard = list.querySelector(`[data-summary-person="${CSS.escape(String(selectedResidentId))}"]`);
+              if (selectedCard) {
+                selectedCard.open = true;
+                requestAnimationFrame(() => {
+                  selectedCard.scrollIntoView({behavior:'smooth',block:'start'});
+                });
+              }
+            }
           } catch (error) {
             list.textContent = error.message;
           }
