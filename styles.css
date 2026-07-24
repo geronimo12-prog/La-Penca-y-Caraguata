@@ -4204,3 +4204,137 @@ dialog{
     min-height:44px!important;
   }
 }
+
+
+/* ==========================================================
+   V39 — Importación Excel completa
+   ========================================================== */
+.residents-master-import{
+  display:grid;
+  gap:18px;
+}
+.residents-master-import-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+}
+.residents-master-import-head h6{
+  margin:6px 0 5px;
+  font-size:22px;
+}
+.residents-master-import-head p{
+  margin:0;
+  color:#697184;
+}
+.resident-import-badge{
+  display:inline-flex;
+  padding:6px 9px;
+  border-radius:999px;
+  background:#e8f0ff;
+  color:#15366c;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.residents-template-download{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:10px 14px;
+  border-radius:11px;
+  background:#ffcf55;
+  color:#17233b;
+  font-weight:900;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.residents-file-drop{
+  display:grid;
+  gap:6px;
+  padding:28px;
+  border:2px dashed #9eabc0;
+  border-radius:18px;
+  background:#f7f9fc;
+  text-align:center;
+  cursor:pointer;
+}
+.residents-file-drop strong{
+  font-size:18px;
+  color:#15366c;
+}
+.residents-file-drop span{
+  color:#717a8b;
+}
+.residents-file-drop input{
+  display:block;
+  width:min(520px,100%);
+  margin:12px auto 0;
+}
+.residents-import-preview{
+  min-height:90px;
+  padding:16px;
+  border:1px solid #e0d9ce;
+  border-radius:16px;
+  background:#fff;
+}
+.resident-import-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.resident-import-summary article{
+  padding:14px;
+  border-radius:13px;
+  background:#15366c;
+  color:#fff;
+}
+.resident-import-summary span,
+.resident-import-summary strong{
+  display:block;
+}
+.resident-import-summary span{
+  font-size:12px;
+  opacity:.76;
+}
+.resident-import-summary strong{
+  margin-top:5px;
+  font-size:24px;
+}
+.resident-import-errors{
+  margin-top:14px;
+  padding:12px;
+  border-radius:12px;
+  background:#fff0ed;
+  color:#8b2923;
+}
+.resident-import-errors ul{
+  max-height:180px;
+  overflow:auto;
+}
+.resident-import-ready{
+  margin:14px 0 0;
+  color:#226333;
+  font-weight:900;
+  text-align:center;
+}
+.resident-import-error{
+  color:#a32621;
+  font-weight:900;
+}
+#import-master-button:disabled{
+  opacity:.5!important;
+  cursor:not-allowed!important;
+}
+@media(max-width:700px){
+  .residents-master-import-head{
+    display:grid;
+  }
+  .residents-template-download{
+    width:100%;
+  }
+  .resident-import-summary{
+    grid-template-columns:1fr;
+  }
+}

@@ -2502,89 +2502,227 @@ window.addEventListener('keydown', e => {
         content.innerHTML=`
           <div class="residents-toolbar">
             <div>
-              <h5>Importar datos</h5>
-              <p>Cargá muchas personas y tasas de una sola vez desde Excel guardado como CSV.</p>
+              <h5>Importar Excel completo</h5>
+              <p>Una fila por persona. El sistema crea el acceso y carga todas sus tasas automáticamente.</p>
             </div>
           </div>
 
-          <div class="residents-import-grid">
-            <section class="residents-card">
-              <h6>Formato para personas</h6>
-              <p>Columnas requeridas:</p>
-              <code>nombre,dni,codigo,activo</code>
-              <p class="residents-import-example">Ejemplo:<br>Juan Pérez,12345678,LP583921,true</p>
-              <input type="file" id="import-people-file" accept=".csv,text/csv">
-              <button type="button" class="residents-primary-button" id="import-people-button">Importar personas</button>
-              <p class="residents-message" id="import-people-message"></p>
-            </section>
+          <div class="residents-card residents-master-import">
+            <div class="residents-master-import-head">
+              <div>
+                <span class="resident-import-badge">Importación total</span>
+                <h6>Habitantes + agua + luz + tasas</h6>
+                <p>Seleccioná la plantilla Excel completada. No hace falta cargar personas y deudas por separado.</p>
+              </div>
+              <a href="PLANTILLA_MAESTRA_HABITANTES_Y_TASAS_V39.xlsx" download class="residents-template-download">
+                Descargar plantilla
+              </a>
+            </div>
 
-            <section class="residents-card">
-              <h6>Formato para tasas</h6>
-              <p>Columnas requeridas:</p>
-              <code>dni,concepto,periodo,importe,vencimiento,estado</code>
-              <p class="residents-import-example">Ejemplo:<br>12345678,Agua,Julio 2026,25000,2026-07-31,Pendiente</p>
-              <input type="file" id="import-debts-file" accept=".csv,text/csv">
-              <button type="button" class="residents-primary-button" id="import-debts-button">Importar tasas</button>
-              <p class="residents-message" id="import-debts-message"></p>
-            </section>
+            <label class="residents-file-drop" for="import-master-file">
+              <strong>Elegir archivo Excel</strong>
+              <span>Formatos aceptados: .xlsx y .xls</span>
+              <input type="file" id="import-master-file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+            </label>
+
+            <div id="import-master-preview" class="residents-import-preview">
+              <p>Todavía no seleccionaste ningún archivo.</p>
+            </div>
+
+            <button type="button" class="residents-primary-button" id="import-master-button" disabled>
+              Importar todo
+            </button>
+            <p class="residents-message" id="import-master-message"></p>
           </div>
 
           <div class="residents-card residents-import-note">
-            <strong>Importación masiva</strong>
-            <p>Podés preparar el archivo en Excel, elegir “Guardar como CSV UTF-8” y cargarlo acá. El sistema valida fila por fila y evita que tengas que escribir todo manualmente.</p>
+            <strong>Cómo se organiza</strong>
+            <p>Cada fila representa una persona. Los importes mayores a cero se convierten en tasas dentro de su cuenta. Si el DNI ya existe, se actualizan el nombre, el código y el acceso.</p>
           </div>`;
 
-        const parseCsv = text => {
-          const lines = text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(line => line.trim());
-          if (lines.length < 2) return [];
-          const separator = lines[0].includes(';') ? ';' : ',';
-          const headers = lines[0].split(separator).map(value => value.trim().toLowerCase());
+        const fileInput = $('#import-master-file');
+        const importButton = $('#import-master-button');
+        const preview = $('#import-master-preview');
+        const message = $('#import-master-message');
+        let parsedPeople = [];
+        let parsedDebts = [];
 
-          return lines.slice(1).map(line => {
-            const values = line.split(separator).map(value => value.trim());
-            return Object.fromEntries(headers.map((header,index) => [header, values[index] ?? '']));
-          });
+        const normalizeHeader = value => String(value || '')
+          .trim()
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g,'')
+          .replace(/\s+/g,'_');
+
+        const normalizeDate = value => {
+          if (!value) return '';
+          if (value instanceof Date && !Number.isNaN(value.getTime())) {
+            return value.toISOString().slice(0,10);
+          }
+          if (typeof value === 'number' && window.XLSX?.SSF) {
+            const parsed = XLSX.SSF.parse_date_code(value);
+            if (parsed) {
+              return `${parsed.y}-${String(parsed.m).padStart(2,'0')}-${String(parsed.d).padStart(2,'0')}`;
+            }
+          }
+          const text = String(value).trim();
+          if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+          const parts = text.split(/[\/\-]/);
+          if (parts.length === 3 && parts[2].length === 4) {
+            return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+          }
+          return text;
         };
 
-        $('#import-people-button').addEventListener('click', async () => {
-          const file = $('#import-people-file').files[0];
-          const message = $('#import-people-message');
-          if (!file) return showMessage(message,'Elegí un archivo CSV.','error');
+        const isTrue = value => ['true','verdadero','1','si','sí','activo'].includes(
+          String(value ?? 'true').trim().toLowerCase()
+        );
 
-          const rows = parseCsv(await file.text());
-          showMessage(message,`Importando ${rows.length} personas…`);
+        const debtDefinitions = [
+          {prefix:'agua', concepto:'Agua'},
+          {prefix:'luz', concepto:'Luz'},
+          {prefix:'tasa_comunal', concepto:'Tasa comunal'},
+          {prefix:'tasa_hectarea', concepto:'Tasa por hectárea'},
+          {prefix:'tasa_inmobiliaria', concepto:'Tasa inmobiliaria'}
+        ];
+
+        const parseWorkbook = async file => {
+          if (!window.XLSX) {
+            throw new Error('No se pudo cargar el lector de Excel. Revisá la conexión a internet.');
+          }
+
+          const buffer = await file.arrayBuffer();
+          const workbook = XLSX.read(buffer, {type:'array', cellDates:true});
+          const sheetName = workbook.SheetNames.includes('Carga masiva')
+            ? 'Carga masiva'
+            : workbook.SheetNames[0];
+
+          const worksheet = workbook.Sheets[sheetName];
+          const raw = XLSX.utils.sheet_to_json(worksheet, {
+            defval:'',
+            raw:true
+          });
+
+          const rows = raw.map(row => Object.fromEntries(
+            Object.entries(row).map(([key,value]) => [normalizeHeader(key),value])
+          ));
+
+          const people = [];
+          const debts = [];
+          const errors = [];
+
+          rows.forEach((row,index) => {
+            const excelRow = index + 2;
+            const dni = String(row.dni || '').replace(/\D/g,'');
+            const nombre = String(row.nombre || '').trim();
+            const codigo = String(row.codigo || '').trim();
+
+            if (!nombre && !dni && !codigo) return;
+
+            if (nombre.length < 3 || dni.length < 7 || codigo.length < 6) {
+              errors.push(`Fila ${excelRow}: revisá nombre, DNI y código.`);
+              return;
+            }
+
+            people.push({
+              nombre,
+              dni,
+              codigo,
+              activo:isTrue(row.activo)
+            });
+
+            debtDefinitions.forEach(definition => {
+              const importe = Number(
+                String(row[`${definition.prefix}_importe`] || 0)
+                  .replace(/\./g,'')
+                  .replace(',','.')
+              );
+
+              if (!Number.isFinite(importe) || importe <= 0) return;
+
+              debts.push({
+                dni,
+                concepto:definition.concepto,
+                periodo:String(row[`${definition.prefix}_periodo`] || 'Sin período').trim(),
+                importe,
+                vencimiento:normalizeDate(row[`${definition.prefix}_vencimiento`]),
+                estado:String(row[`${definition.prefix}_estado`] || 'Pendiente').trim() || 'Pendiente'
+              });
+            });
+          });
+
+          return {people,debts,errors,totalRows:rows.length};
+        };
+
+        fileInput.addEventListener('change', async () => {
+          const file = fileInput.files[0];
+          parsedPeople = [];
+          parsedDebts = [];
+          importButton.disabled = true;
+
+          if (!file) {
+            preview.innerHTML = '<p>Todavía no seleccionaste ningún archivo.</p>';
+            return;
+          }
+
+          preview.innerHTML = '<p>Leyendo el archivo…</p>';
 
           try {
-            const result = await request('/rest/v1/rpc/admin_importar_contribuyentes_beta', {
-              method:'POST',
-              headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({p_filas:rows})
-            }, true);
+            const result = await parseWorkbook(file);
+            parsedPeople = result.people;
+            parsedDebts = result.debts;
 
-            showMessage(message,`Importación terminada: ${result?.creados || 0} creados, ${result?.actualizados || 0} actualizados y ${result?.errores || 0} errores.`);
+            preview.innerHTML = `
+              <div class="resident-import-summary">
+                <article><span>Personas válidas</span><strong>${parsedPeople.length}</strong></article>
+                <article><span>Tasas detectadas</span><strong>${parsedDebts.length}</strong></article>
+                <article><span>Filas con error</span><strong>${result.errors.length}</strong></article>
+              </div>
+              ${result.errors.length ? `
+                <details class="resident-import-errors">
+                  <summary>Ver errores</summary>
+                  <ul>${result.errors.slice(0,30).map(error => `<li>${escapeHTML(error)}</li>`).join('')}</ul>
+                </details>` : '<p class="resident-import-ready">Archivo listo para importar.</p>'}
+            `;
+
+            importButton.disabled = parsedPeople.length === 0;
           } catch (error) {
-            showMessage(message,error.message,'error');
+            preview.innerHTML = `<p class="resident-import-error">${escapeHTML(error.message)}</p>`;
           }
         });
 
-        $('#import-debts-button').addEventListener('click', async () => {
-          const file = $('#import-debts-file').files[0];
-          const message = $('#import-debts-message');
-          if (!file) return showMessage(message,'Elegí un archivo CSV.','error');
+        importButton.addEventListener('click', async () => {
+          if (!parsedPeople.length) return;
 
-          const rows = parseCsv(await file.text());
-          showMessage(message,`Importando ${rows.length} tasas…`);
+          importButton.disabled = true;
+          showMessage(message,`Importando ${parsedPeople.length} personas y ${parsedDebts.length} tasas…`);
 
           try {
-            const result = await request('/rest/v1/rpc/admin_importar_obligaciones_beta', {
+            const peopleResult = await request('/rest/v1/rpc/admin_importar_contribuyentes_beta', {
               method:'POST',
               headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({p_filas:rows})
+              body:JSON.stringify({p_filas:parsedPeople})
             }, true);
 
-            showMessage(message,`Importación terminada: ${result?.creados || 0} tasas creadas y ${result?.errores || 0} errores.`);
+            const debtResult = parsedDebts.length
+              ? await request('/rest/v1/rpc/admin_importar_obligaciones_beta', {
+                  method:'POST',
+                  headers:{'Content-Type':'application/json'},
+                  body:JSON.stringify({p_filas:parsedDebts})
+                }, true)
+              : {creados:0,errores:0};
+
+            showMessage(
+              message,
+              `Listo: ${peopleResult?.creados || 0} personas creadas, ` +
+              `${peopleResult?.actualizados || 0} actualizadas, ` +
+              `${debtResult?.creados || 0} tasas cargadas y ` +
+              `${(peopleResult?.errores || 0) + (debtResult?.errores || 0)} errores.`
+            );
           } catch (error) {
             showMessage(message,error.message,'error');
+          } finally {
+            importButton.disabled = false;
           }
         });
       };

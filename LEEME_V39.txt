@@ -1,0 +1,18 @@
+V39 — IMPORTACIÓN EXCEL MAESTRA
+
+Ahora se usa un solo Excel:
+- Una fila por persona.
+- Nombre, DNI, código y acceso.
+- Agua, luz, tasa comunal, tasa por hectárea y tasa inmobiliaria.
+- El sistema crea/actualiza personas y carga todas las tasas automáticamente.
+- Muestra una vista previa antes de importar.
+- La plantilla se puede descargar desde la propia administración.
+
+Reemplazar en GitHub:
+- index.html
+- styles.css
+- script.js
+- PLANTILLA_MAESTRA_HABITANTES_Y_TASAS_V39.xlsx
+
+No requiere SQL nuevo si ya ejecutaste V31 y V32.
+La lectura de Excel usa SheetJS desde CDN, por lo que la página necesita conexión a internet.
