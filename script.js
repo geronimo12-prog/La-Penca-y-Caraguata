@@ -1179,20 +1179,39 @@ window.addEventListener('keydown', e => {
   }
 
   async function invokeEdgeFunction(name, body) {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
-      method:'POST',
-      headers:{
-        apikey:SUPABASE_KEY,
-        Authorization:`Bearer ${SUPABASE_KEY}`,
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify(body)
-    });
+    let response;
+
+    try {
+      response = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+        method:'POST',
+        headers:{
+          apikey:SUPABASE_KEY,
+          Authorization:`Bearer ${SUPABASE_KEY}`,
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify(body)
+      });
+    } catch {
+      throw new Error(
+        'Mercado Pago todavía no está conectado en el servidor. ' +
+        'La función privada de cobro no está desplegada o no responde.'
+      );
+    }
 
     const data = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      throw new Error(data?.error || data?.message || 'No se pudo iniciar el pago.');
+      if (response.status === 404) {
+        throw new Error('La función de Mercado Pago todavía no fue desplegada en Supabase.');
+      }
+
+      throw new Error(
+        data?.error ||
+        data?.message ||
+        'No se pudo iniciar el pago con Mercado Pago.'
+      );
     }
+
     return data;
   }
 

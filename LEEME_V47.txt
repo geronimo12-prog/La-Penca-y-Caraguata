@@ -1,0 +1,16 @@
+V47 — LISTA PARA DESPLEGAR
+
+Incluye:
+- Botón Mercado Pago corregido para celular.
+- Botones de pago uno debajo del otro en pantallas pequeñas.
+- Mensajes claros cuando la Edge Function no está desplegada.
+- Mantiene las dos Edge Functions de Mercado Pago.
+- Mantiene conciliación bancaria.
+
+Para que Mercado Pago funcione de verdad todavía es obligatorio:
+- desplegar mercadopago-crear-preferencia;
+- desplegar mercadopago-webhook;
+- configurar MP_ACCESS_TOKEN;
+- configurar MP_WEBHOOK_SECRET.
+
+Esas acciones requieren acceso al proyecto Supabase y credenciales privadas.
