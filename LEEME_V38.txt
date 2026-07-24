@@ -1,0 +1,21 @@
+V38 — CORRECCIÓN DEFINITIVA DE TRÁMITES
+
+Problema encontrado:
+Al cerrar la ventana con una sesión todavía guardada, el sistema reconstruía la cuenta,
+pero no volvía a abrir el diálogo. Por eso Ver trámites y la tarjeta parecían no funcionar.
+
+Corregido:
+- La X limpia la sesión pública.
+- Cerrar sesión limpia todo y cierra correctamente.
+- Ver trámites siempre abre el diálogo.
+- La tarjeta Consultar mis tasas siempre abre el diálogo.
+- Renderizar cuenta o pago también fuerza la apertura.
+- Administración tiene scrollbar visible.
+- Administración tiene botones flotantes para subir y bajar.
+
+Reemplazar obligatoriamente:
+- index.html
+- styles.css
+- script.js
+
+No requiere SQL nuevo.

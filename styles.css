@@ -4095,3 +4095,112 @@ dialog{
     width:100%!important;
   }
 }
+
+
+/* ==========================================================
+   V38 — Reapertura estable y desplazamiento administrativo
+   ========================================================== */
+
+/* El panel público siempre debe recibir clics al reabrirse */
+#portal-dialog[open]{
+  pointer-events:auto!important;
+}
+#portal-dialog[open]::backdrop{
+  pointer-events:auto!important;
+}
+#portal-dialog-content{
+  pointer-events:auto!important;
+}
+#portal-dialog button,
+#portal-dialog input,
+#portal-dialog select,
+#portal-dialog textarea{
+  pointer-events:auto!important;
+}
+
+/* Administración con scroll real */
+#portal-admin-dialog{
+  overflow:hidden!important;
+}
+#portal-admin-dialog .portal-admin-layout{
+  height:calc(90vh - 108px)!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+#portal-admin-dialog .portal-admin-layout main{
+  position:relative!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  scrollbar-gutter:stable!important;
+  scroll-behavior:smooth!important;
+  padding-bottom:110px!important;
+}
+#portal-admin-dialog .portal-admin-layout main::-webkit-scrollbar{
+  width:12px!important;
+}
+#portal-admin-dialog .portal-admin-layout main::-webkit-scrollbar-track{
+  background:#e8e2d7!important;
+}
+#portal-admin-dialog .portal-admin-layout main::-webkit-scrollbar-thumb{
+  background:#8796ad!important;
+  border:3px solid #e8e2d7!important;
+  border-radius:999px!important;
+}
+
+/* Botones flotantes subir/bajar */
+.portal-admin-scroll-controls{
+  position:absolute!important;
+  right:22px!important;
+  bottom:22px!important;
+  z-index:80!important;
+  display:grid!important;
+  gap:9px!important;
+}
+.portal-admin-scroll-controls button{
+  position:static!important;
+  display:grid!important;
+  place-items:center!important;
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  min-height:48px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:#15366c!important;
+  color:#fff!important;
+  font-size:22px!important;
+  font-weight:900!important;
+  box-shadow:0 12px 30px rgba(12,35,72,.28)!important;
+  cursor:pointer!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.portal-admin-scroll-controls button:hover{
+  transform:translateY(-2px)!important;
+}
+
+/* Evitar que los controles tapen botones del contenido */
+#portal-admin-dialog [data-portal-admin-panel]{
+  padding-bottom:40px!important;
+}
+
+@media(max-width:900px){
+  #portal-admin-dialog .portal-admin-layout{
+    height:calc(94vh - 96px)!important;
+  }
+  .portal-admin-scroll-controls{
+    right:12px!important;
+    bottom:12px!important;
+  }
+  .portal-admin-scroll-controls button{
+    width:44px!important;
+    height:44px!important;
+    min-width:44px!important;
+    min-height:44px!important;
+  }
+}

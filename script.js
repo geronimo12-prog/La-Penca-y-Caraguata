@@ -1527,10 +1527,14 @@ window.addEventListener('keydown', e => {
   $('.portal-dialog-close')?.addEventListener('click',()=>{
     clearTimeout(window.__citizenSessionTimer);
     clearInterval(window.__citizenCountdownInterval);
+    sessionStorage.removeItem('tramitesBetaSessionV31');
+    portalContent.innerHTML = '';
     portalDialog?.close();
   });
 
   async function openPublicModule(name){
+    openPortalDialogSafely();
+
     const definitions={
       agenda:{title:'Agenda comunal',table:'eventos',order:'fecha_inicio.asc',render:r=>`
         <article class="portal-public-card"><span>${formatDate(r.fecha_inicio)}</span><h4>${escapeHTML(r.titulo)}</h4><p>${escapeHTML(r.descripcion||'')}</p>${r.lugar?`<small>${escapeHTML(r.lugar)}</small>`:''}</article>`},
@@ -1724,6 +1728,8 @@ window.addEventListener('keydown', e => {
       };
 
       const renderAccount = session => {
+        openPortalDialogSafely();
+
         const account = session.cuenta || {};
         const debts = Array.isArray(account.obligaciones) ? account.obligaciones : [];
         const config = account.pagos || {};
@@ -1857,12 +1863,8 @@ window.addEventListener('keydown', e => {
           clearTimeout(window.__citizenSessionTimer);
           clearInterval(window.__citizenCountdownInterval);
           clearCitizenSession();
-
           portalContent.innerHTML = '';
-          renderLogin();
-
-          const dniInput = $('#citizen-access-form input[name="dni"]');
-          setTimeout(() => dniInput?.focus(), 30);
+          portalDialog?.close();
         });
 
         $$('[data-copy]', portalContent).forEach(button => button.addEventListener('click', async () => {
@@ -1881,15 +1883,16 @@ window.addEventListener('keydown', e => {
         clearTimeout(window.__citizenSessionTimer);
         window.__citizenSessionTimer = setTimeout(() => {
           clearCitizenSession();
-          if (portalDialog.open) {
-            renderLogin();
-            const msg = $('[data-citizen-message]');
-            if (msg) msg.textContent = 'La sesión se cerró automáticamente por seguridad.';
-          }
+          portalContent.innerHTML = '';
+          renderLogin();
+          const msg = $('[data-citizen-message]');
+          if (msg) msg.textContent = 'La sesión se cerró automáticamente por seguridad.';
         }, Math.max(1000, session.expiresAt - Date.now()));
       };
 
       const renderPaymentForm = (session, debt) => {
+        openPortalDialogSafely();
+
         const account = session.cuenta || {};
         const config = account.pagos || {};
         portalContent.innerHTML=`
@@ -2088,11 +2091,14 @@ window.addEventListener('keydown', e => {
     });
 
     loadAdminPanel('residents');
+    setTimeout(() => getAdminScrollContainer()?.scrollTo({top:0}), 30);
   });
 
   $('#portal-admin-open')?.addEventListener('click',()=>{
     if(!token()){alert('Primero iniciá sesión.');return}
-    adminDialog.showModal(); loadAdminPanel('alerts');
+    adminDialog.showModal();
+    loadAdminPanel('alerts');
+    setTimeout(() => getAdminScrollContainer()?.scrollTo({top:0}), 30);
   });
   $('.portal-admin-close')?.addEventListener('click',()=>adminDialog.close());
   const keepResidentsTabVisible = () => {
@@ -2106,6 +2112,28 @@ window.addEventListener('keydown', e => {
 
   keepResidentsTabVisible();
   window.addEventListener('resize', keepResidentsTabVisible);
+
+
+  const getAdminScrollContainer = () =>
+    $('#portal-admin-dialog .portal-admin-layout main') ||
+    $('#portal-admin-dialog');
+
+  $('#portal-admin-scroll-up')?.addEventListener('click', () => {
+    getAdminScrollContainer()?.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+
+  $('#portal-admin-scroll-down')?.addEventListener('click', () => {
+    const container = getAdminScrollContainer();
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth'
+    });
+  });
 
   $$('[data-portal-admin-tab]').forEach(btn=>btn.addEventListener('click',()=>{
     $$('[data-portal-admin-tab]').forEach(b=>b.classList.toggle('active',b===btn));
